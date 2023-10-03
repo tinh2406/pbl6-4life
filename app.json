@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "pbl6-4life",
+    "slug": "pbl6-4life",
+    "scheme": "acme",
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#FF385C"
+      },
+      "package": "com.tinh2406.pbl64life"
+    },
+    "ios": {
+      "supportsTablet": false
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router"
+    ],
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "9ed5f16a-b9d1-4591-bd3a-3c04ca451379"
+      }
+    }
+  }
+}
