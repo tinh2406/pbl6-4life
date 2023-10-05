@@ -1,8 +1,11 @@
 import { Entypo, Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+
+import { DatePickerModal } from 'react-native-paper-dates';
+import { format } from "date-fns";
 
 
 export default ({ visible, hidden, onConfirm }) => {
@@ -16,7 +19,7 @@ export default ({ visible, hidden, onConfirm }) => {
     const [number, setNumber] = useState()
     const heightAnim = useSharedValue(0)
     const style = useAnimatedStyle(() => ({
-        height: withTiming(heightAnim.value, { duration: 500, easing: Easing.bezier(0.5, 0.01, 0, 1) })
+        height: withTiming(heightAnim.value, { duration: 200, easing: Easing.bezier(0.5, 0.01, 0, 1) })
     }))
     useEffect(() => {
         heightAnim.value = visible ? 530 : 200
@@ -25,12 +28,37 @@ export default ({ visible, hidden, onConfirm }) => {
         heightAnim.value = 0
         setTimeout(hidden, 10)
     }
+
+    const [checkInOpen, setCheckInOpen] = React.useState(false);
+    const onDismissCheckIn = React.useCallback(() => {
+        setCheckInOpen(false);
+    }, [setCheckInOpen]);
+    const onConfirmCheckIn = React.useCallback(
+        (params) => {
+            setCheckInOpen(false);
+            setTimeCheckIn(params.date);
+        },
+        [setCheckInOpen, setTimeCheckIn]
+    );
+    const [checkOutOpen, setCheckOutOpen] = React.useState(false);
+    const onDismissCheckOut = React.useCallback(() => {
+        setCheckOutOpen(false);
+    }, [setCheckOutOpen]);
+    const onConfirmCheckOut = React.useCallback(
+        (params) => {
+            setCheckOutOpen(false);
+            setTimeCheckOut(params.date);
+        },
+        [setCheckOutOpen, setTimeCheckOut]
+    );
+
     return (
         <Modal
             visible={visible}
             transparent
             animationType="fade"
         >
+
             <View style={{
                 backgroundColor: "rgba(0, 0, 0, 0.1)",
                 width: "100%",
@@ -168,7 +196,9 @@ export default ({ visible, hidden, onConfirm }) => {
                             }}>
                                 <Entypo name="block" size={24} color="black"
                                     style={{
-                                        padding: 7,
+                                        height: 40,
+                                        width:40,
+                                        lineHeight:38,
                                         borderRadius: 30,
                                         borderWidth: 2,
                                         borderColor: timeCheckIn ? "black" : "#ff385c",
@@ -182,13 +212,15 @@ export default ({ visible, hidden, onConfirm }) => {
                                 <Pressable
                                     style={{
                                         borderWidth: 1,
-                                        borderRadius: 10,
+                                        borderRadius: 30,
                                         padding: 12,
-                                        borderColor: timeCheckIn ? "#FF385C" : "black",
+                                        borderColor: timeCheckIn ? "#ff385c" : "black",
                                         backgroundColor: "white",
-                                        width: "60%",
+                                        height: 40,
+                                        minWidth: 40,
                                         justifyContent: "space-between",
                                     }}
+                                    onPress={() => { setCheckInOpen(true); }}
                                 ><Text
                                     style={{
                                         textAlign: "center",
@@ -196,7 +228,15 @@ export default ({ visible, hidden, onConfirm }) => {
                                         fontWeight: "600",
                                         fontSize: 14
                                     }}
-                                >10/02/2023</Text></Pressable>
+                                >{timeCheckIn?format(timeCheckIn, 'dd/MM/yyyy'):"Select date"}</Text></Pressable>
+                                <DatePickerModal
+                                    locale="en"
+                                    mode="single"
+                                    visible={checkInOpen}
+                                    onDismiss={onDismissCheckIn}
+                                    date={timeCheckIn||new Date()}
+                                    onConfirm={onConfirmCheckIn}
+                                />
                             </View>
                         </View>
                         <View style={{
@@ -222,7 +262,9 @@ export default ({ visible, hidden, onConfirm }) => {
                             }}>
                                 <Entypo name="block" size={24} color="black"
                                     style={{
-                                        padding: 7,
+                                        height: 40,
+                                        width:40,
+                                        lineHeight:38,
                                         borderRadius: 30,
                                         borderWidth: 2,
                                         borderColor: timeCheckOut ? "black" : "#ff385c",
@@ -231,17 +273,20 @@ export default ({ visible, hidden, onConfirm }) => {
                                         textAlign: "center",
                                         textAlignVertical: "center",
                                     }}
+                                    onPress={()=>setTimeCheckOut()}
                                 />
                                 <Pressable
                                     style={{
                                         borderWidth: 1,
-                                        borderRadius: 10,
+                                        borderRadius: 30,
                                         padding: 12,
                                         borderColor: timeCheckOut ? "#ff385c" : "black",
                                         backgroundColor: "white",
-                                        width: "60%",
+                                        height: 40,
+                                        minWidth: 40,
                                         justifyContent: "space-between",
                                     }}
+                                    onPress={()=>{setCheckOutOpen(true)}}
                                 ><Text
                                     style={{
                                         textAlign: "center",
@@ -249,7 +294,15 @@ export default ({ visible, hidden, onConfirm }) => {
                                         fontWeight: "600",
                                         fontSize: 14
                                     }}
-                                >10/02/2023</Text></Pressable>
+                                >{timeCheckOut?format(timeCheckOut, 'dd/MM/yyyy'):"Select date"}</Text></Pressable>
+                                 <DatePickerModal
+                                    locale="en"
+                                    mode="single"
+                                    visible={checkOutOpen}
+                                    onDismiss={onDismissCheckOut}
+                                    date={timeCheckOut||new Date()}
+                                    onConfirm={onConfirmCheckOut}
+                                />
                             </View>
                         </View>
                         <View style={{

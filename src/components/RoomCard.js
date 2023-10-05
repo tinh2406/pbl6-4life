@@ -1,5 +1,5 @@
 import { AntDesign, Ionicons, Octicons } from "@expo/vector-icons"
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { Image, Text, View, useWindowDimensions } from "react-native"
 import { Swipeable } from "react-native-gesture-handler";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
@@ -7,7 +7,7 @@ export const config = {
     duration: 200,
     easing: Easing.bezier(0.5, 0.01, 0, 1),
 };
-export default ({ isLiked }) => {
+const RoomCard = ({ isLiked }) => {
     const width = useWindowDimensions().width
     const left = useSharedValue(0)
     const style = useAnimatedStyle(() => (
@@ -21,11 +21,12 @@ export default ({ isLiked }) => {
         "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/e7e7925f-e9fd-4538-bf7f-ac5ca9d101c7.png?alt=media&token=efeb2f29-1289-469d-8f11-65d0c4fd5b37&_gl=1*1q81hp6*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjEuMTY5NjIzMTY3Ny4yMy4wLjA.",
     ]
     return (
-        <View style={{
-            width: width >= 768 ? "19.8%" : "100%",
-            aspectRatio:width >= 768 ?  1 / 1.418 : 1 / 1.1,
+        <View
+        style={{
+            width: width >=1200 ? "19.8%" : width >= 892? "24.9%" : width>=640? "33%" : "100%",
+            aspectRatio:width >= 640 ?  1 / 1.418 : 1 / 1.15,
             backgroundColor: "white",
-            margin: width>=768?2:0, 
+            margin: width>=640?2:0, 
             padding: 10,
             borderRadius: 20,
             alignItems: "center",
@@ -125,17 +126,17 @@ export default ({ isLiked }) => {
                         {imgs.map((img, i) =>
                             <Image
                                 key={i}
-                                source={{ uri: img }}
+                                source={{ uri: img,cache: 'force-cache'}}
                                 style={{
                                     width: "100%", aspectRatio: 1.314,
                                 }}
-                                la
                             />)}
                     </Animated.View>
                 </Swipeable>
             </View>
             <View style={{
-                height: "50%"
+                height: "50%",
+                width: "100%",
             }}
             >
                 <View style={{
@@ -149,7 +150,7 @@ export default ({ isLiked }) => {
                         fontWeight: "bold",
                         fontSize: 20,
                         color: "black",
-                        width: width > 768 ? "67%" : "80%",
+                        width: width > 640 ? "67%" : "80%",
 
                     }}
                         numberOfLines={2}
@@ -159,7 +160,7 @@ export default ({ isLiked }) => {
                     <Text style={{
                         fontSize: 11,
                         color: "black",
-                        width: width > 768 ? "33%" : "20%"
+                        width: width > 640 ? "33%" : "20%"
                     }}>
                         Available: Yes
                     </Text>
@@ -200,3 +201,7 @@ export default ({ isLiked }) => {
         </View>
     )
 }
+
+
+
+export default memo(RoomCard)

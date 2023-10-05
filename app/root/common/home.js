@@ -1,14 +1,12 @@
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { Pressable, Text, View, useWindowDimensions } from "react-native";
-import { FlatList, ScrollView } from "react-native-gesture-handler";
-import RoomCard from "../../../src/components/RoomCard";
-import TabBar from "../../../src/components/TabBar";
-import ModalFilter from "../../../src/components/ModalFilter";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useState } from "react";
-import WhereTo from "../../../src/components/WhereTo";
-import WebHeader from "../../../src/components/WebHeader";
+import { Pressable, View, useWindowDimensions } from "react-native";
+import ModalFilter from "../../../src/components/ModalFilter";
+import TabBar from "../../../src/components/TabBar";
 import WebFilter from "../../../src/components/WebFilter";
-
+import WebHeader from "../../../src/components/WebHeader";
+import WhereTo from "../../../src/components/WhereTo";
+import FlatListAutoLoad from "../../../src/components/FlatListAutoLoad";
 export default () => {
     const width = useWindowDimensions().width
     const [filterShow, setFilterShow] = useState(false);
@@ -17,6 +15,7 @@ export default () => {
     const [searchShow, setSearchShow] = useState(false);
     const [searchState, setSearchState] = useState();
     console.log(filterState, searchState);
+
 
     return (
         <View
@@ -86,25 +85,12 @@ export default () => {
                     }
 
                 </View>
-                <FlatList
-                    showsHorizontalScrollIndicator={false}
-                    bounces={false}
-                    alwaysBounceHorizontal={false}
-                    alwaysBounceVertical={false}
-                    showsVerticalScrollIndicator={false}
-                    style={{
-                        width: "100%",
-                        paddingHorizontal: width >= 768 ? 20 : 0
-                    }}
-                    data={[1, 2, 3, 4, 5, 6, 7, 8, 9]}
-                    renderItem={({ item }) => (
-                        <RoomCard />
-                    )}
-                    //Setting the number of column
-                    numColumns={width >= 768 ? 5 : 1}
-                    keyExtractor={(item, index) => index}
+                <FlatListAutoLoad
+                    paramsLoad={{}}
                 />
+
             </View>
+
             {width >= 768 ||
                 <TabBar currentScreen={"home"} />
             }

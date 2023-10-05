@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
     })
     const [loading, setIsLoading] = useState(true)
     const [authState, setAuthState] = useState({ token: null, authenticated: null })
-    const [user, setUser] = useState({})
+    const [user, setUser] = useState()
     const [keepSignIn, setKeepSignIn] = useState(true)
     useEffect(() => {
         refresh()
