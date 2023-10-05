@@ -289,7 +289,7 @@ export default () => {
                         <View
                             style={{
                                 padding: 12,
-                                backgroundColor: '#FF385C',
+                                backgroundColor: (email === "" || password === "")?"#929292":'#FF385C',
                                 borderRadius: 50,
                                 justifyContent: "center",
                                 alignItems: "center"

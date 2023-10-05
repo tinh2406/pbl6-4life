@@ -1,7 +1,7 @@
 import { AntDesign, Feather, FontAwesome, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
 import { Link, router, useNavigation, useRouter } from "expo-router"
 import { useState } from "react"
-import { Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View, useWindowDimensions } from "react-native"
+import { ActivityIndicator, Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View, useWindowDimensions } from "react-native"
 import { useAuth } from "../../../src/context/AuthContext"
 import validateEmail from "../../../src/utils/validateEmail"
 import { useToast } from "react-native-toast-notifications"
@@ -359,17 +359,19 @@ export default () => {
                         <View
                             style={{
                                 padding: 12,
-                                backgroundColor: '#FF385C',
+                                backgroundColor:(email === "" || username==="" || password === "" || rePassword !== password)?"#929292":'#FF385C',
                                 borderRadius: 50,
                                 justifyContent: "center",
                                 alignItems: "center"
                             }}
-                        ><Text
+                        >
+                            {loading?<ActivityIndicator size={32} color={"white"}/>:<Text
                             style={{
                                 fontSize: 24,
                                 color: "white",
                             }}
-                        >Sign up</Text></View>
+                        >Sign up</Text>
+                    }</View>
                     </Pressable>
                 </KeyboardAvoidingView >
                 <View style={{
@@ -424,7 +426,7 @@ export default () => {
                     </Pressable>
                 </View>
             </View>
-            {loading && <Loading/>}
+            {/* {loading && <Loading/>} */}
         </View>
     )
 }
