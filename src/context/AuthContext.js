@@ -1,10 +1,10 @@
-import { createContext, useContext, useEffect, useState } from "react"
-import axios from "axios"
-import * as SecureStore from "expo-secure-store"
-import { Platform } from "react-native"
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from "axios";
 import * as Google from "expo-auth-session/providers/google";
+import * as SecureStore from "expo-secure-store";
 import * as WebBrowser from "expo-web-browser";
+import { createContext, useContext, useEffect, useState } from "react";
+import { Platform } from "react-native";
 WebBrowser.maybeCompleteAuthSession();
 
 const TOKEN_KEY = 'my_jwt'
@@ -27,6 +27,7 @@ const instance = axios.create({
 
 
 export const AuthProvider = ({ children }) => {
+    console.log("Auth provider reload");
     const [request, response, promptAsync] = Google.useAuthRequest({
         clientId: "972004153950-thdv01tk63uqtqqvffqei3qsbn0e18ci.apps.googleusercontent.com",
         iosClientId: "972004153950-mqse1tpvr0jao50reufk5jriogpsl2ja.apps.googleusercontent.com",
@@ -44,7 +45,7 @@ export const AuthProvider = ({ children }) => {
         const getUser = async () => {
             if (response?.type == "success") {
                 try {
-                    const res = await instance.post('/api/auth/google-login', {
+                    const res = await instance.post('/api/auths/google-login', {
                         accessToken: response.authentication.accessToken
                     })
                     console.log(res);
@@ -75,11 +76,10 @@ export const AuthProvider = ({ children }) => {
             return { success: true }
         }
         try {
-            const res = await instance.post(`/auth/forget-password`, { email })
-            return res.data
+            const res = await instance.post(`/api/auths/forgot-password`, { email })
+            return { success: true, code: res.status }
         } catch (e) {
-            console.log(Object.keys(e))
-            return { error: true, msg: e.response?.data.message || e.message }
+            return { error: true, message: e.response?.data?.title }
         }
     }
     const login = async (email, password, keepSignIn) => {
@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }) => {
             return { success: true }
         }
         try {
-            const res = await instance.post(`/api/auth/login`, { email, password })
+            const res = await instance.post(`/api/auths/login`, { email, password })
             setAuthState({
                 token: res.data.token,
                 authenticated: true
@@ -113,22 +113,10 @@ export const AuthProvider = ({ children }) => {
             return { success: true }
         }
         try {
-            const res = await instance.post(`api/auth/register`, { email, name, password })
+            const res = await instance.post(`api/auths/register`, { email, name, password })
             return { success: true, user: res.data }
         } catch (e) {
             return { error: true, message: e.response?.data?.title }
-        }
-    }
-    const requestCode = async (email) => {
-        if (email === "admin") {
-            return { success: true }
-        }
-        try {
-            const res = await instance.post(`/auth/reSendCode`, { email })
-            return res.data
-        } catch (e) {
-            console.log(Object.keys(e))
-            return { error: true, msg: e.response?.data.message || e.message }
         }
     }
     const verifyOTP = async (email, otp) => {
@@ -136,11 +124,12 @@ export const AuthProvider = ({ children }) => {
             return { success: true }
         }
         try {
-            const res = await instance.post(`/auth/verify_otp`, { email, otp })
-            return res.data
+            const res = await instance.post(`api/auths/verify-otp-forgot-password`, { email, otp })
+            console.log(res);
+            return { success: true }
         } catch (e) {
-            console.log(Object.keys(e))
-            return { error: true, msg: e.response?.data.message || e.message }
+            console.log(e)
+            return { error: true, message: e.response?.data?.title || e.message }
         }
     }
     const logout = async () => {
@@ -191,7 +180,18 @@ export const AuthProvider = ({ children }) => {
             return { error: true, msg: "No have token" }
         }
     }
-
+    const resetPassword = async (email, otp, newPassword) => {
+        try {
+            const res = await instance.post(`/api/auths/reset-password`, {
+                email, otp, newPassword, comfirmNewPassword: newPassword
+            })
+            console.log(res);
+            return { success: true, data: res.data }
+        } catch (e) {
+            console.log(e)
+            return { error: true, message: e.response?.data?.title }
+        }
+    }
     const loginWithGG = async (keepSignIn) => {
         promptAsync();
         setKeepSignIn(keepSignIn);
@@ -203,8 +203,8 @@ export const AuthProvider = ({ children }) => {
         onVerify: verifyOTP,
         onLogout: logout,
         onRefresh: refresh,
-        onRequestCode: requestCode,
         onGG: loginWithGG,
+        onReset: resetPassword,
         authState, loading, user
     }
 

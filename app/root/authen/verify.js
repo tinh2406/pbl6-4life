@@ -1,71 +1,65 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
 import { Redirect, router, useNavigation } from "expo-router"
 import { useState } from "react"
-import { Image, KeyboardAvoidingView, Platform, Pressable, Text, TextInput, View, useWindowDimensions } from "react-native"
-import { useAuth } from "../../../src/context/AuthContext"
+import { ActivityIndicator, KeyboardAvoidingView, Pressable, Text, TextInput, View, useWindowDimensions } from "react-native"
 import { useToast } from "react-native-toast-notifications"
+import { useAuth } from "../../../src/context/AuthContext"
 
 export default () => {
     const toast = useToast()
     const [otp, setOTP] = useState("0000")
+    const [loading, setLoading] = useState(false)
+    const [reSendLoading, setResendLoading] = useState(false)
     const navigation = useNavigation()
     const preScreen = navigation.getState().routes[0].name
     const width = useWindowDimensions().width
-    if(preScreen==="verify"){
+    if (preScreen === "verify") {
         return <Redirect href={"/root"} />
     }
     const email = navigation.getState().routes[1].params.email
-    const {onVerify,onRequestCode} = useAuth()
+    const { onVerify, onForgetPW } = useAuth()
     const handleSubmit = async () => {
-        if(!email || otp===""){
+        if (!email || otp === "") {
             return
         }
-        const res = await onVerify(email,otp)
-        if(res.success) {
-            if(preScreen==="login"){
+        setLoading(true)
+        const res = await onVerify(email, otp)
+        if (res.success) {
+            if (preScreen === "login") {
                 router.replace("/root/authen/reset-password")
-                router.setParams({email})
+                router.setParams({ email, otp })
             }
+        } else if (res.message) {
+            toast.show(res.message, {
+                type: 'danger',
+                placement: 'top',
+            })
         }
+        setLoading(false)
     }
-    const handleResendCode = async ()=>{
-        if(!email){
+    const handleResendCode = async () => {
+        if (!email) {
             return
         }
-        const res = await onRequestCode(email)
-        if(res.success) {
+        setResendLoading(true)
+        const res = await onForgetPW(email)
+        if (res.success) {
             toast.show("Sent code successfully");
         }
+        setResendLoading(false)
     }
     return (
+
         <View
             style={{
-                flexDirection:"row",
-                marginLeft: width >= 768 ? 20 : 0,
-                // alignItems:"center",
-        }}
-        >
-            { width >= 768
-            &&
-            <Image
-                source={{uri:"https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/anhnen.png?alt=media&token=c24d5b04-26a4-4b2c-b98b-06adbe16836f&_gl=1*qes2cq*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjE0NTkwMC4xLjEuMTY5NjE0NjE4OC4zNy4wLjA."}}
-                style={{
-                    width:"50%",
-                    aspectRatio:1,
-                    marginTop:25
-                }}
-            />
-            }
-        <View
-            style={{
-                width:width >= 768?"50%":"100%",
+                width: "100%",
                 alignItems: "center",
             }}
         >
             <KeyboardAvoidingView
                 behavior="position"
                 style={{
-                    width:width >= 1200?"80%":"100%"
+                    width: width >= 1200 ? "80%" : "100%"
                 }}
             >
                 <View
@@ -89,14 +83,14 @@ export default () => {
                         marginRight: 50
                     }}>
                         <Ionicons name="arrow-back" size={28} color="black"
-                            style={{padding:5,left:-5}}
-                            onPress={()=>router.back()}
+                            style={{ padding: 5, left: -5 }}
+                            onPress={() => router.back()}
                         />
                         <Text
                             style={{
                                 fontSize: 20,
-                                color:"#ff385c",
-                                fontWeight:"600"
+                                color: "#ff385c",
+                                fontWeight: "600"
                             }}
                         >
                             Confirm your account</Text>
@@ -133,59 +127,64 @@ export default () => {
                             onChangeText={(text) => setOTP(text)}
                         />
                         <MaterialCommunityIcons
-                                name="close" size={24} color="#FF385C"
-                                style={{
-                                    position: "absolute",
-                                    right: 10,
-                                    padding: 5,
-                                    display: otp === "" ? "none" : "flex"
-                                }}
-                                onPress={() => setOTP("")}
-                            />
+                            name="close" size={24} color="#FF385C"
+                            style={{
+                                position: "absolute",
+                                right: 10,
+                                padding: 5,
+                                display: otp === "" ? "none" : "flex"
+                            }}
+                            onPress={() => setOTP("")}
+                        />
                     </View>
                 </View>
-               
+
                 <Pressable
                     style={{
                         marginTop: 20,
                         marginHorizontal: 40,
-                        marginBottom:40
+                        marginBottom: 40
                     }}
                     onPress={handleSubmit}
+                    disabled={loading}
                 >
                     <View
                         style={{
                             padding: 12,
                             marginTop: 20,
-                            backgroundColor: '#FF385C',
+                            backgroundColor: (otp === "") ? "#929292" : '#FF385C',
                             borderRadius: 50,
                             justifyContent: "center",
                             alignItems: "center"
                         }}
-                    ><Text
-                        style={{
-                            fontSize: 24,
-                            color: "white",
-                        }}
-                    >Continue</Text></View>
+                    >
+                        {loading ? <ActivityIndicator size={30} color={"white"} /> :
+                            <Text
+                                style={{
+                                    fontSize: 24,
+                                    color: "white",
+                                }}
+                            >Continue</Text>
+                        }
+                    </View>
                 </Pressable>
             </KeyboardAvoidingView >
 
             <Pressable
-            onPress={handleResendCode}
+                onPress={handleResendCode}
                 style={{
                     marginTop: 20,
                     alignItems: "center",
                 }}
+                disabled={reSendLoading}
             >
                 <Text style={{
-                        fontWeight: "600",
-                        color: "#2c2c2c"                                                            
-                    }}>
-                        Send Code Again
-                    </Text>
+                    fontWeight: "600",
+                    color: reSendLoading ? "gray" : "#2c2c2c"
+                }}>
+                    Send Code Again
+                </Text>
             </Pressable>
-        </View>
         </View>
     )
 }
