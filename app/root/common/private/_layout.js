@@ -13,7 +13,7 @@ export default () => {
     const [modalVisible,setModalVisible] = useState(!authState.authenticated)
     useFocusEffect(useCallback(()=>{
         setModalVisible(!authState.authenticated)
-    },[]))
+    },[authState]))
     return (
         <>
             <ModalLogin

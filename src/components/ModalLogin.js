@@ -91,7 +91,8 @@ export default ({ visible, hidden, onConfirm }) => {
                                         width: "70%",
                                     }}
                                     onPress={() => {
-                                        router.replace("root/authen")
+                                        router.push("root/authen")
+                                        hidden();
                                     }}
                                 ><Text
                                     style={{

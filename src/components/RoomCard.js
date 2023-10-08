@@ -1,8 +1,9 @@
-import { AntDesign, Ionicons, Octicons } from "@expo/vector-icons"
-import { memo, useEffect, useRef, useState } from "react";
-import { Image, Text, View, useWindowDimensions } from "react-native"
+import { router } from "expo-router";
+import { memo, useState } from "react";
+import { Image, Pressable, Text, View, useWindowDimensions } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated'
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { AntDesign, Ionicons, Octicons } from "react-native-vector-icons";
 export const config = {
     duration: 200,
     easing: Easing.bezier(0.5, 0.01, 0, 1),
@@ -21,7 +22,7 @@ const RoomCard = ({ isLiked }) => {
         "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/e7e7925f-e9fd-4538-bf7f-ac5ca9d101c7.png?alt=media&token=efeb2f29-1289-469d-8f11-65d0c4fd5b37&_gl=1*1q81hp6*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjEuMTY5NjIzMTY3Ny4yMy4wLjA.",
     ]
     return (
-        <View
+        <Pressable
         style={{
             width: width >=1200 ? "19.8%" : width >= 892? "24.9%" : width>=640? "33%" : "100%",
             aspectRatio:width >= 640 ?  1 / 1.418 : 1 / 1.15,
@@ -32,7 +33,9 @@ const RoomCard = ({ isLiked }) => {
             alignItems: "center",
             justifyContent: "space-between",
             marginTop: 10,
-        }}>
+        }}
+        onPress={()=>router.push(`root/rooms/${"roomId"}`)}
+        >
             <View
                 onLayout={(event) => {
                     setImgWidth(event.nativeEvent.layout.width);
@@ -198,7 +201,7 @@ const RoomCard = ({ isLiked }) => {
                     </View>
                 </View>
             </View>
-        </View>
+        </Pressable>
     )
 }
 

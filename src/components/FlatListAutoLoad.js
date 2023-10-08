@@ -40,7 +40,7 @@ export default ({ paramsLoad }) => {
             showsVerticalScrollIndicator={false}
             style={{
                 width: "100%",
-                paddingHorizontal: 20
+                paddingHorizontal: width>=600?20:0
             }}
             data={posts}
             renderItem={({ item }) => (

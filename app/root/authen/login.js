@@ -1,4 +1,4 @@
-import { AntDesign, Feather, MaterialCommunityIcons } from "@expo/vector-icons"
+import { AntDesign, Feather, MaterialCommunityIcons } from "react-native-vector-icons"
 import { router, useNavigation } from "expo-router"
 import { useEffect, useState } from "react"
 import { Keyboard, KeyboardAvoidingView, Pressable, Text, TextInput, View, useWindowDimensions } from "react-native"
@@ -61,6 +61,9 @@ export default () => {
                 placement: "top",
             })
             setLoading(false);
+            if(router.canGoBack())
+            router.back()
+            else
             router.replace("/root/common")
         }
         else if (res.message) {

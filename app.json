@@ -5,9 +5,15 @@
     "scheme": "acme",
     "android": {
       "adaptiveIcon": {
+        "foregroundImage": "./src/assets/logo.png",
         "backgroundColor": "#FF385C"
       },
-      "package": "com.tinh2406.pbl64life"
+      "package": "com.tinh2406.pbl64life",
+      "config":{
+        "googleMap": {
+          "apiKey": "AIzaSyDi3Ex6q__zEQxqkNBB0A7xgOc7KKDIgk0"
+        }
+      }
     },
     "ios": {
       "supportsTablet": false

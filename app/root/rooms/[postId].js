@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { Image, Pressable, Text, View, useWindowDimensions } from "react-native"
 import { ScrollView, Swipeable } from "react-native-gesture-handler";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import ModalReserve from "../../../src/components/ModalReserve";
 
 
 const config = {
@@ -22,22 +23,23 @@ export default () => {
         "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/2ddd49a1-7f8d-4d1e-8fa3-5eb649a9c4ae.png?alt=media&token=88ea50a4-23e7-4f6a-9921-9f5001d474ab&_gl=1*16vwjtw*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjAuMTY5NjIzMTY0MC42MC4wLjA.",
         "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/e7e7925f-e9fd-4538-bf7f-ac5ca9d101c7.png?alt=media&token=efeb2f29-1289-469d-8f11-65d0c4fd5b37&_gl=1*1q81hp6*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjEuMTY5NjIzMTY3Ny4yMy4wLjA.",
     ]
+    const [modalBookShow,setModalBookShow] = useState(false)
     const [imgWidth, setImgWidth] = useState(0)
     const [currentImg, setCurrentImg] = useState(0)
     const left = useSharedValue(0)
     const style = useAnimatedStyle(() => (
         { left: withTiming(left.value, config) }
     ))
-    const handleLikePost = useCallback(()=>{
+    const handleLikePost = useCallback(() => {
         console.log("like post")
-    },[])
-    const handleShare = useCallback(()=>{
+    }, [])
+    const handleShare = useCallback(() => {
         console.log("share")
-    },[])
+    }, [])
     console.log(left.value);
     return (
         <View
-            style={{ height: '100%',backgroundColor:"white" }}
+            style={{ height: '100%', backgroundColor: "white" }}
         >
             <ScrollView
                 style={{
@@ -97,34 +99,36 @@ export default () => {
                         }}
                         onPress={handleShare}
                     />
-                    <View style={{
-                        position: "absolute",
-                        zIndex: 10,
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        width: "100%",
-                        height: "100%",
-                        flexDirection: "row",
-                    }}>
-                        <Ionicons name="chevron-back" size={24} style={{ padding: 5, backgroundColor: "rgba(0, 0, 0, 0.1)" }}
-                            color={currentImg === 0 ? "rgba(0, 0, 0, 0.1)" : "white"}
-                            onPress={() => {
-                                if (currentImg === 0) return
-                                setCurrentImg(i => i - 1)
-                                left.value = - (currentImg - 1) * imgWidth
-                            }}
-                            disabled={currentImg === 0}
-                        />
-                        <Ionicons name="chevron-forward" size={24} style={{ padding: 5, backgroundColor: "rgba(0, 0, 0, 0.1)" }}
-                            color={currentImg === imgs.length - 1 ? "rgba(0, 0, 0, 0.1)" : "white"}
-                            onPress={() => {
-                                if (currentImg === imgs.length - 1) return
-                                setCurrentImg(i => i + 1)
-                                left.value = - (currentImg + 1) * imgWidth
-                            }}
-                            disabled={currentImg === imgs.length - 1}
-                        />
-                    </View>
+                    {width >= 768 ||
+                        <View style={{
+                            position: "absolute",
+                            zIndex: 10,
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            width: "100%",
+                            height: "100%",
+                            flexDirection: "row",
+                        }}>
+                            <Ionicons name="chevron-back" size={24} style={{ padding: 5, backgroundColor: "rgba(0, 0, 0, 0.1)" }}
+                                color={currentImg === 0 ? "rgba(0, 0, 0, 0.1)" : "white"}
+                                onPress={() => {
+                                    if (currentImg === 0) return
+                                    setCurrentImg(i => i - 1)
+                                    left.value = - (currentImg - 1) * imgWidth
+                                }}
+                                disabled={currentImg === 0}
+                            />
+                            <Ionicons name="chevron-forward" size={24} style={{ padding: 5, backgroundColor: "rgba(0, 0, 0, 0.1)" }}
+                                color={currentImg === imgs.length - 1 ? "rgba(0, 0, 0, 0.1)" : "white"}
+                                onPress={() => {
+                                    if (currentImg === imgs.length - 1) return
+                                    setCurrentImg(i => i + 1)
+                                    left.value = - (currentImg + 1) * imgWidth
+                                }}
+                                disabled={currentImg === imgs.length - 1}
+                            />
+                        </View>
+                    }
                     {width >= 768 ?
                         <View style={{
                             flexDirection: "row",
@@ -460,7 +464,6 @@ export default () => {
                                 flexDirection: width >= 768 ? "row" : "column",
                                 alignItems: "center",
                                 justifyContent: "space-between",
-                                marginTop: 10
                             }}>
                                 <View style={{
                                     flexDirection: "row",
@@ -619,6 +622,11 @@ export default () => {
                     </View>
                 </ScrollView>
             </ScrollView>
+            <ModalReserve
+                visible={modalBookShow}
+                hidden={()=>{setModalBookShow(false);}}
+                onConfirm={()=>{}}
+            />
             {width >= 1000
                 ?
                 <View
@@ -774,6 +782,7 @@ export default () => {
                             borderRadius: 5,
                             backgroundColor: "#FF385C"
                         }}
+                        onPress={()=>{setModalBookShow(true)}}
                     >
                         <Text
                             style={{ color: "white", fontWeight: "600" }}

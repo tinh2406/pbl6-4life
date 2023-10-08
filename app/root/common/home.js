@@ -1,10 +1,10 @@
-import { MaterialIcons } from "@expo/vector-icons";
+// import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons } from "react-native-vector-icons";
 import { useState } from "react";
 import { Pressable, View, useWindowDimensions } from "react-native";
 import ModalFilter from "../../../src/components/ModalFilter";
 import TabBar from "../../../src/components/TabBar";
 import WebFilter from "../../../src/components/WebFilter";
-import WebHeader from "../../../src/components/WebHeader";
 import WhereTo from "../../../src/components/WhereTo";
 import FlatListAutoLoad from "../../../src/components/FlatListAutoLoad";
 export default () => {
@@ -30,10 +30,7 @@ export default () => {
 
                 >
                     {width >= 768 ?
-                        <View style={{}}>
-                            <WebHeader />
-                            <WebFilter />
-                        </View>
+                        <WebFilter />
                         :
                         <View style={{
                             flexDirection: "row",

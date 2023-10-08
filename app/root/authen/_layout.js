@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons"
+import { Ionicons } from "react-native-vector-icons"
 import { Redirect, Stack, router } from "expo-router"
 import { Image, View, useWindowDimensions } from "react-native"
 import { useAuth } from "../../../src/context/AuthContext"
@@ -18,7 +18,11 @@ export default () => {
             }}
         >
             <Ionicons name="close" size={32} color="#ff385c" style={{ position: "absolute", top: 40, left: 40, zIndex: 1 }}
-                onPress={() => { router.replace("/root/common") }}
+                onPress={() => {
+                    if (router.canGoBack())
+                        router.back()
+                    else router.replace("/root/common")
+                }}
             />
             {width >= 768
                 &&

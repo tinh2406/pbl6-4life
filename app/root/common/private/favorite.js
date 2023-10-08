@@ -1,7 +1,8 @@
-import { Pressable, Text, View, useWindowDimensions } from "react-native"
+import { FlatList, Pressable, Text, View, useWindowDimensions } from "react-native"
 import TabBar from "../../../../src/components/TabBar"
 import { useAuth } from "../../../../src/context/AuthContext"
 import { router } from "expo-router"
+import RoomCard from "../../../../src/components/RoomCard"
 
 export default () => {
     const { user } = useAuth()
@@ -69,7 +70,7 @@ export default () => {
                                         width: "70%",
                                     }}
                                     onPress={() => {
-                                        router.replace("root/authen")
+                                        router.push("root/authen")
                                     }}
                                 ><Text
                                     style={{

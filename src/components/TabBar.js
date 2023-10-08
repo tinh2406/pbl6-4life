@@ -1,7 +1,6 @@
-import { Ionicons } from "@expo/vector-icons"
-import { router, useNavigation } from "expo-router"
+import { useNavigation } from "expo-router"
 import { View } from "react-native"
-
+import Ionicons from "react-native-vector-icons/Ionicons"
 export default ({currentScreen})=>{
     const navigation = useNavigation()
     console.log(navigation.getState().routes);

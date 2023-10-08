@@ -183,7 +183,7 @@ export const AuthProvider = ({ children }) => {
     const resetPassword = async (email, otp, newPassword) => {
         try {
             const res = await instance.post(`/api/auths/reset-password`, {
-                email, otp, newPassword, comfirmNewPassword: newPassword
+                email, otp, newPassword, confirmNewPassword: newPassword
             })
             console.log(res);
             return { success: true, data: res.data }
