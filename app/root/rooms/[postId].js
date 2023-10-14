@@ -1,10 +1,12 @@
 import { AntDesign, Ionicons, MaterialIcons, Octicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router"
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Image, Pressable, Text, View, useWindowDimensions } from "react-native"
 import { ScrollView, Swipeable } from "react-native-gesture-handler";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import ModalReserve from "../../../src/components/ModalReserve";
+import MapView from "../../../src/components/MyMap";
+import { MarkerClusterer } from "@teovilla/react-native-web-maps";
 
 
 const config = {
@@ -23,7 +25,7 @@ export default () => {
         "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/2ddd49a1-7f8d-4d1e-8fa3-5eb649a9c4ae.png?alt=media&token=88ea50a4-23e7-4f6a-9921-9f5001d474ab&_gl=1*16vwjtw*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjAuMTY5NjIzMTY0MC42MC4wLjA.",
         "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/e7e7925f-e9fd-4538-bf7f-ac5ca9d101c7.png?alt=media&token=efeb2f29-1289-469d-8f11-65d0c4fd5b37&_gl=1*1q81hp6*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjEuMTY5NjIzMTY3Ny4yMy4wLjA.",
     ]
-    const [modalBookShow,setModalBookShow] = useState(false)
+    const [modalBookShow, setModalBookShow] = useState(false)
     const [imgWidth, setImgWidth] = useState(0)
     const [currentImg, setCurrentImg] = useState(0)
     const left = useSharedValue(0)
@@ -36,6 +38,13 @@ export default () => {
     const handleShare = useCallback(() => {
         console.log("share")
     }, [])
+    const loadingFallback = useMemo(() => {
+        return (
+            <View>
+                <Text>Loading</Text>
+            </View>
+        );
+    }, []);
     console.log(left.value);
     return (
         <View
@@ -303,19 +312,56 @@ export default () => {
                                 fontSize: 18,
                                 fontWeight: "500"
                             }}>Where you'll be</Text>
-                            <Text>Need map for it!!!!!!!!!!!!</Text>
+                            <View
+                                style={{
+                                    width: "100%",
+                                    marginTop:10,
+                                    aspectRatio: 1.618,
+                                    borderRadius: 10,
+                                    overflow: "hidden"
+                                }}
+                            >
+                                <MapView
+                                    // ref={mapRef}
+                                    provider="google"
+                                    style={{
+                                        flex: 1
+                                    }}
+                                    region={{
+                                        latitude: 37.78825,
+                                        longitude: -122.4324,
+                                        latitudeDelta: 0.015,
+                                        longitudeDelta: 0.0121,
+                                    }}
+                                    customMapStyle={[
+                                        {
+                                            "elementType": "labels.icon",
+                                            "stylers": [
+                                                {
+                                                    "visibility": "off"
+                                                }
+                                            ]
+                                        },
+                                    ]}
+                                    loadingFallback={loadingFallback}
+                                // googleMapsApiKey="AIzaSyDi3Ex6q__zEQxqkNBB0A7xgOc7KKDIgk0"
+                                >
+                                </MapView>
+                            </View>
                         </View>
                         <View style={{
                             marginHorizontal: 20,
                             borderTopWidth: 1,
                             borderColor: "#d5d5d5",
                         }}>
-                            <View style={{
+                            <Pressable style={{
                                 flexDirection: "row",
                                 alignItems: "center",
                                 justifyContent: "space-between",
                                 marginTop: 10
-                            }}>
+                            }}
+                                onPress={() => { router.push("/root/profile/user123") }}
+                            >
                                 <View style={{}}>
                                     <Text
                                         style={{
@@ -337,7 +383,7 @@ export default () => {
                                     }}
                                     style={{ width: 40, height: 40, borderRadius: 40 }}
                                 />
-                            </View>
+                            </Pressable>
                             <View style={{
                                 flexDirection: "row",
                                 alignItems: "center",
@@ -624,8 +670,8 @@ export default () => {
             </ScrollView>
             <ModalReserve
                 visible={modalBookShow}
-                hidden={()=>{setModalBookShow(false);}}
-                onConfirm={()=>{}}
+                hidden={() => { setModalBookShow(false); }}
+                onConfirm={() => { }}
             />
             {width >= 1000
                 ?
@@ -782,7 +828,7 @@ export default () => {
                             borderRadius: 5,
                             backgroundColor: "#FF385C"
                         }}
-                        onPress={()=>{setModalBookShow(true)}}
+                        onPress={() => { setModalBookShow(true) }}
                     >
                         <Text
                             style={{ color: "white", fontWeight: "600" }}

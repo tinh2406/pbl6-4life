@@ -3,7 +3,7 @@ import axios from "axios";
 import * as Google from "expo-auth-session/providers/google";
 import * as SecureStore from "expo-secure-store";
 import * as WebBrowser from "expo-web-browser";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { Platform } from "react-native";
 WebBrowser.maybeCompleteAuthSession();
 
@@ -16,7 +16,7 @@ const AuthContext = createContext({})
 export const useAuth = () => {
     return useContext(AuthContext)
 }
-const instance = axios.create({
+export const instance = axios.create({
     baseURL: API_URL,
     headers: {
         "Content-Type": "application/json",
@@ -27,13 +27,15 @@ const instance = axios.create({
 
 
 export const AuthProvider = ({ children }) => {
-    console.log("Auth provider reload");
+    const [loading, setIsLoading] = useState(true)
+
+    console.log("Auth provider reload",loading);
     const [request, response, promptAsync] = Google.useAuthRequest({
         clientId: "972004153950-thdv01tk63uqtqqvffqei3qsbn0e18ci.apps.googleusercontent.com",
         iosClientId: "972004153950-mqse1tpvr0jao50reufk5jriogpsl2ja.apps.googleusercontent.com",
         androidClientId: "972004153950-uue4m48dvip9odnnlbm2cai268a6v9cv.apps.googleusercontent.com",
     })
-    const [loading, setIsLoading] = useState(true)
+
     const [authState, setAuthState] = useState({ token: null, authenticated: null })
     const [user, setUser] = useState()
     const [keepSignIn, setKeepSignIn] = useState(true)
@@ -82,7 +84,7 @@ export const AuthProvider = ({ children }) => {
             return { error: true, message: e.response?.data?.title }
         }
     }
-    const login = async (email, password, keepSignIn) => {
+    const login = useCallback(async (email, password, keepSignIn) => {
         if (email === "admin" && password === "admin") {
             setAuthState({ authenticated: true, token: "token" })
             setUser(email)
@@ -97,17 +99,18 @@ export const AuthProvider = ({ children }) => {
 
             setUser(res.data.userResult)
             instance.defaults.headers['Authorization'] = `Bearer ${res.data.token}`
-            // if (keepSignIn) {
-            //     if (Platform.OS === 'web')
-            //         await AsyncStorage.setItem(TOKEN_KEY, result.data.token)
-            //     else
-            //         await SecureStore.setItemAsync(TOKEN_KEY, result.data.token)
-            // }
+
+            if (keepSignIn) {
+                if (Platform.OS === 'web')
+                    await AsyncStorage.setItem(TOKEN_KEY, res.data.token)
+                else
+                    await SecureStore.setItemAsync(TOKEN_KEY, res.data.token)
+            }
             return { success: true, user: res.data.userResult }
         } catch (e) {
             return { error: true, message: e.response?.data?.title }
         }
-    }
+    }, [])
     const register = async (email, name, password) => {
         if (email === "admin" && password === "admin") {
             return { success: true }
@@ -119,6 +122,7 @@ export const AuthProvider = ({ children }) => {
             return { error: true, message: e.response?.data?.title }
         }
     }
+
     const verifyOTP = async (email, otp) => {
         if (email === "admin" && otp === "0000") {
             return { success: true }
@@ -134,7 +138,7 @@ export const AuthProvider = ({ children }) => {
     }
     const logout = async () => {
         try {
-            await instance.post(`/auth/logout`)
+            // await instance.post(`/auth/logout`)
         } catch (error) {
 
         }
@@ -148,6 +152,7 @@ export const AuthProvider = ({ children }) => {
         }
         instance.defaults.headers.common['Authorization'] = ''
         setAuthState({ token: null, authenticated: false })
+        setUser()
     }
     const refresh = async () => {
 
@@ -155,18 +160,17 @@ export const AuthProvider = ({ children }) => {
         // setUser({email:"admin"})
         // setTimeout(() =>{setIsLoading(false)},1000)
         // return
-        const token = Platform.OS === "web" ? await AsyncStorage.getItem(TOKEN_KEY) : await SecureStore.getItemAsync(TOKEN_KEY)
 
+        const token = Platform.OS === "web" ? await AsyncStorage.getItem(TOKEN_KEY) : await SecureStore.getItemAsync(TOKEN_KEY)
+        console.log(token, "token");
         if (token) {
             try {
                 instance.defaults.headers.common['Authorization'] = `Bearer ${token}`
-                const result = await instance.post(`/auth/refresh`)
-                if (result.data.success) {
-                    if (Platform.OS === 'web') await AsyncStorage.setItem(TOKEN_KEY, result.data.token)
-                    else await SecureStore.setItemAsync(TOKEN_KEY, result.data.token)
-                    setAuthState({ token: result.data.token, authenticated: true })
-                    instance.defaults.headers.common['Authorization'] = `Bearer ${result.data.token}`
-                }
+                const result = await instance.get(`/api/users/profile`)
+                // if (result.data.success) {
+                //     if (Platform.OS === 'web') await AsyncStorage.setItem(TOKEN_KEY, result.data.token)
+                //     else await SecureStore.setItemAsync(TOKEN_KEY, result.data.token)
+                setAuthState({ token: token, authenticated: true })
                 setIsLoading(false)
                 return result
             } catch (e) {
@@ -196,6 +200,7 @@ export const AuthProvider = ({ children }) => {
         promptAsync();
         setKeepSignIn(keepSignIn);
     }
+
     const value = {
         onForgetPW: forgetPassword,
         onLogin: login,
@@ -207,6 +212,5 @@ export const AuthProvider = ({ children }) => {
         onReset: resetPassword,
         authState, loading, user
     }
-
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

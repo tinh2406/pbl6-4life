@@ -1,5 +1,4 @@
-import { Redirect, router } from "expo-router";
-import { useEffect } from "react";
+import { Redirect } from "expo-router";
 import { useAuth } from "../src/context/AuthContext";
 import Loading from "../src/screens/Loading";
 

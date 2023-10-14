@@ -40,7 +40,7 @@ export default function App() {
         loadingFallback={loadingFallback}
         // googleMapsApiKey="AIzaSyDi3Ex6q__zEQxqkNBB0A7xgOc7KKDIgk0"
       >
-        <MarkerClusterer
+        {/* <MarkerClusterer
           region={region}
           renderCluster={(cluster) => (
             <MyClusterComponent
@@ -59,14 +59,14 @@ export default function App() {
               latitude: 59.33956246905637,
               longitude: 18.050015441134114,
             }}
-          />
+          /> */}
           {/* <Marker
             coordinate={{
               latitude: 59.3442016958775,
               longitude: 18.038256636812825,
             }}
           /> */}
-        </MarkerClusterer>
+        {/* </MarkerClusterer> */}
         {/* {SHOW_LOCATION_BUBBLE && position && (
             <>
               <Marker

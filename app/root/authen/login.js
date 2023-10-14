@@ -54,7 +54,7 @@ export default () => {
         if (emailError || email === "" || password === "")
             return
         setLoading(true)
-        const res = await onLogin(email, password)
+        const res = await onLogin(email, password,keepSignIn)
         if (res.success) {
             toast.show(`Welcome ${res.user.name}`, {
                 type: "success",

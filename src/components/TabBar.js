@@ -1,7 +1,8 @@
 import { useNavigation } from "expo-router"
+import { memo } from "react"
 import { View } from "react-native"
 import Ionicons from "react-native-vector-icons/Ionicons"
-export default ({currentScreen})=>{
+export default memo(({currentScreen})=>{
     const navigation = useNavigation()
     console.log(navigation.getState().routes);
     return(
@@ -60,10 +61,10 @@ export default ({currentScreen})=>{
 
                 }}
                 onPress={()=>{
-                    navigation.navigate("private",{screen:"profile"})
+                    navigation.navigate("private",{screen:"myprofile"})
                 }}
             />
 
         </View>
     )
-}
+})

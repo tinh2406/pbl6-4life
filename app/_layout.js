@@ -1,22 +1,22 @@
 import { Slot } from "expo-router"
-import { AuthProvider, useAuth } from "../src/context/AuthContext"
+import { AuthProvider } from "../src/context/AuthContext"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useWindowDimensions } from "react-native"
 import { ToastProvider } from "react-native-toast-notifications"
-import {AntDesign,Ionicons,MaterialIcons,Feather,FontAwesome} from "react-native-vector-icons"
-// import {AntDesign,Ionicons,MaterialIcons,Feather,FontAwesome} from "@expo/vector-icons"
+import { AntDesign, Ionicons, MaterialIcons, Feather, FontAwesome } from "react-native-vector-icons"
 import * as Font from 'expo-font';
 import Loading from "../src/screens/Loading"
 import { useEffect, useState } from "react"
 
 
 import { en, registerTranslation } from 'react-native-paper-dates'
+import { UserProvider } from "../src/context/UserContext"
 registerTranslation('en', en)
 
 export default () => {
     const height = useWindowDimensions().height
-    const [resourceLoading,setResouceLoading] = useState(true)
-    useEffect(()=>{
+    const [resourceLoading, setResouceLoading] = useState(true)
+    useEffect(() => {
         const loadResouces = async () => {
             try {
                 await Font.loadAsync({
@@ -25,29 +25,31 @@ export default () => {
                     ...MaterialIcons.font,
                     ...Feather.font,
                     ...FontAwesome.font,
-                  });
+                });
             } catch (error) {
-                
+
             }
-            finally{
+            finally {
                 setResouceLoading(false);
             }
         }
         loadResouces()
-    },[])
+    }, [])
+
     return (
         <AuthProvider>
             <ToastProvider>
-            <SafeAreaView
-                style={{ 
-                    height,
-                    backgroundColor: '#FFF9FA'
-                 }}>
-                {resourceLoading&&
-                <Loading/>}
-                <Slot />
-                
-            </SafeAreaView>
+                <SafeAreaView
+                    style={{
+                        height,
+                        backgroundColor: '#FFF9FA'
+                    }}>
+                    {resourceLoading &&
+                        <Loading /> }
+                        <UserProvider>
+                            <Slot />
+                        </UserProvider>
+                </SafeAreaView>
             </ToastProvider>
         </AuthProvider>
     )

@@ -1,7 +1,6 @@
 import { Stack, Tabs, useNavigation, usePathname } from "expo-router"
 import { Text, View, useWindowDimensions } from "react-native"
 import WebHeader from "../../../src/components/WebHeader"
-import WebFilter from "../../../src/components/WebFilter"
 
 export default () => {
     const width = useWindowDimensions().width

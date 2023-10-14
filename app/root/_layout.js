@@ -1,4 +1,6 @@
 import { Stack } from "expo-router"
+import { useAuth } from "../../src/context/AuthContext";
+import Loading from "../../src/screens/Loading";
 
 const config = {
     animation: 'timming',
@@ -13,6 +15,10 @@ const config = {
 };
 
 export default () => {
+    const {loading} = useAuth()
+    if(loading)
+    return <Loading/>
+    
     return (
         <Stack
             screenOptions={{
