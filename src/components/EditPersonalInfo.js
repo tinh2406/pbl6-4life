@@ -167,7 +167,7 @@ const Phone = ({ phone }) => {
                         style={{
                             marginVertical: 12,
                             width: 80,
-                            backgroundColor: typeName === name || typeName === '' || loading ? "#c1c1c1" : "#ff385c",
+                            backgroundColor: typePhone === phone || typePhone === '' || loading ? "#c1c1c1" : "#ff385c",
                             borderRadius: 10,
                             height: 36,
                             justifyContent: 'center',
@@ -294,7 +294,7 @@ const DateOfBirth = ({ dateOfBirth }) => {
     const { onUpdateProfile } = useUser()
     const handleUpdate = async () => {
         setLoading(true)
-        await onUpdateProfile("dateOfBirth", typeDoB)
+        await onUpdateProfile("dateOfBirth", format(typeDoB,"yyyy-MM-dd"))
         setLoading(false)
     }
     return (
@@ -350,7 +350,7 @@ const DateOfBirth = ({ dateOfBirth }) => {
                                 borderWidth: 1,
                                 borderColor: "#d4d4d4",
                                 borderRadius: 10,
-                                height: 40,
+                                height: 44,
                             }}
                         >
                             {typeDoB ? format(typeDoB, 'dd/MM/yyyy') : ""}
@@ -373,7 +373,7 @@ const DateOfBirth = ({ dateOfBirth }) => {
                             width: 80,
                             backgroundColor: typeDoB === dateOfBirth || typeDoB === '' || loading ? "#c1c1c1" : "#ff385c",
                             borderRadius: 10,
-                            height: 36,
+                            height: 40,
                             justifyContent: 'center',
                             alignItems: 'center',
                         }}

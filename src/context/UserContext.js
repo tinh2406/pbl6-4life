@@ -30,10 +30,21 @@ export const UserProvider = ({children})=>{
             })
             setUser(res.data)
         } catch (error) {   
-            console.log(error);
+            console.log(JSON.stringify(error));
         }
     }
+    const updatePassword = async (currentPassword,newPassword,confirmNewPassword)=>{
+        try {
+            const res = await instance.post("/api/users/change-password",{
+                currentPassword,newPassword,confirmNewPassword
+            })
+            return {success:true,data:res.data}
+        } catch (error) {
+            console.log(JSON.stringify(error));
+            return {success:false,message:"Change password error"}
 
+        }
+    }
     useEffect(()=>{
         if(authState.authenticated)
         refreshUser()
@@ -43,7 +54,8 @@ export const UserProvider = ({children})=>{
         user,
         onLogout:logout,
         onRefresh:refreshUser,
-        onUpdateProfile:update
+        onUpdateProfile:update,
+        onUpdatePW:updatePassword
     }
     return <UserContext.Provider
         value={value}

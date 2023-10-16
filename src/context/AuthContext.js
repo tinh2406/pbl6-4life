@@ -192,7 +192,7 @@ export const AuthProvider = ({ children }) => {
             console.log(res);
             return { success: true, data: res.data }
         } catch (e) {
-            console.log(e)
+            console.log(JSON.stringify(e))
             return { error: true, message: e.response?.data?.title }
         }
     }
