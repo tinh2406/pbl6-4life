@@ -11,7 +11,7 @@ import validateEmail from "../../../src/utils/validateEmail"
 export default () => {
 
     const width = useWindowDimensions().width
-    const [email, setEmail] = useState("Nqt@gmail.com")
+    const [email, setEmail] = useState("Nqt.2k2@gmail.com")
     const [password, setPassword] = useState("Tinh@24")
     const [showPass, setShowPass] = useState(false)
     const [keepSignIn, setKeepSignIn] = useState(true)
@@ -61,10 +61,10 @@ export default () => {
                 placement: "top",
             })
             setLoading(false);
-            if(router.canGoBack())
-            router.back()
-            else
-            router.replace("/root/common")
+            // if(router.canGoBack())
+            // router.back()
+            // else
+            // router.replace("/root/common")
         }
         else if (res.message) {
             toast.show(res.message, {

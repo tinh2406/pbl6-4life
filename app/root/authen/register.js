@@ -151,7 +151,7 @@ export default () => {
                             }}
                         />
                         <TextInput
-                            placeholder="Username"
+                            placeholder="Name"
                             style={{
                                 color: "#FF385C",
                                 padding: 10,
