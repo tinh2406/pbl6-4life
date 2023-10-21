@@ -31,16 +31,16 @@ const RoomCard = () => {
     })
     const translateX = circleAnimatedValue.interpolate({
         inputRange: [0, 1],
-        outputRange: [-10, 100]
+        outputRange: [-10, 1/4*width]
     })
 
     const translateX2 = circleAnimatedValue.interpolate({
         inputRange: [0, 1],
-        outputRange: [-10, 250]
+        outputRange: [-10, 3/4*width]
     })
     const translateX3 = circleAnimatedValue.interpolate({
         inputRange: [0, 1],
-        outputRange: [-10, 350]
+        outputRange: [-10, width]
     })
 
     useEffect(() => {

@@ -61,10 +61,10 @@ export default () => {
                 placement: "top",
             })
             setLoading(false);
-            // if(router.canGoBack())
-            // router.back()
-            // else
-            // router.replace("/root/common")
+            if(router.canGoBack())
+            router.back()
+            else
+            router.replace("/root/common")
         }
         else if (res.message) {
             toast.show(res.message, {

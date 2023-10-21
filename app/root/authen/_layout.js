@@ -6,8 +6,9 @@ import { useAuth } from "../../../src/context/AuthContext"
 export default () => {
     const { authState } = useAuth()
     const width = useWindowDimensions().width
-    if (authState.authenticated)
-        return <Redirect href={"/root/common"} />
+
+    // if (authState.authenticated)
+    //     return <Redirect href={"/root/common"} />
     return (
         <View
             style={{

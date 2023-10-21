@@ -2,7 +2,6 @@ import { router } from "expo-router"
 import { FlatList, Pressable, Text, TextInput, View, useWindowDimensions } from "react-native"
 import RoomCard from "../../../../src/components/RoomCard"
 import TabBar from "../../../../src/components/TabBar"
-import RoomCardSkeleton from "../../../../src/components/Skeleton/RoomCardSkeleton"
 import { useUser } from "../../../../src/context/UserContext"
 
 export default () => {
@@ -42,7 +41,6 @@ export default () => {
                         backgroundColor: "white"
                     }}
                 />
-                <RoomCardSkeleton/>
                 {user ?
                     <>
                         <FlatList

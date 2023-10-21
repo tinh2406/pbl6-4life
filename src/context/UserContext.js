@@ -15,6 +15,7 @@ export const UserProvider = ({ children }) => {
         if (authState.authenticated) {
 
             try {
+                instance.defaults.headers['Authorization'] = `Bearer ${authState.token}`
                 const res = await instance.get('/api/users/profile')
                 setUser(res.data)
             } catch (error) {
