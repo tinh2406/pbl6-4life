@@ -290,11 +290,11 @@ const DateOfBirth = ({ dateOfBirth }) => {
     const [isEdit, setIsEdit] = useState(false);
     const [typeDoB, setTypeDoB] = useState(dateOfBirth)
     const [loading, setLoading] = useState(false)
-    const [pickShow,setPickShow] = useState(false)
+    const [pickShow, setPickShow] = useState(false)
     const { onUpdateProfile } = useUser()
     const handleUpdate = async () => {
         setLoading(true)
-        await onUpdateProfile("dateOfBirth", format(typeDoB,"yyyy-MM-dd"))
+        await onUpdateProfile("dateOfBirth", format(typeDoB, "yyyy-MM-dd"))
         setLoading(false)
     }
     return (
@@ -334,7 +334,7 @@ const DateOfBirth = ({ dateOfBirth }) => {
                     <Pressable style={{
                         marginTop: 10
                     }}
-                        onPress={()=>setPickShow(true)}
+                        onPress={() => setPickShow(true)}
                     >
                         <Text style={{
                             position: "absolute",
@@ -361,7 +361,7 @@ const DateOfBirth = ({ dateOfBirth }) => {
                             visible={pickShow}
                             onDismiss={() => { setPickShow(false) }}
                             date={typeDoB}
-                            onConfirm={({date})=>{
+                            onConfirm={({ date }) => {
                                 setTypeDoB(date);
                                 setPickShow(false);
                             }}
@@ -396,9 +396,161 @@ const DateOfBirth = ({ dateOfBirth }) => {
         </View>
     )
 }
+const Gender = ({ gender }) => {
+    const [isEdit, setIsEdit] = useState(false);
+    const [selectGender, setSelectGender] = useState(gender)
+    const [loading, setLoading] = useState(false)
+    const [pickShow, setPickShow] = useState(false)
+    const { onUpdateProfile } = useUser()
+    const handleUpdate = async () => {
+        setLoading(true)
+        await onUpdateProfile("gender", selectGender)
+        setLoading(false)
+    }
+    return (
+        <View style={{
+            borderBottomWidth: 1,
+            paddingVertical: 16,
+            borderColor: "#d4d4d4"
+        }}>
+            <Pressable
+                style={{
+                    flexDirection: "row",
+                }}
+                onPress={() => setIsEdit(!isEdit)}
+            >
+
+                <View style={{
+                    flex: 1,
+
+                }}>
+                    <Text style={{
+
+                    }}>
+                        Gender
+                    </Text>
+                    <Text
+                        style={{ color: "#9c9c9c", fontSize: 12, marginTop: 2 }}
+                    >{gender === true ? "Male" : gender === false ? "Female" : "Provide gender"}</Text>
+                </View>
+                <Text
+                    style={{ fontWeight: "500", fontSize: 14 }}
+                >
+                    {isEdit ? "Cancel" : gender ? "Edit" : "Add"}
+                </Text>
+            </Pressable>
+            {isEdit &&
+                <>
+                    <Pressable style={{
+                        marginTop: 10,
+                        zIndex: 1
+                    }}
+                        onPress={() => setPickShow(true)}
+                    >
+                        <Text style={{
+                            position: "absolute",
+                            left: 6,
+                            top: 2,
+                            fontSize: 12,
+                            color: "#444444"
+                        }}>Gender</Text>
+                        <Text
+                            style={{
+                                padding: 6,
+                                paddingTop: 20,
+                                borderWidth: 1,
+                                borderColor: "#d4d4d4",
+                                borderRadius: 10,
+                                height: 44,
+                            }}
+                        >
+                            {selectGender === true ? "Male" : selectGender === false ? "Female" : ""}
+                        </Text>
+                        {pickShow &&
+                            <View
+                                style={{
+                                    position: "absolute",
+                                    top: 40,
+                                    paddingHorizontal: 10,
+                                    borderRadius: 4,
+                                    backgroundColor: "white",
+                                    width: "100%",
+                                    shadowColor: "#000",
+                                    shadowOffset: {
+                                        width: 0,
+                                        height: 3,
+                                    },
+                                    shadowOpacity: 0.27,
+                                    shadowRadius: 4.65,
+                                    elevation: 6,
+                                }}
+                            >
+                                <Pressable
+                                    style={{
+                                        paddingTop: 6
+                                    }}
+                                    onPress={() => {
+                                        setSelectGender(true)
+                                        setPickShow(false)
+                                    }}
+                                >
+                                    <Text
+                                        style={{
+                                            fontSize: 12,
+                                        }}
+                                    >Male</Text>
+                                </Pressable>
+                                <Pressable
+                                    style={{
+                                        paddingVertical: 6
+                                    }}
+                                    onPress={() => {
+                                        setSelectGender(false)
+                                        setPickShow(false)
+                                    }}
+                                >
+                                    <Text
+                                        style={{
+                                            fontSize: 12,
+                                        }}
+                                    >Female</Text>
+                                </Pressable>
+                            </View>
+                        }
+                    </Pressable>
+                    <Pressable
+                        style={{
+                            marginVertical: 12,
+                            width: 80,
+                            backgroundColor: selectGender === gender || loading ? "#c1c1c1" : "#ff385c",
+                            borderRadius: 10,
+                            height: 40,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}
+                        disabled={selectGender === gender || loading}
+                        onPress={handleUpdate}
+                    >
+                        {loading ?
+                            <ActivityIndicator size={"small"} color="gray" /> :
+                            <Text style={{
+                                color: "white",
+                                padding: 10,
+                                paddingHorizontal: 20,
+                                width: "auto",
+                                textAlign: "center",
+                                fontWeight: "600"
+                            }}>Save</Text>
+                        }
+                    </Pressable>
+                </>}
+        </View>
+    )
+}
 module.exports = {
     Name: memo(Name),
     Phone: memo(Phone),
     Address: memo(Address),
-    DateOfBirth: memo(DateOfBirth)
+    DateOfBirth: memo(DateOfBirth),
+    Gender: memo(Gender)
 }

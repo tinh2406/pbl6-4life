@@ -3,7 +3,7 @@ import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons"
 import TabBar from "../../../../../src/components/TabBar"
 import { router, useNavigation } from "expo-router"
 import { useUser } from "../../../../../src/context/UserContext"
-
+import defaultAvt from "../../../../../src/assets/defaultAvatar.png"
 export default () => {
     const navigation = useNavigation()
 
@@ -49,7 +49,15 @@ export default () => {
                                 alignItems: "center",
                             }}>
                                 <Image
-                                    source={{ uri: user?.avatar||'https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/tinh.jpg?alt=media&token=36e93d04-5110-493d-9940-bda39bbe8b8b&_gl=1*1bc07mb*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjI2MDc2OS40LjEuMTY5NjI2MDgwMC4yOS4wLjA.' }}
+                                    source={
+                                        user?.avatar ?
+                                        {
+                                        uri:
+                                          user?.avatar
+                                        }
+                                        :
+                                        defaultAvt
+                                      }
                                     style={{
                                         width: 50,
                                         height: 50,

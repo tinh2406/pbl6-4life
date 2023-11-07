@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { instance, useAuth } from "./AuthContext";
+import uploadImg from "../utils/uploadImg";
+import { useToast } from "react-native-toast-notifications";
 const UserContext = createContext()
 
 export const useUser = () => {
@@ -7,6 +9,7 @@ export const useUser = () => {
 }
 
 export const UserProvider = ({ children }) => {
+    const toast = useToast()
     const { authState, onLogout } = useAuth()
     console.log(authState);
     const [user, setUser] = useState()
@@ -30,9 +33,10 @@ export const UserProvider = ({ children }) => {
     const update = async (field, value) => {
         try {
             const res = await instance.put('/api/users/update-profile', {
+                ...user,
                 [field]: value,
             })
-            setUser(res.data)
+            setUser({...user, [field]: value})
         } catch (error) {
             console.log(JSON.stringify(error));
         }
@@ -49,6 +53,71 @@ export const UserProvider = ({ children }) => {
 
         }
     }
+    const updateAvt = async (file) => {
+        try {
+            const res = await uploadImg(file)
+            console.log(res.data.url);
+            await update("avatar", res.data.url)
+        } catch (error) {
+            console.log(JSON.stringify(error));
+        }
+    }
+    const request_mod = async (front, back) => {
+        try {
+            const res = await Promise.all([uploadImg(front), uploadImg(back)])
+            const result = await instance.put('/api/users/register-mod', {
+                frontIdentityCard: res[0].data.url,
+                backIdentityCard: res[1].data.url
+            })
+            setUser({...user, statusModRole:"Waiting"} )
+            toast.show("Request success", {
+                type: "success",
+                placement: "top",
+            })
+            return { success: true, }
+        } catch (error) {
+            toast.show("Request error", {
+                type: "danger",
+                placement: "top",
+            })
+            console.log(JSON.stringify(error));
+        }
+    }
+    const verify_email = async () => {
+        try {
+            const res = await instance.post('/api/users/verify-email')
+            toast.show("Code sent", {
+                type: "success",
+                placement: "top",
+            })
+            return { success: true, }
+        } catch (error) {
+            toast.show("Request error", {
+                type: "danger",
+                placement: "top",
+            })
+            console.log(JSON.stringify(error));
+        }
+    }
+    const confirm_email = async (otp) => {
+        try {
+            const res = await instance.post('/api/users/verify-otp-confirm-email',{
+                otp
+            })
+            setUser({...user,emailConfirmed: true})
+            toast.show("Successfully", {
+                type: "success",
+                placement: "top",
+            })
+            return { success: true, }
+        } catch (error) {
+            toast.show("Request error", {
+                type: "danger",
+                placement: "top",
+            })
+            console.log(JSON.stringify(error));
+        }
+    }
     useEffect(() => {
         if (authState.authenticated)
             refreshUser()
@@ -56,10 +125,14 @@ export const UserProvider = ({ children }) => {
 
     const value = {
         user,
+        onUpdateAVT: updateAvt,
         onLogout: logout,
         onRefresh: refreshUser,
         onUpdateProfile: update,
-        onUpdatePW: updatePassword
+        onUpdatePW: updatePassword,
+        onRequestMod: request_mod,
+        onVerifyEmail: verify_email,
+        onConfirmEmail: confirm_email
     }
     return <UserContext.Provider
         value={value}

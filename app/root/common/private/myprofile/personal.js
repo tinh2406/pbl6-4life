@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons"
 import { router } from "expo-router"
-import { Pressable, ScrollView, Text, View } from "react-native"
-import {Name,Phone,Address,DateOfBirth} from "../../../../../src/components/EditPersonalInfo"
+import { ScrollView, Text, View } from "react-native"
+import {Name,Phone,Address,DateOfBirth,Gender} from "../../../../../src/components/EditPersonalInfo"
 import { useUser } from "../../../../../src/context/UserContext"
 export default () => {
 
@@ -40,6 +40,7 @@ export default () => {
                     <Phone phone={user?.phone}/>
                     <Address address={user?.address}/>
                     <DateOfBirth dateOfBirth={user?.dateOfBirth==="0001-01-01"?null:new Date(user?.dateOfBirth)}/>
+                    <Gender gender={user?.gender}/>
                 </View>
             </ScrollView>
         </View>

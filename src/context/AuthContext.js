@@ -9,7 +9,7 @@ WebBrowser.maybeCompleteAuthSession();
 
 const TOKEN_KEY = 'my_jwt'
 // export const API_URL = 'http://192.168.237.193:5000'
-export const API_URL = 'https://dctt.azurewebsites.net/'
+export const API_URL = 'https://tuna.whitemage.tech/'
 
 const AuthContext = createContext({})
 
