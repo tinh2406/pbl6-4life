@@ -85,6 +85,7 @@ export default memo(({ title,message,value,onChangeText,visible, onCancel, onCon
                                     marginTop: 10
                                 }}
                             >{message}</Text>
+                            {onChangeText&&
                             <View style={{
                                 justifyContent: "center",
                                 alignItems: "center",
@@ -105,7 +106,7 @@ export default memo(({ title,message,value,onChangeText,visible, onCancel, onCon
                                         borderColor: "#777777",
                                     }}
                                 />
-                            </View>
+                            </View>}
                             <View style={{
                                 justifyContent: "center",
                                 alignItems: "center",
@@ -153,7 +154,7 @@ export default memo(({ title,message,value,onChangeText,visible, onCancel, onCon
                         </View>
                         <View style={{
                             paddingTop: 10,
-                            paddingBottom: 20,
+                            paddingBottom: 100,
                             width: "100%",
                             alignItems: "center"
                         }}>

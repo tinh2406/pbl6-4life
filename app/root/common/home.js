@@ -16,7 +16,6 @@ export default () => {
     const [searchState, setSearchState] = useState();
     console.log(filterState, searchState);
 
-
     return (
         <View
             style={{ height: '100%' }}
@@ -83,7 +82,9 @@ export default () => {
 
                 </View>
                 <FlatListAutoLoad
-                    paramsLoad={{}}
+                    url="/api/accommodations"
+                    params={{PageSize:5}}
+                    queryKey={["posts"]}
                 />
 
             </View>

@@ -1,8 +1,10 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
-import { Marker } from 'react-native-maps';
-import { ClusterProps, MarkerClusterer } from '@teovilla/react-native-web-maps';
-import MapView from '../../src/components/MyMap';
+import { useCallback, useMemo, useRef, useState } from "react";
+import { StyleSheet, View, Text } from "react-native";
+import { Marker } from "react-native-maps";
+import { ClusterProps, MarkerClusterer } from "@teovilla/react-native-web-maps";
+import MapView from "../../src/components/MyMap";
+import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 function MyClusterComponent(props) {
   return (
     <Marker
@@ -18,9 +20,10 @@ function MyClusterComponent(props) {
 }
 
 export default function App() {
+  
   const [region, setRegion] = useState(null);
 
-  const mapRef = useRef<MapView>(null);
+  const mapRef = useRef < MapView > null;
 
   const loadingFallback = useMemo(() => {
     return (
@@ -32,7 +35,31 @@ export default function App() {
 
   return (
     <View style={styles.container}>
+      <View
+        style={{
+          padding: 20,
+          position:"absolute",
+          zIndex:1,
+        }}
+      >
+        <Ionicons
+          name="chevron-back"
+          size={20}
+          color={"#6b6b6b"}
+          style={{
+            backgroundColor: "white",
+            borderRadius:50,
+            padding:4
+          }}
+          onPress={() => {
+            router.back();
+          }}
+        />
+      </View>
       <MapView
+      onPress={((e)=>{
+        console.log(e.nativeEvent.coordinate);
+      })}
         // ref={mapRef}
         provider="google"
         style={{ flex: 1 }}
@@ -60,7 +87,7 @@ export default function App() {
               longitude: 18.050015441134114,
             }}
           /> */}
-          {/* <Marker
+        {/* <Marker
             coordinate={{
               latitude: 59.3442016958775,
               longitude: 18.038256636812825,
@@ -124,14 +151,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cluster: {
-    backgroundColor: 'salmon',
+    backgroundColor: "salmon",
     width: 20,
     height: 20,
     borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   clusterText: {
-    fontWeight: '700',
+    fontWeight: "700",
   },
 });
