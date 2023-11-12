@@ -20,6 +20,7 @@ export const Location = memo(({ value, setValue, error }) => {
         style={{
           fontSize: 16,
           fontWeight: "500",
+          marginBottom: 4,
         }}
       >
         Location
@@ -31,7 +32,7 @@ export const Location = memo(({ value, setValue, error }) => {
           marginRight: 5,
           borderWidth: 1,
           borderRadius: 4,
-          borderColor: "#a5a5a5",
+          borderColor: "#d7d7d7",
           flexDirection: "row",
           alignItems: "center",
           width: "100%",
@@ -89,6 +90,14 @@ export const InputInfo = memo(
     minH,
     error,
   }) => {
+    const numericChange = (value) => setValue(value);
+    useEffect(() => {
+      
+      if (type === "numeric") {
+        numericChange(value);
+      }
+    }, [value, numericChange]);
+
     return (
       <View
         style={{
@@ -103,20 +112,33 @@ export const InputInfo = memo(
           style={{
             fontSize: 16,
             fontWeight: "500",
+            marginBottom: 4,
           }}
         >
           {title}
         </Text>
         {type === "numeric" ? (
           <View style={{}}>
-            <NumericInput
-              type="plus-minus"
-              value={value}
-              onChange={(value) => setValue(value)}
-              minValue={0}
-              totalHeight={34}
-              totalWidth={80}
-            />
+            {value!==undefined && (
+              <NumericInput
+                type="plus-minus"
+                value={value}
+                onChange={numericChange}
+                minValue={0}
+                totalHeight={34}
+                totalWidth={80}
+                containerStyle={{
+                  backgroundColor: "white",
+                }}
+                iconSize={25}
+                valueType="integer"
+                rounded
+                textColor="#000000"
+                iconStyle={{ color: "white" }}
+                rightButtonBackgroundColor="#128851"
+                leftButtonBackgroundColor="#d29b9b"
+              />
+            )}
           </View>
         ) : (
           <TextInput
@@ -126,7 +148,9 @@ export const InputInfo = memo(
               borderRadius: 4,
               paddingHorizontal: 4,
               fontSize: 15,
-              borderColor: "#a5a5a5",
+              backgroundColor: "white",
+              paddingVertical: 4,
+              borderColor: "#e2e2e2",
               width: column ? "100%" : 90,
               textAlign: column ? "left" : "right",
               minHeight: multiline ? minH || 50 : 20,
@@ -184,6 +208,7 @@ export const Type = memo(({ value, setValue, error }) => {
         style={{
           fontSize: 16,
           fontWeight: "500",
+          marginBottom: 4,
         }}
       >
         Type
@@ -212,7 +237,7 @@ export const Type = memo(({ value, setValue, error }) => {
               borderBottomLeftRadius: index === 0 ? 5 : 0,
               borderTopRightRadius: index === types?.length - 1 ? 5 : 0,
               borderBottomRightRadius: index === types?.length - 1 ? 5 : 0,
-              borderColor: value !== i ? "rgba(163, 155, 155, 0.3)" : "#FF385C",
+              borderColor: value !== i ? "rgba(202, 202, 202, 0.3)" : "#FF385C",
               backgroundColor: value !== i ? "white" : "#FF385C",
             }}
           >
@@ -264,7 +289,7 @@ export const PickLocated = memo(({ value, setValue, error }) => {
           marginRight: 5,
           borderWidth: 1,
           borderRadius: 4,
-          borderColor: "#a5a5a5",
+          borderColor: "#dedede",
           flexDirection: "row",
           alignItems: "center",
           width: "100%",
@@ -300,7 +325,6 @@ export const PickLocated = memo(({ value, setValue, error }) => {
   );
 });
 export const ImagesOfAccomodation = memo(({ value, setValue, error }) => {
-  
   const select = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -323,6 +347,7 @@ export const ImagesOfAccomodation = memo(({ value, setValue, error }) => {
         style={{
           fontSize: 16,
           fontWeight: "500",
+          marginBottom: 4,
         }}
       >
         Images of accommodation
@@ -330,7 +355,8 @@ export const ImagesOfAccomodation = memo(({ value, setValue, error }) => {
       <Pressable
         style={{
           borderWidth: 1,
-          borderColor: "#908a8a",
+          borderColor: "#d1d1d1",
+          backgroundColor: "white",
           borderRadius: 10,
           marginHorizontal: 10,
           overflow: "hidden",
@@ -351,35 +377,37 @@ export const ImagesOfAccomodation = memo(({ value, setValue, error }) => {
           <Entypo name="image" size={72} color="#0091ff" />
         </View>
       </Pressable>
-      <View style={{paddingHorizontal:10}}>
-      {value?.map((img, i) => (
-        <View
-        key={i}
-
-          style={{
-            position:"relative"
-          }}
-        >
-        <Image
-          source={{
-            uri: img.uri,
-          }}
-          style={{
-            borderWidth: 1,
-            borderColor: "#908a8a",
-            borderRadius: 10,
-            marginTop: 10,
-            width: "100%",
-            aspectRatio: 3 / 2,
-          }}
-        />
-        <Ionicons name="close-circle" size={24} style={{position:"absolute",top:15,right:5}}
-          onPress={()=>{
-            setValue(last=>last?.filter(i=>i!==img))
-          }}
-        />
-        </View>
-      ))}
+      <View style={{ paddingHorizontal: 10 }}>
+        {value?.map((img, i) => (
+          <View
+            key={i}
+            style={{
+              position: "relative",
+            }}
+          >
+            <Image
+              source={{
+                uri: img.uri,
+              }}
+              style={{
+                borderWidth: 1,
+                borderColor: "#dedede",
+                borderRadius: 10,
+                marginTop: 10,
+                width: "100%",
+                aspectRatio: 3 / 2,
+              }}
+            />
+            <Ionicons
+              name="close-circle"
+              size={24}
+              style={{ position: "absolute", top: 15, right: 5 }}
+              onPress={() => {
+                setValue((last) => last?.filter((i) => i !== img));
+              }}
+            />
+          </View>
+        ))}
       </View>
       {error && (
         <Text

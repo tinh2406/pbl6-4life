@@ -32,7 +32,14 @@ export default () => {
       return res.data;
     },
   });
-  console.log(data);
+  const { data: _amentities } = useQuery({
+    queryKey: ["amenitiesOfPost", postId],
+    queryFn: async () => {
+      const res = await instance.get(`/api/accommodation/amenities/${postId}`);
+      return res.data;
+    },
+  });
+
   const [timeCheckIn, setTimeCheckIn] = useState();
   const [timeCheckOut, setTimeCheckOut] = useState();
   const [quietTime, setQuietTime] = useState();
@@ -53,7 +60,7 @@ export default () => {
   const [selectedType, setSelectedType] = useState();
   const [located, setLocated] = useState();
   const [imgs, setImgs] = useState();
-  const [amenities, setAmenities] = useState();
+  const [amenities, setAmenities] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
   const toast = useToast();
@@ -96,11 +103,20 @@ export default () => {
         quietHoursBefore: quietTime?.before || data?.quietHoursBefore,
       });
       if (amenities?.length > 0) {
-        const resAddAmenities = await instance.post(
+        const resAmenities = await instance.put(
           "/api/accommodation/amenities",
           {
             accommodationId: res.data.id,
             amenityIds: amenities.map((i) => i.id),
+          }
+        );
+      }
+      if(imageUrls?.length>0){
+        const resImgs = await instance.post(
+          "/api/accommodation/images",
+          {
+            accommodationId: res.data.id,
+            images: imageUrls,
           }
         );
       }
@@ -121,10 +137,18 @@ export default () => {
       setLoading(false);
     }
   };
-  useEffect(()=>{
-    if(data?.imageUrls)
-    setImgs(data?.imageUrls?.map((i) => ({ uri: i })))
-  },[data])
+  useEffect(() => {
+    if (data?.imageUrls) setImgs(data?.imageUrls?.map((i) => ({ uri: i })));
+    setPrice(data?.price);
+    setNumGuests(data?.maxGuests);
+    setNumRooms(data?.numberOfRooms);
+    setNumBeds(data?.numberOfBeds);
+    setNumBedrooms(data?.numberOfBedrooms);
+    setNumBathrooms(data?.numberOfBathrooms);
+  }, [data]);
+  useEffect(() => {
+    setAmenities(_amentities?.data.map((i) => i.amenity));
+  }, [_amentities]);
   return (
     <ScrollView style={{ height: "100%", backgroundColor: "#fafeff" }}>
       <View
@@ -196,41 +220,41 @@ export default () => {
           />
           <InputInfo
             title="Price"
-            value={price || data?.price}
+            value={price}
             type="numeric"
             setValue={setPrice}
             error={error?.price}
           />
           <InputInfo
             title="Guests"
-            value={maxGuests || data?.maxGuests}
+            value={maxGuests}
             type="numeric"
             setValue={setNumGuests}
           />
           <InputInfo
             title="Number of rooms"
             type="numeric"
-            value={numberOfRooms || data?.numberOfRooms}
+            value={numberOfRooms}
             setValue={setNumRooms}
           />
           <InputInfo
             title="Number of beds per room"
             type="numeric"
-            value={numberOfBeds || data?.numberOfBeds}
+            value={numberOfBeds}
             setValue={setNumBeds}
           />
           {!(selectedType === "Hotel" || selectedType === "Motel") && (
             <InputInfo
               title="Number of bedrooms"
               type="numeric"
-              value={numberOfBedrooms || data?.numberOfBedrooms}
+              value={numberOfBedrooms}
               setValue={setNumBedrooms}
             />
           )}
           <InputInfo
             title="Number of bathrooms per room"
             type="numeric"
-            value={numberOfBathrooms || data?.numberOfBathrooms}
+            value={numberOfBathrooms}
             setValue={setNumBathrooms}
           />
           <Location

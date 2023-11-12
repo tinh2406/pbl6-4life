@@ -15,7 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { instance } from "../context/AuthContext";
 
 export default ({ visible, hidden, onConfirm }) => {
-  const [types,setTypes]=useState()
+  const [types, setTypes] = useState();
   useEffect(() => {
     const getTypes = async () => {
       const local = await AsyncStorage.getItem("types");
@@ -474,21 +474,24 @@ export default ({ visible, hidden, onConfirm }) => {
                 borderTopWidth: 1,
                 borderTopColor: "#d1d1d1",
               }}
-              onPress={() => {
-                setType();
-                setNumber();
-                setTimeCheckIn();
-                setTimeCheckOut();
-                onClose();
-              }}
             >
-              <Text
-                style={{
-                  fontWeight: "600",
+              <Pressable
+                onPress={() => {
+                  setType();
+                  setNumber();
+                  setTimeCheckIn();
+                  setTimeCheckOut();
+                  onClose();
                 }}
               >
-                Clear all
-              </Text>
+                <Text
+                  style={{
+                    fontWeight: "600",
+                  }}
+                >
+                  Clear all
+                </Text>
+              </Pressable>
               <Pressable
                 onPress={() => {
                   onConfirm({ type, timeCheckIn, timeCheckOut, number });

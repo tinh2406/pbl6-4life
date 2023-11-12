@@ -135,8 +135,9 @@ export default memo(({ title,message,value,onChangeText,visible, onCancel, onCon
                                     style={{
                                         width: "70%",
                                     }}
-                                    onPress={() => {
-                                        onConfirm()
+                                    onPress={async () => {
+                                        const res = onConfirm()
+                                        if(res.error) return
                                         onClose()
                                     }}
                                 ><Text

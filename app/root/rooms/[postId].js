@@ -1,9 +1,7 @@
 import {
   AntDesign,
-  Feather,
   Ionicons,
   MaterialIcons,
-  Octicons,
 } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { memo, useCallback, useMemo, useState } from "react";
@@ -24,12 +22,15 @@ import Animated, {
 import ModalReserve from "../../../src/components/ModalReserve";
 import MapView from "../../../src/components/MyMap";
 import { MarkerClusterer } from "@teovilla/react-native-web-maps";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import { instance } from "../../../src/context/AuthContext";
 import { formatToFE } from "../../../src/utils/formatTime";
 import Amenities from "../../../src/components/Amenities";
 import { useUser } from "../../../src/context/UserContext";
 import { ManagePost } from "../../../src/components/RoomCard";
+import ModalPayment from "../../../src/components/ModalPayment";
+import defaultAvt from "../../../src/assets/defaultAvatar.png";
+import ModalPrompt from "../../../src/components/ModalPrompt";
 
 const config = {
   duration: 200,
@@ -39,37 +40,54 @@ const config = {
 export default () => {
   const width = useWindowDimensions().width;
   const { postId } = useLocalSearchParams();
-  const { data, isLoading } = useQuery({
+  const { user, onVerifyEmail } = useUser();
+  const queryClient = useQueryClient()
+  const { data } = useQuery({
     queryKey: ["post", postId],
     queryFn: async () => {
       const res = await instance.get(`/api/accommodations/${postId}`);
       return res.data;
     },
   });
-  const isLiked = false;
-  const imgs = [
-    "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/2c8f59fc-ec00-4eae-ab5f-684fd1168b4e.png?alt=media&token=5fccaf62-d0a8-44b7-9bdb-13363d5f3333&_gl=1*idzhgn*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIyNTM0My4yLjEuMTY5NjIyNTg4Ny42MC4wLjA.",
-    "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/2ddd49a1-7f8d-4d1e-8fa3-5eb649a9c4ae.png?alt=media&token=88ea50a4-23e7-4f6a-9921-9f5001d474ab&_gl=1*16vwjtw*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjAuMTY5NjIzMTY0MC42MC4wLjA.",
-    "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/e7e7925f-e9fd-4538-bf7f-ac5ca9d101c7.png?alt=media&token=efeb2f29-1289-469d-8f11-65d0c4fd5b37&_gl=1*1q81hp6*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjEuMTY5NjIzMTY3Ny4yMy4wLjA.",
-  ];
+  console.log(data);
+  const [isLike, setIsLike] = useState(data?.isFavorite);
+  const imgs =
+    data?.imageUrls.length > 0
+      ? data?.imageUrls
+      : [
+          "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/2c8f59fc-ec00-4eae-ab5f-684fd1168b4e.png?alt=media&token=5fccaf62-d0a8-44b7-9bdb-13363d5f3333&_gl=1*idzhgn*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIyNTM0My4yLjEuMTY5NjIyNTg4Ny42MC4wLjA.",
+          "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/2ddd49a1-7f8d-4d1e-8fa3-5eb649a9c4ae.png?alt=media&token=88ea50a4-23e7-4f6a-9921-9f5001d474ab&_gl=1*16vwjtw*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjAuMTY5NjIzMTY0MC42MC4wLjA.",
+          "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/e7e7925f-e9fd-4538-bf7f-ac5ca9d101c7.png?alt=media&token=efeb2f29-1289-469d-8f11-65d0c4fd5b37&_gl=1*1q81hp6*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjEuMTY5NjIzMTY3Ny4yMy4wLjA.",
+        ];
   const [modalBookShow, setModalBookShow] = useState(false);
-  const { user } = useUser();
+  const [modalPaymentShow, setModalPaymentShow] = useState(false);
   const [imgWidth, setImgWidth] = useState(0);
+  const [dataPayment, setDataPayment] = useState();
+  const [confirmEmailVisible, setConfirmEmailVisible] = useState(false);
+  const [verifyCode, setVerifyCode] = useState("");
 
-  const handleLikePost = useCallback(() => {
-    console.log("like post");
-  }, []);
   const handleShare = useCallback(() => {
     console.log("share");
   }, []);
-  const loadingFallback = useMemo(() => {
-    return (
-      <View>
-        <Text>Loading</Text>
-      </View>
-    );
+  const handleGoBack = useCallback(() => {
+    router.back();
   }, []);
-  console.log(data);
+  const handleBook = useCallback(async (payload) => {
+    if (!user?.emailConfirmed) {
+      if (!(await onVerifyEmail()).success) return;
+      setConfirmEmailVisible(true);
+      return;
+    }
+    try {
+      const res = await instance.post("/api/bookings", payload);
+      setDataPayment(res.data);
+      setModalPaymentShow(true);
+      return { success: true };
+    } catch (error) {
+      console.log(JSON.stringify(error));
+      console.log(error.response, error.response.data.title);
+    }
+  }, []);
   return (
     <View style={{ height: "100%", backgroundColor: "white" }}>
       <ScrollView
@@ -77,8 +95,7 @@ export default () => {
           flex: 1,
         }}
         contentContainerStyle={{
-          paddingHorizontal: width >= 768 ? "10%" : 0,
-          paddingBottom: width >= 1000 ? 10 : 60,
+          paddingBottom: 60,
         }}
       >
         <View
@@ -89,7 +106,7 @@ export default () => {
             width: "100%",
             borderRadius: 20,
             position: "relative",
-            marginTop: width >= 768 ? 40 : 0,
+            marginTop: 0,
           }}
         >
           <Ionicons
@@ -102,23 +119,36 @@ export default () => {
               left: 10,
               zIndex: 11,
             }}
-            onPress={() => {
-              router.back();
-            }}
+            onPress={handleGoBack}
           />
           {data?.mod?.id === user?.id && <ManagePost postId={postId} />}
-          <AntDesign
-            name={isLiked ? "heart" : "hearto"}
-            size={24}
-            color={isLiked ? "#FF385C" : "white"}
+          <Pressable
             style={{
               position: "absolute",
-              bottom: 16,
-              left: 16,
+              bottom: 10,
+              left: 14,
               zIndex: 11,
+              padding: 4,
             }}
-            onPress={handleLikePost}
-          />
+            onPress={async () => {
+              try {
+                setIsLike(!isLike);
+                await instance.post("api/favorites", {
+                  accommodationId: data?.id,
+                  isFavorite: !isLike,
+                });
+                queryClient.invalidateQueries("favorite-posts")
+              } catch (error) {
+                console.log(error.response);
+              }
+            }}
+          >
+            <AntDesign
+              name={isLike ? "heart" : "hearto"}
+              size={24}
+              color={isLike ? "#ef4b69" : "white"}
+            />
+          </Pressable>
           <MaterialIcons
             name="share"
             size={20}
@@ -133,10 +163,10 @@ export default () => {
           />
           <ImagePost imgs={imgs} imgWidth={imgWidth} />
         </View>
-        <ScrollView contentContainerStyle={{}}>
+        <ScrollView>
           <View
             style={{
-              width: width >= 1000 ? "60%" : "100%",
+              width: "100%",
             }}
           >
             <View
@@ -173,7 +203,7 @@ export default () => {
                     marginRight: 10,
                   }}
                 >
-                  4.3
+                  {data?.avgAccuracyRating}
                 </Text>
                 <Text
                   style={{
@@ -181,7 +211,7 @@ export default () => {
                     fontSize: 14,
                   }}
                 >
-                  1 review
+                  {data?.totalReview} review
                 </Text>
               </View>
               <Text
@@ -254,7 +284,11 @@ export default () => {
                       ],
                     },
                   ]}
-                  loadingFallback={loadingFallback}
+                  loadingFallback={
+                    <View>
+                      <Text>Loading</Text>
+                    </View>
+                  }
                   // googleMapsApiKey="AIzaSyDi3Ex6q__zEQxqkNBB0A7xgOc7KKDIgk0"
                 ></MapView>
               </Pressable>
@@ -274,7 +308,7 @@ export default () => {
                   marginTop: 10,
                 }}
                 onPress={() => {
-                  router.push("/root/profile/user123");
+                  // router.push("/root/profile/user123");
                 }}
               >
                 <View style={{}}>
@@ -296,10 +330,14 @@ export default () => {
                   </Text>
                 </View>
                 <Image
-                  source={{
-                    uri: "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/tinh.jpg?alt=media&token=36e93d04-5110-493d-9940-bda39bbe8b8b&_gl=1*1itx2gz*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjUyMzQ2Ny43LjEuMTY5NjUyMzQ3My41NC4wLjA.",
-                    cache: "force-cache",
-                  }}
+                  source={
+                    data?.mod?.avatar
+                      ? {
+                          uri: data?.mod?.avatar,
+                          cache: "force-cache",
+                        }
+                      : defaultAvt
+                  }
                   style={{ width: 40, height: 40, borderRadius: 40 }}
                 />
               </Pressable>
@@ -365,7 +403,7 @@ export default () => {
             >
               <View
                 style={{
-                  flexDirection: width >= 768 ? "row" : "column",
+                  flexDirection: "column",
                   alignItems: "center",
                   justifyContent: "space-between",
                   marginTop: 10,
@@ -409,7 +447,7 @@ export default () => {
                       marginLeft: 10,
                     }}
                   >
-                    5/5
+                    {data?.avgCleanlinessRating}
                   </Text>
                 </View>
                 <View
@@ -738,11 +776,35 @@ export default () => {
         </ScrollView>
       </ScrollView>
       <ModalReserve
+        data={data}
         visible={modalBookShow}
         hidden={() => {
           setModalBookShow(false);
         }}
+        onConfirm={handleBook}
+      />
+      <ModalPayment
+        data={dataPayment}
+        visible={modalPaymentShow}
         onConfirm={() => {}}
+        hidden={() => {
+          setModalPaymentShow(false);
+        }}
+      />
+      <ModalPrompt
+        title="Verify your code"
+        message="Please enter the code sent to your email"
+        visible={confirmEmailVisible}
+        onChangeText={setVerifyCode}
+        onCancel={() => setConfirmEmailVisible(false)}
+        code={verifyCode}
+        onConfirm={async () => {
+          try {
+            await onConfirmEmail(verifyCode);
+          } catch (error) {
+            return { error: true };
+          }
+        }}
       />
       {data?.mod?.id === user?.id || (
         <View
@@ -751,8 +813,14 @@ export default () => {
             bottom: 0,
             position: "absolute",
             backgroundColor: "white",
-            borderWidth: 1,
-            borderColor: "#c3c3c3",
+            shadowColor: "#000000",
+            shadowOffset: {
+              width: 0,
+              height: 3,
+            },
+            shadowOpacity: 0.17,
+            shadowRadius: 3.05,
+            elevation: 4,
             zIndex: 10,
             flexDirection: "row",
             justifyContent: "space-between",
@@ -761,7 +829,7 @@ export default () => {
             paddingHorizontal: 20,
           }}
         >
-          <Text style={{}}>${data?.price}/ night</Text>
+          <Text style={{ fontWeight: "500" }}>${data?.price}/ night</Text>
           <Pressable
             style={{
               padding: 5,

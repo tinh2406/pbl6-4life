@@ -111,12 +111,15 @@ export default () => {
         quietHoursAfter: quietTime.after,
         quietHoursBefore: quietTime.before,
       });
-      if(amenities.length>0){
-      const resAddAmenities = await instance.post("/api/accommodation/amenities",{
-        accommodationId: res.data.id,
-        amenityIds:amenities.map(i=>i.id)
-      })
-    }
+      if (amenities.length > 0) {
+        const resAddAmenities = await instance.put(
+          "/api/accommodation/amenities",
+          {
+            accommodationId: res.data.id,
+            amenityIds: amenities.map((i) => i.id),
+          }
+        );
+      }
       toast.show("Created accommodation", {
         type: "success",
         placement: "top",
@@ -130,7 +133,7 @@ export default () => {
       setLoading(false);
     }
   };
-  
+
   return (
     <ScrollView style={{ height: "100%", backgroundColor: "#fafeff" }}>
       <View
@@ -249,7 +252,7 @@ export default () => {
             setValue={setLocated}
             error={error?.located}
           />
-          <Amenities value={amenities} setValue={setAmenities}/>
+          <Amenities value={amenities} setValue={setAmenities} />
           <View>
             <Text
               style={{

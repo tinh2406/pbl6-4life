@@ -32,10 +32,11 @@ const RoomCard = ({ data }) => {
   const style = useAnimatedStyle(() => ({
     left: withTiming(left.value, config),
   }));
+  const queryClient = useQueryClient()
+  const [isLike, setIsLike] = useState(data?.isFavorite);
   const [currentImg, setCurrentImg] = useState(0);
   const [imgWidth, setImgWidth] = useState();
-
-  const imgs = [
+  const imgs = data?.imageUrls.length>0 ? data?.imageUrls : [
     "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/2c8f59fc-ec00-4eae-ab5f-684fd1168b4e.png?alt=media&token=5fccaf62-d0a8-44b7-9bdb-13363d5f3333&_gl=1*idzhgn*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIyNTM0My4yLjEuMTY5NjIyNTg4Ny42MC4wLjA.",
     "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/2ddd49a1-7f8d-4d1e-8fa3-5eb649a9c4ae.png?alt=media&token=88ea50a4-23e7-4f6a-9921-9f5001d474ab&_gl=1*16vwjtw*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjAuMTY5NjIzMTY0MC42MC4wLjA.",
     "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/e7e7925f-e9fd-4538-bf7f-ac5ca9d101c7.png?alt=media&token=efeb2f29-1289-469d-8f11-65d0c4fd5b37&_gl=1*1q81hp6*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjEuMTY5NjIzMTY3Ny4yMy4wLjA.",
@@ -43,17 +44,10 @@ const RoomCard = ({ data }) => {
   return (
     <View
       style={{
-        width:
-          width >= 1200
-            ? "19.8%"
-            : width >= 892
-            ? "24.9%"
-            : width >= 640
-            ? "33%"
-            : "100%",
-        aspectRatio: width >= 640 ? 1 / 1.418 : 1 / 1.15,
+        width: "100%",
+        aspectRatio: 1 / 1.15,
         backgroundColor: "white",
-        margin: width >= 640 ? 2 : 0,
+        margin: 0,
         padding: 10,
         borderRadius: 20,
         alignItems: "center",
@@ -71,22 +65,41 @@ const RoomCard = ({ data }) => {
           borderRadius: 20,
           overflow: "hidden",
           position: "relative",
+          zIndex: 1,
         }}
       >
-        <AntDesign
-          name={data?.isLiked ? "heart" : "hearto"}
-          size={20}
-          color={data?.isLiked ? "#FF385C" : "white"}
+        <Pressable
           style={{
             position: "absolute",
             bottom: 10,
-            left: 10,
+            left: 14,
+            zIndex: 2,
+            padding:4
           }}
-        />
+          onPress={async () => {
+            try {
+              setIsLike(!isLike)
+              const res = await instance.post("api/favorites", {
+                accommodationId: data?.id,
+                isFavorite: !isLike,
+              }); 
+              queryClient.invalidateQueries("favorite-posts")
+            } catch (error) {
+                console.log(error.response);
+            }
+          }}
+        >
+          <AntDesign
+            name={isLike ? "heart" : "hearto"}
+            size={24}
+            color={isLike ? "#ff1f48" : "white"}
+          />
+        </Pressable>
+
         <View
           style={{
             position: "absolute",
-            zIndex: 10,
+            zIndex: 1,
             alignItems: "center",
             width: "100%",
             bottom: 10,
@@ -114,7 +127,7 @@ const RoomCard = ({ data }) => {
         <View
           style={{
             position: "absolute",
-            zIndex: 10,
+            zIndex: 1,
             alignItems: "center",
             justifyContent: "space-between",
             width: "100%",
@@ -122,6 +135,12 @@ const RoomCard = ({ data }) => {
             flexDirection: "row",
           }}
         >
+          <Pressable
+            style={{ position: "absolute", width: "100%", height: "100%" }}
+            onPress={() => {
+              router.push(`root/rooms/${data.id}`);
+            }}
+          />
           <Ionicons
             name="chevron-back"
             size={24}
@@ -262,7 +281,7 @@ const RoomCard = ({ data }) => {
                 color: "#2f2f2f",
               }}
             >
-              4.9
+              {data?.avgRating}
             </Text>
           </View>
         </View>
@@ -277,14 +296,14 @@ const RoomCard = ({ data }) => {
   );
 };
 
-export default RoomCard;
+export default memo(RoomCard);
 
 export const ManagePost = memo(({ postId }) => {
   const [visible, setVisible] = useState(false);
-  const [delVisible,setDelVisible] = useState(false)
+  const [delVisible, setDelVisible] = useState(false);
   const { width, height } = useWindowDimensions();
-  const queryClient = useQueryClient()
-  const pathname = usePathname()
+  const queryClient = useQueryClient();
+  const pathname = usePathname();
   return (
     <>
       <Feather
@@ -327,9 +346,11 @@ export const ManagePost = memo(({ postId }) => {
                 Edit
               </Text>
             </Pressable>
-            <Pressable onPress={() => {
-              setDelVisible(true)
-            }}>
+            <Pressable
+              onPress={() => {
+                setDelVisible(true);
+              }}
+            >
               <Text
                 style={{
                   fontWeight: "500",
@@ -348,14 +369,13 @@ export const ManagePost = memo(({ postId }) => {
               onCancel={() => setDelVisible(false)}
               onConfirm={async () => {
                 try {
-                  await instance.delete(`/api/accommodations/${postId}`)
-                  queryClient.resetQueries('my-posts')
-                  if(pathname?.split("/")[2]==="rooms") router.back()
-
+                  await instance.delete(`/api/accommodations/${postId}`);
+                  queryClient.resetQueries("my-posts");
+                  if (pathname?.split("/")[2] === "rooms") router.back();
                 } catch (error) {
                   console.log(error);
                 }
-            }}
+              }}
             />
           </View>
         </>

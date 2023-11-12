@@ -103,7 +103,7 @@ const Content = memo(({ onClose, select }) => {
     if (!data?.pages?.slice(-1)[0].data?.length > 0) return;
     fetchNextPage();
   };
-  console.log(params);
+  
   return (
     <View
       style={{
@@ -183,7 +183,7 @@ const Content = memo(({ onClose, select }) => {
         onEndReached={handleEndReached} // Xử lý khi cuộn đến cuối danh sách
         onEndReachedThreshold={0.7} // Tùy chỉnh ngưỡng để xác định khi nào cuộn đến cuối danh sách
         ListFooterComponent={
-          isFetching ? <ActivityIndicator size="large" color="#919191" /> : null
+          isFetching&&data?.pages?.length>0 ? <ActivityIndicator size="large" color="#919191" /> : null
         }
       />
       <View

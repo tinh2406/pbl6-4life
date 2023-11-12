@@ -100,7 +100,7 @@ export const GetAmenity = memo(({ setValue }) => {
           marginRight: 5,
           borderWidth: 1,
           borderRadius: 4,
-          borderColor: "#a5a5a5",
+          borderColor: "#d4d4d4",
           flexDirection: "row",
           alignItems: "center",
           width: "100%",
@@ -175,59 +175,63 @@ export const Amenity = memo(({ data, setValue }) => {
     </View>
   );
 });
-export const Amenities = memo(({value,setValue})=>{
-    return(
-        <View>
-            <Text
-              style={{
-                fontSize: 17,
-                fontWeight: "500",
-                marginBottom: 6,
-              }}
-            >
-              Amenities
-            </Text>
-            {value?.map((i) => (
-              <Amenity key={i.name} data={{ icon: i.icon, name:i.name }} setValue={setValue} />
-            ))}
-            <GetAmenity setValue={setValue} />
-          </View>
-    )
-})
-
-
-export default memo(({postId})=>{
-    // const { data, isLoading } = useQuery({
-    //     queryKey: ["amenity", postId],
-    //     queryFn: async () => {
-    //       const res = await instance.get(`/api/amenities/${postId}`);
-    //       return res.data;
-    //     },
-    //   });
-    //   console.log(da);
-    return(
-        <View
+export const Amenities = memo(({ value, setValue }) => {
+  return (
+    <View style={{ marginBottom: 10 }}>
+      <Text
         style={{
-          marginHorizontal: 20,
-          borderTopWidth: 1,
-          borderColor: "#d5d5d5",
+          fontSize: 17,
+          fontWeight: "500",
+          marginBottom: 4,
         }}
       >
-        <Text
+        Amenities
+      </Text>
+      {value?.map((i) => (
+        <Amenity
+          key={i.name}
+          data={{ icon: i.icon, name: i.name }}
+          setValue={setValue}
+        />
+      ))}
+      <GetAmenity setValue={setValue} />
+    </View>
+  );
+});
+
+export default memo(({ postId }) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["amenitiesOfPost", postId],
+    queryFn: async () => {
+      const res = await instance.get(`/api/accommodation/amenities/${postId}`);
+      return res.data;
+    },
+  });
+  
+  return (
+    <>
+      {data?.data?.length>0 && (
+        <View
           style={{
-            marginTop: 10,
-            fontSize: 18,
-            fontWeight: "500",
+            marginHorizontal: 20,
+            borderTopWidth: 1,
+            borderColor: "#d5d5d5",
           }}
         >
-          What this place offers
-        </Text>
-        <AmenityItem data={{icon:"A",name:"name"}}/>
-        <AmenityItem data={{icon:"A",name:"name"}}/>
-        <AmenityItem data={{icon:"A",name:"name"}}/>
-        <AmenityItem data={{icon:"A",name:"name"}}/>
-        <AmenityItem data={{icon:"A",name:"name"}}/>
-        
-      </View>
-    )
-})
+          <Text
+            style={{
+              marginTop: 10,
+              fontSize: 18,
+              fontWeight: "500",
+            }}
+          >
+            What this place offers
+          </Text>
+          {data?.data?.map((i) => (
+            <AmenityItem data={i.amenity} key={i.amenity.id} />
+          ))}
+        </View>
+      )}
+    </>
+  );
+});

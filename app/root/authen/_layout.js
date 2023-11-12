@@ -25,17 +25,6 @@ export default () => {
                     else router.replace("/root/common")
                 }}
             />
-            {width >= 768
-                &&
-                <Image
-                    source={{ uri: "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/anhnen.png?alt=media&token=c24d5b04-26a4-4b2c-b98b-06adbe16836f&_gl=1*qes2cq*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjE0NTkwMC4xLjEuMTY5NjE0NjE4OC4zNy4wLjA." }}
-                    style={{
-                        width: "50%",
-                        aspectRatio: 1,
-                        marginTop: 25
-                    }}
-                />
-            }
             <Stack
                 screenOptions={{
                     headerShown: false,
