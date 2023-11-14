@@ -21,7 +21,8 @@ import Animated, {
 } from "react-native-reanimated";
 import Banks from "../utils/Banks";
 import { instance } from "../context/AuthContext";
-import * as Clipboard from 'expo-clipboard';
+import * as Clipboard from "expo-clipboard";
+import qrcode from "qrcode-generator";
 
 export default ({ visible, hidden, onConfirm, data }) => {
   const heightAnim = useSharedValue(0);
@@ -91,7 +92,13 @@ export default ({ visible, hidden, onConfirm, data }) => {
                 }}
               />
             </View>
-            <Content onClose={onClose} onConfirm={onConfirm} data={data} url={url} setUrl={setUrl} />
+            <Content
+              onClose={onClose}
+              onConfirm={onConfirm}
+              data={data}
+              url={url}
+              setUrl={setUrl}
+            />
           </View>
         </Animated.View>
       </View>
@@ -101,7 +108,7 @@ export default ({ visible, hidden, onConfirm, data }) => {
 const Content = memo(({ onClose, onConfirm, data,url,setUrl  }) => {
   const [search, setSearch] = useState("");
   const [bank, setBank] = useState();
-  
+
   const handleOK = async () => {
     try {
       const res = await instance.post("api/payment", {
@@ -117,35 +124,55 @@ const Content = memo(({ onClose, onConfirm, data,url,setUrl  }) => {
       console.log(error.response.data);
     }
   };
-  if (url)
+  if (url) {
+    const qr = qrcode(4, "L");
+    qr.addData(url);
+    qr.make();
+
     return (
       <View
         style={{
           height: 600,
           width: "100%",
           backgroundColor: "white",
-          bottom:10,
-          paddingTop:100
+          bottom: 10,
+          paddingTop: 30,
+          alignItems: "center",
         }}
       >
-        <Text style={{
-          fontSize:20,
-          marginBottom:30,
-          height:50,
-          fontWeight:"500",
-          color:"#ff385c",
-          textAlign:"center"
-        }}>
+        <Text
+          style={{
+            fontSize: 20,
+            marginBottom: 30,
+            height: 50,
+            fontWeight: "500",
+            color: "black",
+            textAlign: "center",
+          }}
+        >
           Go to the URL to pay your order
         </Text>
-        <Pressable
-          onPress={() => {
-            Linking.openURL(url);
-            onClose()
+        <Image
+          source={{
+            uri: qr.createDataURL(),
+          }}
+          width={160}
+          height={160}
+          style={{
+            marginBottom:60
+          }}
+        />
+        <View
+          style={{
+            height: 76,
           }}
         >
           <ScrollView horizontal style={{}}>
-            <View
+            <Pressable
+              onPress={() => {
+                Linking.openURL(url);
+                onClose();
+              }}
               style={{
                 borderRadius: 8,
                 backgroundColor: "#e8e8e8",
@@ -154,36 +181,34 @@ const Content = memo(({ onClose, onConfirm, data,url,setUrl  }) => {
               <Text
                 style={{
                   padding: 26,
-
                   fontSize: 16,
                 }}
               >
                 {url}
               </Text>
-            </View>
+            </Pressable>
           </ScrollView>
-        </Pressable>
+        </View>
         <View
           style={{
             flexDirection: "row",
             justifyContent: "center",
-
           }}
         >
           <Pressable
             style={{
               marginTop: 40,
             }}
-            onPress={async()=>{
+            onPress={async () => {
               await Clipboard.setStringAsync(url);
-              ToastAndroid.show("Copy to clipboard",500)
+              ToastAndroid.show("Copy to clipboard", 500);
             }}
           >
             <Text
               style={{
                 fontWeight: "500",
                 padding: 12,
-                borderRadius:4,
+                borderRadius: 4,
                 backgroundColor: "#e5e5e5",
               }}
             >
@@ -193,6 +218,7 @@ const Content = memo(({ onClose, onConfirm, data,url,setUrl  }) => {
         </View>
       </View>
     );
+  }
   return (
     <>
       <View
@@ -298,7 +324,7 @@ const Content = memo(({ onClose, onConfirm, data,url,setUrl  }) => {
     </>
   );
 });
-const BankItem = memo(({ data, select}) => {
+const BankItem = memo(({ data, select }) => {
   return (
     <Pressable
       style={{
