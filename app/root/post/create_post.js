@@ -110,21 +110,14 @@ export default () => {
         isPhotoAllowed,
         quietHoursAfter: quietTime.after,
         quietHoursBefore: quietTime.before,
+        amenityIds: amenities.map((i) => i.id),
       });
-      if (amenities.length > 0) {
-        const resAddAmenities = await instance.put(
-          "/api/accommodation/amenities",
-          {
-            accommodationId: res.data.id,
-            amenityIds: amenities.map((i) => i.id),
-          }
-        );
-      }
+      
       toast.show("Created accommodation", {
         type: "success",
         placement: "top",
       });
-      queryClient.resetQueries("my-posts");
+      queryClient.invalidateQueries("my-posts");
       router.back();
       console.log(res.data, res.request);
     } catch (error) {

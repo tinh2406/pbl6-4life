@@ -138,6 +138,7 @@ export default () => {
                   isFavorite: !isLike,
                 });
                 queryClient.invalidateQueries("favorite-posts")
+                queryClient.invalidateQueries("posts")
               } catch (error) {
                 console.log(error.response);
               }

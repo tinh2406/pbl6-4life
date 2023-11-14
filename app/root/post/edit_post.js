@@ -124,7 +124,7 @@ export default () => {
         type: "success",
         placement: "top",
       });
-      queryClient.resetQueries("my-posts");
+      queryClient.invalidateQueries("my-posts");
       router.back();
     } catch (error) {
       console.log(

@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import { router, useNavigation, usePathname } from "expo-router";
-import { memo, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import {
   Alert,
   Image,
@@ -41,6 +41,9 @@ const RoomCard = ({ data }) => {
     "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/2ddd49a1-7f8d-4d1e-8fa3-5eb649a9c4ae.png?alt=media&token=88ea50a4-23e7-4f6a-9921-9f5001d474ab&_gl=1*16vwjtw*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjAuMTY5NjIzMTY0MC42MC4wLjA.",
     "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/e7e7925f-e9fd-4538-bf7f-ac5ca9d101c7.png?alt=media&token=efeb2f29-1289-469d-8f11-65d0c4fd5b37&_gl=1*1q81hp6*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjEuMTY5NjIzMTY3Ny4yMy4wLjA.",
   ];
+  useEffect(()=>{
+    setIsLike(data?.isFavorite)
+  },[data?.isFavorite])
   return (
     <View
       style={{
@@ -84,6 +87,7 @@ const RoomCard = ({ data }) => {
                 isFavorite: !isLike,
               }); 
               queryClient.invalidateQueries("favorite-posts")
+              queryClient.invalidateQueries("posts")
             } catch (error) {
                 console.log(error.response);
             }
@@ -370,7 +374,7 @@ export const ManagePost = memo(({ postId }) => {
               onConfirm={async () => {
                 try {
                   await instance.delete(`/api/accommodations/${postId}`);
-                  queryClient.resetQueries("my-posts");
+                  queryClient.invalidateQueries("my-posts");
                   if (pathname?.split("/")[2] === "rooms") router.back();
                 } catch (error) {
                   console.log(error);
