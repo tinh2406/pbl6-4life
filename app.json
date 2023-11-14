@@ -9,14 +9,21 @@
         "backgroundColor": "#FF385C"
       },
       "package": "com.tinh2406.pbl64life",
-      "config":{
-        "googleMap": {
-          "apiKey": "AIzaSyDi3Ex6q__zEQxqkNBB0A7xgOc7KKDIgk0"
-        }
-      }
+      "config": {
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Allow $(PRODUCT_NAME) to access your photos",
+        "NSPhotoLibraryAddUsageDescription": "Allow $(PRODUCT_NAME) to save photos"
+      },
+      "bundleIdentifier": "com.tinh2406.pbl64life"
     },
     "web": {
       "bundler": "metro"
