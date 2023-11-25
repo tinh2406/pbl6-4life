@@ -1,6 +1,6 @@
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
-import { Modal, Pressable, Text, View } from "react-native";
+import { Modal, Pressable, Text, TextInput, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import Animated, {
   Easing,
@@ -11,37 +11,19 @@ import Animated, {
 
 import { DatePickerModal } from "react-native-paper-dates";
 import { format } from "date-fns";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { instance } from "../context/AuthContext";
 
+const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+const types = ["Homestay", "Villa"];
+const orders = ["Name", "Price", "Distance", "Rating"];
 export default ({ visible, hidden, onConfirm }) => {
-  const [types, setTypes] = useState();
-  useEffect(() => {
-    const getTypes = async () => {
-      const local = await AsyncStorage.getItem("types");
-      if (local) {
-        setTypes(JSON.parse(types));
-        return;
-      }
-      try {
-        const fetch = await instance.get("api/types");
-        if (fetch) {
-          setTypes(fetch.data);
-          AsyncStorage.setItem("types", JSON.stringify(fetch.data));
-          return;
-        }
-      } catch (error) {}
-
-      setTypes(["Hotel", "Motel", "Homestay", "Resort", "Villa"]);
-    };
-    getTypes();
-  }, []);
-  const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-
   const [type, setType] = useState();
   const [timeCheckIn, setTimeCheckIn] = useState();
   const [timeCheckOut, setTimeCheckOut] = useState();
   const [number, setNumber] = useState();
+  const [priceFrom, setPriceFrom] = useState();
+  const [priceTo, setPriceTo] = useState();
+  const [orderBy, setOrderBy] = useState("Name");
+
   const heightAnim = useSharedValue(0);
   const style = useAnimatedStyle(() => ({
     height: withTiming(heightAnim.value, {
@@ -50,7 +32,7 @@ export default ({ visible, hidden, onConfirm }) => {
     }),
   }));
   useEffect(() => {
-    heightAnim.value = visible ? 530 : 200;
+    heightAnim.value = visible ? 630 : 200;
   }, [visible]);
   const onClose = () => {
     heightAnim.value = 0;
@@ -81,7 +63,12 @@ export default ({ visible, hidden, onConfirm }) => {
   );
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      statusBarTranslucent
+    >
       <View
         style={{
           backgroundColor: "rgba(0, 0, 0, 0.1)",
@@ -99,8 +86,8 @@ export default ({ visible, hidden, onConfirm }) => {
           onPress={onClose}
         />
         <Animated.View style={[style]}>
-          <View
-            style={{
+          <ScrollView
+            contentContainerStyle={{
               backgroundColor: "white",
               borderRadius: 5,
               alignItems: "center",
@@ -134,6 +121,62 @@ export default ({ visible, hidden, onConfirm }) => {
               >
                 Filters
               </Text>
+            </View>
+            <View
+              style={{
+                paddingTop: 10,
+                paddingBottom: 20,
+                width: "90%",
+                borderBottomWidth: 1,
+                borderBottomColor: "#d1d1d1",
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 15,
+                  fontWeight: "600",
+                }}
+              >
+                Price range
+              </Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  width: "100%",
+                  justifyContent: "space-between",
+                  marginTop: 10,
+                  overflow: "hidden",
+                }}
+              >
+                <TextInput
+                  style={{
+                    borderColor: "#d1d1d1",
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    padding: 6,
+                    width: "50%",
+                    fontWeight: "500",
+                  }}
+                  keyboardType="numeric"
+                  placeholder="From"
+                  value={priceFrom}
+                  onChangeText={setPriceFrom}
+                />
+                <TextInput
+                  style={{
+                    borderColor: "#d1d1d1",
+                    borderWidth: 1,
+                    borderRadius: 4,
+                    padding: 6,
+                    width: "50%",
+                    fontWeight: "500",
+                  }}
+                  keyboardType="numeric"
+                  placeholder="To"
+                  value={priceTo}
+                  onChangeText={setPriceTo}
+                />
+              </View>
             </View>
             <View
               style={{
@@ -232,7 +275,7 @@ export default ({ visible, hidden, onConfirm }) => {
                   fontWeight: "600",
                 }}
               >
-                Time check-in
+                Date
               </Text>
               <View
                 style={{
@@ -252,23 +295,31 @@ export default ({ visible, hidden, onConfirm }) => {
                     lineHeight: 38,
                     borderRadius: 30,
                     borderWidth: 2,
-                    borderColor: timeCheckIn ? "black" : "#ff385c",
-                    color: timeCheckIn ? "black" : "#ff385c",
+                    borderColor:
+                      timeCheckIn && timeCheckOut ? "black" : "#ff385c",
+                    color: timeCheckIn && timeCheckOut ? "black" : "#ff385c",
                     marginHorizontal: 20,
                     textAlign: "center",
                     textAlignVertical: "center",
                   }}
-                  onPress={() => setTimeCheckIn()}
+                  onPress={() => {
+                    setTimeCheckIn();
+                    setTimeCheckOut();
+                  }}
                 />
                 <Pressable
                   style={{
                     borderWidth: 1,
                     borderRadius: 30,
                     padding: 12,
-                    borderColor: timeCheckIn ? "#ff385c" : "black",
+                    borderColor: timeCheckIn
+                      ? timeCheckOut
+                        ? "#ff385c"
+                        : "black"
+                      : "#d1d1d1",
                     backgroundColor: "white",
-                    height: 40,
-                    minWidth: 40,
+                    height: 44,
+                    width: 120,
                     justifyContent: "space-between",
                   }}
                   onPress={() => {
@@ -278,78 +329,41 @@ export default ({ visible, hidden, onConfirm }) => {
                   <Text
                     style={{
                       textAlign: "center",
-                      color: timeCheckIn ? "#FF385C" : "black",
+                      color: timeCheckIn
+                        ? timeCheckOut
+                          ? "#ff385c"
+                          : "black"
+                        : "#d1d1d1",
                       fontWeight: "600",
                       fontSize: 14,
                     }}
                   >
-                    {timeCheckIn
-                      ? format(timeCheckIn, "dd/MM/yyyy")
-                      : "Select date"}
+                    {timeCheckIn ? format(timeCheckIn, "dd/MM/yyyy") : "From"}
                   </Text>
                 </Pressable>
                 <DatePickerModal
                   locale="en"
                   mode="single"
+                  validRange={{ startDate: new Date() }}
                   visible={checkInOpen}
                   onDismiss={onDismissCheckIn}
                   date={timeCheckIn || new Date()}
                   onConfirm={onConfirmCheckIn}
                 />
-              </View>
-            </View>
-            <View
-              style={{
-                paddingTop: 10,
-                paddingBottom: 20,
-                width: "90%",
-                borderBottomWidth: 1,
-                borderBottomColor: "#d1d1d1",
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: 15,
-                  fontWeight: "600",
-                }}
-              >
-                Time check-out
-              </Text>
-              <View
-                style={{
-                  justifyContent: "center",
-                  alignItems: "center",
-                  flexDirection: "row",
-                  paddingTop: 10,
-                }}
-              >
-                <Entypo
-                  name="block"
-                  size={24}
-                  color="black"
-                  style={{
-                    height: 40,
-                    width: 40,
-                    lineHeight: 38,
-                    borderRadius: 30,
-                    borderWidth: 2,
-                    borderColor: timeCheckOut ? "black" : "#ff385c",
-                    color: timeCheckOut ? "black" : "#ff385c",
-                    marginHorizontal: 20,
-                    textAlign: "center",
-                    textAlignVertical: "center",
-                  }}
-                  onPress={() => setTimeCheckOut()}
-                />
+                <Text>-</Text>
                 <Pressable
                   style={{
                     borderWidth: 1,
                     borderRadius: 30,
                     padding: 12,
-                    borderColor: timeCheckOut ? "#ff385c" : "black",
+                    borderColor: timeCheckOut
+                      ? timeCheckIn
+                        ? "#ff385c"
+                        : "black"
+                      : "#d1d1d1",
                     backgroundColor: "white",
-                    height: 40,
-                    minWidth: 40,
+                    height: 44,
+                    width: 120,
                     justifyContent: "space-between",
                   }}
                   onPress={() => {
@@ -359,19 +373,22 @@ export default ({ visible, hidden, onConfirm }) => {
                   <Text
                     style={{
                       textAlign: "center",
-                      color: timeCheckOut ? "#ff385c" : "black",
+                      color: timeCheckOut
+                        ? timeCheckIn
+                          ? "#ff385c"
+                          : "black"
+                        : "#d1d1d1",
                       fontWeight: "600",
                       fontSize: 14,
                     }}
                   >
-                    {timeCheckOut
-                      ? format(timeCheckOut, "dd/MM/yyyy")
-                      : "Select date"}
+                    {timeCheckOut ? format(timeCheckOut, "dd/MM/yyyy") : "To"}
                   </Text>
                 </Pressable>
                 <DatePickerModal
                   locale="en"
                   mode="single"
+                  validRange={{ startDate: timeCheckIn || new Date() }}
                   visible={checkOutOpen}
                   onDismiss={onDismissCheckOut}
                   date={timeCheckOut || new Date()}
@@ -420,8 +437,9 @@ export default ({ visible, hidden, onConfirm }) => {
                     borderRadius: 20,
                     borderWidth: 1,
                     borderColor: number ? "rgba(0, 0, 0, 0.3)" : "#FF385C",
-                    marginLeft: 10,
+                    marginLeft: 20,
                     marginRight: 10,
+
                   }}
                   onPress={() => setNumber()}
                 >
@@ -465,6 +483,69 @@ export default ({ visible, hidden, onConfirm }) => {
             </View>
             <View
               style={{
+                paddingTop: 10,
+                paddingBottom: 20,
+                width: "90%",
+                alignItems: "center",
+                borderTopWidth: 1,
+                borderTopColor: "#d1d1d1",
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 15,
+                  fontWeight: "600",
+                  width: "100%",
+                }}
+              >
+                Order by
+              </Text>
+              <ScrollView
+                style={{
+                  flexDirection: "row",
+                  width: "100%",
+                  marginTop: 10,
+                  borderRadius: 10,
+                  overflow: "hidden",
+                }}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                bounces={false}
+                alwaysBounceHorizontal={false}
+                alwaysBounceVertical={false}
+                overScrollMode="never"
+                showsVerticalScrollIndicator={false}
+              >
+                {orders.map((i) => (
+                  <Pressable
+                    key={i}
+                    style={{
+                      backgroundColor: orderBy !== i ? "white" : "#FF385C",
+                      padding: 8,
+                      paddingHorizontal: 13,
+                      borderRadius: 20,
+                      borderWidth: 1,
+                      marginRight: 10,
+                      borderColor:
+                        number !== i ? "rgba(0, 0, 0, 0.3)" : "#FF385C",
+                    }}
+                    onPress={() => setOrderBy(i)}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 14,
+                        fontWeight: "bold",
+                        color: orderBy !== i ? "black" : "white",
+                      }}
+                    >
+                      {i}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
+            <View
+              style={{
                 flexDirection: "row",
                 paddingHorizontal: 20,
                 paddingVertical: 10,
@@ -481,7 +562,8 @@ export default ({ visible, hidden, onConfirm }) => {
                   setNumber();
                   setTimeCheckIn();
                   setTimeCheckOut();
-                  onClose();
+                  setPriceFrom();
+                  setPriceTo()
                 }}
               >
                 <Text
@@ -494,7 +576,22 @@ export default ({ visible, hidden, onConfirm }) => {
               </Pressable>
               <Pressable
                 onPress={() => {
-                  onConfirm({ type, timeCheckIn, timeCheckOut, number });
+                  const keys = new Object()
+                  if(type){
+                    keys["Type"] = type
+                  }
+                  if(priceFrom&&priceTo){
+                    keys["PriceFrom"] = priceFrom
+                    keys["PriceTo"] = priceTo
+                  }
+                  if(number&&timeCheckIn&&timeCheckOut){
+                    keys["CheckIn"]=timeCheckIn
+                    keys["CheckOut"]=timeCheckOut
+                    keys["Guests"]=number
+                  }
+                  
+                  keys["SortBy"]=orderBy
+                  onConfirm(keys);
                   onClose();
                 }}
               >
@@ -512,7 +609,7 @@ export default ({ visible, hidden, onConfirm }) => {
                 </Text>
               </Pressable>
             </View>
-          </View>
+          </ScrollView>
         </Animated.View>
       </View>
     </Modal>

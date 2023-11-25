@@ -104,7 +104,11 @@ export default () => {
                                     borderBottomWidth: 1,
                                     paddingVertical: 10,
                                     borderColor: "#d4d4d4"
-                                }}>
+                                }}
+                                    onPress={()=>{
+                                        router.push('root/booking')
+                                    }}
+                                >
                                     <View style={{
                                         flexDirection: "row",
                                         flex: 1,

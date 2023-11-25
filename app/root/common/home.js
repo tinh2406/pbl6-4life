@@ -1,18 +1,38 @@
 // import { MaterialIcons } from "@expo/vector-icons";
 import { MaterialIcons } from "react-native-vector-icons";
-import { useState } from "react";
-import { Pressable, View, useWindowDimensions } from "react-native";
+import { useEffect, useState } from "react";
+import { BackHandler, Pressable, View } from "react-native";
 import ModalFilter from "../../../src/components/ModalFilter";
 import TabBar from "../../../src/components/TabBar";
 import WhereTo from "../../../src/components/WhereTo";
 import FlatListAutoLoad from "../../../src/components/FlatListAutoLoad";
+import * as Location from "expo-location";
 export default () => {
   const [filterShow, setFilterShow] = useState(false);
-  const [filterState, setFilterState] = useState();
+  const [filterState, setFilterState] = useState({});
 
   const [searchShow, setSearchShow] = useState(false);
   const [searchState, setSearchState] = useState();
-  console.log(filterState, searchState);
+
+  const [location, setLocation] = useState(null);
+
+  useEffect(() => {
+    (async () => {
+      if (!location) {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          BackHandler.exitApp();
+          return;
+        }
+
+        let location = await Location.getCurrentPositionAsync({});
+        setLocation({
+          Latitude: location.coords.latitude,
+          Longitude: location.coords.longitude,
+        });
+      }
+    })();
+  }, [location]);
 
   return (
     <View style={{ height: "100%" }}>
@@ -79,8 +99,8 @@ export default () => {
         </View>
         <FlatListAutoLoad
           url="/api/accommodations"
-          params={{ PageSize: 5 }}
-          queryKey={["posts"]}
+          params={{ PageSize: 5,...filterState,...location,...searchState }}
+          queryKey={["posts",Object.values(filterState),searchState?.LocationId]}
         />
       </View>
 

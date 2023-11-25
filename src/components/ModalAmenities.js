@@ -37,14 +37,14 @@ export default ({ visible, hidden, select }) => {
     heightAnim.value = 0;
     setTimeout(hidden, 10);
   }, []);
-  Keyboard.addListener("keyboardDidShow", () => {
-    heightAnim.value = 300;
-  });
-  Keyboard.addListener("keyboardDidHide", () => {
-    heightAnim.value = 600;
-  });
+
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      statusBarTranslucent
+    >
       <View
         style={{
           backgroundColor: "rgba(0, 0, 0, 0.1)",
@@ -103,7 +103,7 @@ const Content = memo(({ onClose, select }) => {
     if (!data?.pages?.slice(-1)[0].data?.length > 0) return;
     fetchNextPage();
   };
-  
+
   return (
     <View
       style={{
@@ -183,7 +183,9 @@ const Content = memo(({ onClose, select }) => {
         onEndReached={handleEndReached} // Xử lý khi cuộn đến cuối danh sách
         onEndReachedThreshold={0.7} // Tùy chỉnh ngưỡng để xác định khi nào cuộn đến cuối danh sách
         ListFooterComponent={
-          isFetching&&data?.pages?.length>0 ? <ActivityIndicator size="large" color="#919191" /> : null
+          isFetching && data?.pages?.length > 0 ? (
+            <ActivityIndicator size="large" color="#919191" />
+          ) : null
         }
       />
       <View
@@ -211,10 +213,8 @@ export const AmenityItem = memo(({ data, onClose, select }) => {
         borderBottomWidth: 0.2,
       }}
       onPress={() => {
-        if(select)
-        select(last=>[...last,data]);
-    if(onClose)
-        onClose();
+        if (select) select((last) => [...last, data]);
+        if (onClose) onClose();
       }}
     >
       <Image

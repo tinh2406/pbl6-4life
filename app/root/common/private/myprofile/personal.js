@@ -37,7 +37,7 @@ export default () => {
                     }}
                 >
                     <Name name={user?.name}/>
-                    <Phone phone={user?.phone}/>
+                    <Phone phone={user?.phoneNumber}/>
                     <Address address={user?.address}/>
                     <DateOfBirth dateOfBirth={user?.dateOfBirth==="0001-01-01"?null:new Date(user?.dateOfBirth)}/>
                     <Gender gender={user?.gender}/>

@@ -32,7 +32,8 @@
       "expo-router",
       "expo-localization",
       "expo-image-picker",
-      "expo-media-library"
+      "expo-media-library",
+      "expo-location"
     ],
     "extra": {
       "router": {

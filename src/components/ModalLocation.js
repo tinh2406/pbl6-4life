@@ -35,14 +35,19 @@ export default ({ visible, hidden, select }) => {
     heightAnim.value = 0;
     setTimeout(hidden, 10);
   }, []);
-  Keyboard.addListener("keyboardDidShow", () => {
-    heightAnim.value = 300;
-  });
-  Keyboard.addListener("keyboardDidHide", () => {
-    heightAnim.value = 600;
+
+  const [timeoutId, setTimeOutId] = useState(false);
+  const [params, setParams] = useState({
+    Keyword: "",
+    PageSize: 10,
   });
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      statusBarTranslucent
+    >
       <View
         style={{
           backgroundColor: "rgba(0, 0, 0, 0.1)",
@@ -60,20 +65,77 @@ export default ({ visible, hidden, select }) => {
           onPress={onClose}
         />
         <Animated.View style={[style]}>
-          <Content onClose={onClose} select={select} />
+          <View
+            style={{
+              backgroundColor: "white",
+              borderRadius: 5,
+              alignItems: "center",
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                paddingVertical: 5,
+                alignItems: "center",
+                width: "100%",
+              }}
+            >
+              <Ionicons
+                name="close"
+                size={18}
+                color="#212121"
+                onPress={onClose}
+                style={{
+                  padding: 8,
+                  paddingHorizontal: 16,
+                }}
+              />
+            </View>
+            <View
+              style={{
+                paddingTop: 10,
+                width: "90%",
+              }}
+            >
+              <TextInput
+                placeholder="Enter your location"
+                style={{
+                  width: "100%",
+                  padding: 10,
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  borderColor: "#e4e4e4",
+                  marginBottom: 10,
+                }}
+                onChangeText={(text) => {
+                  if (timeoutId) clearTimeout(timeoutId);
+                  setTimeOutId(
+                    setTimeout(() => {
+                      setParams({ ...params, Keyword: text });
+                    }, 300)
+                  );
+                }}
+              />
+            </View>
+            <Content onClose={onClose} select={select} params={params} />
+            <View
+              style={{
+                paddingTop: 10,
+                paddingBottom: 20,
+                width: "100%",
+                alignItems: "center",
+              }}
+            ></View>
+          </View>
         </Animated.View>
       </View>
     </Modal>
   );
 };
 
-const Content = memo(({ onClose, select }) => {
+const Content = memo(({ onClose, select, params }) => {
   const queryClient = useQueryClient();
-  const [timeoutId, setTimeOutId] = useState();
-  const [params, setParams] = useState({
-    Keyword: "",
-    PageSize: 10,
-  });
+
   const { isFetching, isLoading, data, fetchNextPage } = useInfiniteQuery(
     ["locations", params.Keyword],
     async ({ pageParam }) => {
@@ -101,103 +163,43 @@ const Content = memo(({ onClose, select }) => {
     if (!data?.pages?.slice(-1)[0].data?.length > 0) return;
     fetchNextPage();
   };
-  
+
   return (
-    <View
+    <FlatList
+      showsHorizontalScrollIndicator={false}
+      showsVerticalScrollIndicator={false}
+      // keyboardDismissMode="on-drag"
       style={{
-        backgroundColor: "white",
-        borderRadius: 5,
-        alignItems: "center",
+        width: "100%",
+        height: 490,
+        paddingHorizontal: 20,
       }}
-    >
-      <View
-        style={{
-          flexDirection: "row",
-          paddingVertical: 5,
-          alignItems: "center",
-          width: "100%",
-        }}
-      >
-        <Ionicons
-          name="close"
-          size={18}
-          color="#212121"
-          onPress={onClose}
-          style={{
-            padding: 8,
-            paddingHorizontal: 16,
-          }}
-        />
-      </View>
-      <View
-        style={{
-          paddingTop: 10,
-          width: "90%",
-        }}
-      >
-        <TextInput
-          placeholder="Enter your location"
-          style={{
-            width: "100%",
-            padding: 10,
-            borderRadius: 10,
-            borderWidth: 1,
-            borderColor: "#e4e4e4",
-            marginBottom: 10,
-          }}
-          onChangeText={(text) => {
-            if (timeoutId) clearTimeout(timeoutId);
-            setTimeOutId(
-              setTimeout(() => {
-                setParams({ ...params, Keyword: text });
-              }, 1000)
-            );
-          }}
-        />
-      </View>
-      <FlatList
-        showsHorizontalScrollIndicator={false}
-        showsVerticalScrollIndicator={false}
-        // keyboardDismissMode="on-drag"
-        style={{
-          width: "100%",
-          height: 490,
-          paddingHorizontal: 20,
-        }}
-        data={data?.pages.map((page) => page.data.map((post) => post)).flat()}
-        renderItem={({ item }) => (
-          <View>
-            <LocationItem data={item} onClose={onClose} select={select} />
-          </View>
-        )}
-        //Setting the number of column
-        numColumns={1}
-        onRefresh={() => {
-          if (isFetching) return;
-          queryClient.resetQueries("locations");
-        }}
-        refreshing={isLoading}
-        keyExtractor={(item, i) => "_" + item.id}
-        onEndReached={handleEndReached} // Xử lý khi cuộn đến cuối danh sách
-        onEndReachedThreshold={0.7} // Tùy chỉnh ngưỡng để xác định khi nào cuộn đến cuối danh sách
-        ListFooterComponent={
-          isFetching&&data?.pages?.length>0 ? <ActivityIndicator size="large" color="#919191" /> : null
-        }
-      />
-      <View
-        style={{
-          paddingTop: 10,
-          paddingBottom: 20,
-          width: "100%",
-          alignItems: "center",
-        }}
-      ></View>
-    </View>
+      data={data?.pages.map((page) => page.data.map((post) => post)).flat()}
+      renderItem={({ item }) => (
+        <View>
+          <LocationItem data={item} onClose={onClose} select={select} />
+        </View>
+      )}
+      //Setting the number of column
+      numColumns={1}
+      onRefresh={() => {
+        if (isFetching) return;
+        queryClient.resetQueries("locations");
+      }}
+      refreshing={isLoading}
+      keyExtractor={(item, i) => "_" + item.id}
+      onEndReached={handleEndReached} // Xử lý khi cuộn đến cuối danh sách
+      onEndReachedThreshold={0.7} // Tùy chỉnh ngưỡng để xác định khi nào cuộn đến cuối danh sách
+      ListFooterComponent={
+        isFetching && data?.pages?.length > 0 ? (
+          <ActivityIndicator size="large" color="#919191" />
+        ) : null
+      }
+    />
   );
 });
 
 const LocationItem = memo(({ data, onClose, select }) => {
-  console.log(data,"LocationItem");
   return (
     <Pressable
       style={{
@@ -211,7 +213,7 @@ const LocationItem = memo(({ data, onClose, select }) => {
       }}
       onPress={() => {
         select(data);
-        onClose();
+        if(onClose) onClose();
       }}
     >
       <Ionicons
@@ -235,3 +237,7 @@ const LocationItem = memo(({ data, onClose, select }) => {
     </Pressable>
   );
 });
+
+export {
+  Content as LocationService
+}

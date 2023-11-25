@@ -14,8 +14,6 @@ export default () => {
   const [code, setCode] = useState("");
   const [visible, setVisible] = useState(false);
 
-  
-
   return (
     <View style={{ height: "100%", backgroundColor: "#fafeff" }}>
       <View
@@ -24,7 +22,9 @@ export default () => {
           justifyContent: "space-between",
         }}
       >
-        {user.statusModRole === "Active" && (
+        {user.statusModRole !== "Active" ? (
+          <UserCard />
+        ) : (
           <FlatListAutoLoad
             url="/api/accommodations/self"
             params={{ PageSize: 5 }}
@@ -139,131 +139,136 @@ const UserCard = memo(() => {
       await onUpdateAVT(result.assets[0]);
     }
   };
-  return(
-  <View>
-    <Ionicons
-      name="chevron-back"
-      size={20}
-      color={"#6b6b6b"}
-      onPress={() => {
-        router.back();
-      }}
-      style={{
-        paddingTop: 20,
-        paddingHorizontal:20
-      }}
-    />
-
+  return (
     <View
       style={{
-        marginHorizontal: 10,
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-evenly",
-        marginTop: 20,
-        backgroundColor: "#ffffff",
-        shadowColor: "#747474",
-        shadowOffset: {
-          width: 0,
-          height: 12,
-        },
-        shadowOpacity: 0.58,
-        shadowRadius: 16.0,
-
-        elevation: 24,
-        borderRadius: 20,
+        marginBottom:20
       }}
     >
+      <Ionicons
+        name="chevron-back"
+        size={20}
+        color={"#6b6b6b"}
+        onPress={() => {
+          router.back();
+        }}
+        style={{
+          paddingTop: 20,
+          paddingHorizontal: 20,
+        }}
+      />
+
       <View
         style={{
+          marginHorizontal: 10,
+          flexDirection: "row",
           alignItems: "center",
+          justifyContent: "space-evenly",
+          marginTop: 20,
+          backgroundColor: "#ffffff",
+          shadowColor: "#747474",
+          shadowOffset: {
+            width: 0,
+            height: 12,
+          },
+          shadowOpacity: 0.58,
+          shadowRadius: 16.0,
+
+          elevation: 24,
+          borderRadius: 20,
         }}
       >
-        <Pressable
-          style={{
-            borderRadius: 100,
-            margin: 20,
-          }}
-          disabled={userId !== user?.id}
-          onPress={handleUploadImage}
-        >
-          <Image
-            source={
-              image?.uri || user?.avatar
-                ? {
-                    uri: image?.uri || user?.avatar,
-                  }
-                : defaultAvt
-            }
-            style={{
-              width: 90,
-              height: 90,
-              borderRadius: 100,
-            }}
-          />
-        </Pressable>
-        <Text
-          style={{
-            fontSize: 20,
-            fontWeight: "700",
-          }}
-        >
-          {user?.name}
-        </Text>
-        <Text
-          style={{
-            fontSize: 12,
-            fontWeight: "500",
-            marginBottom: 10,
-          }}
-        >
-          {user.statusModRole === "Active" ? "Mod" : "Guest"}
-        </Text>
-      </View>
-      {user.statusModRole === "Active" && (
         <View
           style={{
-            flexDirection: "column",
-            justifyContent: "space-evenly",
-            marginHorizontal: 20,
-            marginTop: 20,
+            alignItems: "center",
           }}
         >
-          <View style={{}}>
-            <Text
+          <Pressable
+            style={{
+              borderRadius: 100,
+              margin: 20,
+            }}
+            disabled={userId !== user?.id}
+            onPress={handleUploadImage}
+          >
+            <Image
+              source={
+                image?.uri || user?.avatar
+                  ? {
+                      uri: image?.uri || user?.avatar,
+                    }
+                  : defaultAvt
+              }
               style={{
-                fontWeight: "600",
-                fontSize: 16,
+                width: 90,
+                height: 90,
+                borderRadius: 100,
               }}
-            >
-              Nums of posts
-            </Text>
-            <Text></Text>
-          </View>
-          <View style={{}}>
-            <Text
-              style={{
-                fontWeight: "600",
-                fontSize: 16,
-              }}
-            >
-              Nums of likes
-            </Text>
-            <Text></Text>
-          </View>
-          <View style={{}}>
-            <Text
-              style={{
-                fontWeight: "600",
-                fontSize: 16,
-              }}
-            >
-              Nums of comments
-            </Text>
-            <Text></Text>
-          </View>
+            />
+          </Pressable>
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: "700",
+            }}
+          >
+            {user?.name}
+          </Text>
+          <Text
+            style={{
+              fontSize: 12,
+              fontWeight: "500",
+              marginBottom: 10,
+            }}
+          >
+            {user.statusModRole === "Active" ? "Mod" : "Guest"}
+          </Text>
         </View>
-      )}
+        {user.statusModRole === "Active" && (
+          <View
+            style={{
+              flexDirection: "column",
+              justifyContent: "space-evenly",
+              marginHorizontal: 20,
+              marginTop: 20,
+            }}
+          >
+            <View style={{}}>
+              <Text
+                style={{
+                  fontWeight: "600",
+                  fontSize: 16,
+                }}
+              >
+                Nums of posts
+              </Text>
+              <Text></Text>
+            </View>
+            <View style={{}}>
+              <Text
+                style={{
+                  fontWeight: "600",
+                  fontSize: 16,
+                }}
+              >
+                Nums of likes
+              </Text>
+              <Text></Text>
+            </View>
+            <View style={{}}>
+              <Text
+                style={{
+                  fontWeight: "600",
+                  fontSize: 16,
+                }}
+              >
+                Nums of comments
+              </Text>
+              <Text></Text>
+            </View>
+          </View>
+        )}
+      </View>
     </View>
-  </View>)
+  );
 });

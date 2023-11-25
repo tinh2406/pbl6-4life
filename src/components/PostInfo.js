@@ -179,22 +179,8 @@ export const InputInfo = memo(
 export const Type = memo(({ value, setValue, error }) => {
   const [types, setTypes] = useState();
   useEffect(() => {
-    const getTypes = async () => {
-      const local = await AsyncStorage.getItem("types");
-      if (local) {
-        setTypes(JSON.parse(types));
-        return;
-      }
-      try {
-        const fetch = await instance.get("api/types");
-        if (fetch) {
-          setTypes(fetch.data);
-          AsyncStorage.setItem("types", JSON.stringify(fetch.data));
-          return;
-        }
-      } catch (error) {}
-
-      setTypes(["Hotel", "Motel", "Homestay", "Resort", "Villa"]);
+    const getTypes = () => {
+      setTypes(["Homestay", "Villa","Other"]);
     };
     getTypes();
   }, []);

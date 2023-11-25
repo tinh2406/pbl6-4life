@@ -1,8 +1,4 @@
-import {
-  AntDesign,
-  Ionicons,
-  MaterialIcons,
-} from "@expo/vector-icons";
+import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { memo, useCallback, useMemo, useState } from "react";
 import {
@@ -31,6 +27,7 @@ import { ManagePost } from "../../../src/components/RoomCard";
 import ModalPayment from "../../../src/components/ModalPayment";
 import defaultAvt from "../../../src/assets/defaultAvatar.png";
 import ModalPrompt from "../../../src/components/ModalPrompt";
+import { useToast } from "react-native-toast-notifications";
 
 const config = {
   duration: 200,
@@ -41,7 +38,7 @@ export default () => {
   const width = useWindowDimensions().width;
   const { postId } = useLocalSearchParams();
   const { user, onVerifyEmail } = useUser();
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   const { data } = useQuery({
     queryKey: ["post", postId],
     queryFn: async () => {
@@ -65,7 +62,7 @@ export default () => {
   const [dataPayment, setDataPayment] = useState();
   const [confirmEmailVisible, setConfirmEmailVisible] = useState(false);
   const [verifyCode, setVerifyCode] = useState("");
-
+  const toast = useToast();
   const handleShare = useCallback(() => {
     console.log("share");
   }, []);
@@ -86,6 +83,15 @@ export default () => {
     } catch (error) {
       console.log(JSON.stringify(error));
       console.log(error.response, error.response.data.title);
+      if (
+        error?.response?.data?.title?.includes(
+          "has a Booking and has another Booking"
+        )
+      )
+        toast.show("This accommodation runs out of room", {
+          type: "danger",
+          placement: "top",
+        });
     }
   }, []);
   return (
@@ -137,8 +143,8 @@ export default () => {
                   accommodationId: data?.id,
                   isFavorite: !isLike,
                 });
-                queryClient.invalidateQueries("favorite-posts")
-                queryClient.invalidateQueries("posts")
+                queryClient.invalidateQueries("favorite-posts");
+                queryClient.invalidateQueries("posts");
               } catch (error) {
                 console.log(error.response);
               }

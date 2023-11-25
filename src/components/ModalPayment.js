@@ -38,17 +38,17 @@ export default ({ visible, hidden, onConfirm, data }) => {
   }, [visible]);
   const onClose = () => {
     heightAnim.value = 0;
-    setUrl()
+    setUrl();
     setTimeout(hidden, 10);
   };
-  Keyboard.addListener("keyboardDidShow", () => {
-    heightAnim.value = 300;
-  });
-  Keyboard.addListener("keyboardDidHide", () => {
-    heightAnim.value = 600;
-  });
+  
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      statusBarTranslucent
+    >
       <View
         style={{
           backgroundColor: "rgba(0, 0, 0, 0.1)",
@@ -105,7 +105,7 @@ export default ({ visible, hidden, onConfirm, data }) => {
     </Modal>
   );
 };
-const Content = memo(({ onClose, onConfirm, data,url,setUrl  }) => {
+const Content = memo(({ onClose, onConfirm, data, url, setUrl }) => {
   const [search, setSearch] = useState("");
   const [bank, setBank] = useState();
 
@@ -117,7 +117,7 @@ const Content = memo(({ onClose, onConfirm, data,url,setUrl  }) => {
         bankCode: bank.shortName,
         orderDesc: "Chưa biết",
       });
-      setUrl(res.data);
+      setUrl(res?.data);
       onConfirm();
     } catch (error) {
       console.log(error.response);
@@ -125,7 +125,7 @@ const Content = memo(({ onClose, onConfirm, data,url,setUrl  }) => {
     }
   };
   if (url) {
-    const qr = qrcode(4, "L");
+    const qr = qrcode(16, "L");
     qr.addData(url);
     qr.make();
 
@@ -159,7 +159,7 @@ const Content = memo(({ onClose, onConfirm, data,url,setUrl  }) => {
           width={160}
           height={160}
           style={{
-            marginBottom:60
+            marginBottom: 60,
           }}
         />
         <View
@@ -171,7 +171,6 @@ const Content = memo(({ onClose, onConfirm, data,url,setUrl  }) => {
             <Pressable
               onPress={() => {
                 Linking.openURL(url);
-                onClose();
               }}
               style={{
                 borderRadius: 8,

@@ -13,12 +13,9 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useUser } from "../context/UserContext";
+import { callNumDays } from "../utils/CallNumdays";
 
-const callNumDays = (before, after) => {
-  const timeDifference = after - before;
 
-  return timeDifference / (1000 * 60 * 60 * 24);
-};
 export default ({ visible, hidden, onConfirm, data }) => {
   const { user } = useUser();
   const [pickShow, setPickShow] = useState(false);
