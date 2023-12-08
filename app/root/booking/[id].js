@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { Image, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useQuery } from "react-query";
 import { instance } from "../../../src/context/AuthContext";
@@ -9,6 +9,7 @@ import defaultAvt from "../../../src/assets/defaultAvatar.png";
 import { format } from "date-fns";
 import ModalPayment from "../../../src/components/ModalPayment";
 import { callNumDays } from "../../../src/utils/CallNumdays";
+import { CheckReview } from "../../../src/components/Reviews";
 export default () => {
   const { id } = useLocalSearchParams();
 
@@ -60,7 +61,6 @@ const Content = memo(({ id }) => {
       return res.data;
     },
   });
-
   const [modalPaymentShow, setModalPaymentShow] = useState(false);
   const handleButtonClick = () => {
     if (data?.isPaid) {
@@ -68,6 +68,19 @@ const Content = memo(({ id }) => {
       setModalPaymentShow(true);
     }
   };
+  if (isLoading)
+    return (
+      <View
+        style={{
+          height: "100%",
+          width: "100%",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <ActivityIndicator size="large" color="#ff385c" />
+      </View>
+    );
   return (
     <View
       style={{
@@ -81,7 +94,10 @@ const Content = memo(({ id }) => {
       <View
         style={{
           marginTop: 10,
-          marginLeft: 5,
+          marginLeft: 10,
+          marginBottom: 4,
+          flexDirection: "row",
+          alignItems: "center",
         }}
       >
         <Image
@@ -98,7 +114,15 @@ const Content = memo(({ id }) => {
             borderRadius: 20,
           }}
         />
-        <Text>{data?.accommodation.mod?.name}</Text>
+        <Text
+          style={{
+            fontWeight: "500",
+            marginLeft: 4,
+            fontSize: 15,
+          }}
+        >
+          {data?.accommodation.mod?.name}
+        </Text>
       </View>
       <Pressable
         style={{
@@ -162,7 +186,9 @@ const Content = memo(({ id }) => {
             color: "#494949",
           }}
         >
-          From:{format(Date.parse(data?.checkInDate), "MMMM do yyyy")}
+          From:
+          {data?.checkInDate &&
+            format(Date.parse(data?.checkInDate), "MMMM do yyyy")}
         </Text>
         <Text
           style={{
@@ -172,14 +198,17 @@ const Content = memo(({ id }) => {
           }}
         >
           To:
-          {format(Date.parse(data?.checkOutDate), "MMMM do yyyy")}
+          {data?.checkOutDate &&
+            format(Date.parse(data?.checkOutDate), "MMMM do yyyy")}
         </Text>
       </View>
-      <View style={{
-        height:1,
-        backgroundColor: "#d1d1d1",
-        marginBottom: 5
-      }}/>
+      <View
+        style={{
+          height: 1,
+          backgroundColor: "#eeeeee",
+          marginBottom: 5,
+        }}
+      />
       <View
         style={{
           marginBottom: 20,
@@ -214,11 +243,13 @@ const Content = memo(({ id }) => {
           {data?.accommodation.mod?.phoneNumber}
         </Text>
       </View>
-      <View style={{
-        height:2,
-        backgroundColor: "#d1d1d1",
-        marginBottom: 5
-      }}/>
+      <View
+        style={{
+          height: 1,
+          backgroundColor: "#d1d1d1",
+          marginBottom: 5,
+        }}
+      />
       <View
         style={{
           justifyContent: "space-between",
@@ -233,7 +264,9 @@ const Content = memo(({ id }) => {
             marginLeft: 4,
           }}
         >
-          Created at: {format(Date.parse(data?.createdDate), "dd-MM-yyyy")}
+          Created at:{" "}
+          {data?.createdDate &&
+            format(Date.parse(data?.createdDate), "dd-MM-yyyy")}
         </Text>
         <View>
           <View
@@ -375,6 +408,7 @@ const Content = memo(({ id }) => {
           setModalPaymentShow(false);
         }}
       />
+      <CheckReview postId={data?.accommodation.id}/>
     </View>
   );
 });

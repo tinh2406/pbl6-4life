@@ -97,6 +97,41 @@ export default () => {
                                     fontWeight: "500",
                                     marginBottom: 12
                                 }}>
+                                    Your rooms
+                                </Text>
+                                <Pressable style={{
+                                    flexDirection: "row",
+                                    borderBottomWidth: 1,
+                                    paddingVertical: 10,
+                                    borderColor: "#d4d4d4"
+                                }}
+                                    onPress={()=>{
+                                        router.push(`/root/profile/${user.id}`);
+                                    }}
+                                >
+                                    <View style={{
+                                        flexDirection: "row",
+                                        flex: 1,
+
+                                    }}>
+                                       <Ionicons name="list-outline" size={20} color="#4b4b4b" />
+                                        <Text
+                                            style={{ color: "#4b4b4b", marginLeft: 10 }}
+                                        >Your rooms</Text>
+                                    </View>
+                                    <Ionicons name="chevron-forward" size={20} color={"#4b4b4b"} />
+                                </Pressable>
+                            </View>
+                            <View
+                                style={{
+                                    marginTop: 20
+                                }}
+                            >
+                                <Text style={{
+                                    fontSize: 18,
+                                    fontWeight: "500",
+                                    marginBottom: 12
+                                }}>
                                     Historys
                                 </Text>
                                 <Pressable style={{

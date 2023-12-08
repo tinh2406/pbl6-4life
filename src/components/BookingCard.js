@@ -1,19 +1,18 @@
+import { format } from "date-fns";
+import { router } from "expo-router";
 import { memo, useState } from "react";
 import { Image, Pressable, Text, View } from "react-native";
 import defaultAvt from "../assets/defaultAvatar.png";
-import { format } from "date-fns";
-import { router } from "expo-router";
 import ModalPayment from "./ModalPayment";
+import { CheckReview } from "./Reviews";
 export default memo(({ data }) => {
-    const [modalPaymentShow,setModalPaymentShow] = useState(false);
-    const handleButtonClick = ()=>{
-        if(data?.isPaid){
-
-        }
-        else{
-            setModalPaymentShow(true);
-        }
+  const [modalPaymentShow, setModalPaymentShow] = useState(false);
+  const handleButtonClick = () => {
+    if (data?.isPaid) {
+    } else {
+      setModalPaymentShow(true);
     }
+  };
 
   return (
     <View
@@ -28,7 +27,10 @@ export default memo(({ data }) => {
       <View
         style={{
           marginTop: 10,
-          marginLeft:5
+          marginLeft: 10,
+          marginBottom: 6,
+          flexDirection: "row",
+          alignItems: "center",
         }}
       >
         <Image
@@ -45,14 +47,22 @@ export default memo(({ data }) => {
             borderRadius: 20,
           }}
         />
-        <Text>{data?.accommodation.mod?.name}</Text>
+        <Text
+          style={{
+            fontWeight: "500",
+            marginLeft: 4,
+            fontSize: 15,
+          }}
+        >
+          {data?.accommodation.mod?.name}
+        </Text>
       </View>
       <Pressable
         style={{
           flexDirection: "row",
         }}
-        onPress={()=>{
-            router.push(`root/booking/${data?.id}`)
+        onPress={() => {
+          router.push(`root/booking/${data?.id}`);
         }}
       >
         <Image
@@ -93,8 +103,8 @@ export default memo(({ data }) => {
               color: "#494949",
             }}
           >
-            From:{format(Date.parse(data?.checkInDate), "dd-MM-yyyy")}{" "}
-            To:{format(Date.parse(data?.checkOutDate), "dd-MM-yyyy")}
+            From:{format(Date.parse(data?.checkInDate), "dd-MM-yyyy")} To:
+            {format(Date.parse(data?.checkOutDate), "dd-MM-yyyy")}
           </Text>
         </View>
       </Pressable>
@@ -164,6 +174,7 @@ export default memo(({ data }) => {
           >
             {data?.isPaid ? "Re booking" : "Pay"}
           </Text>
+          {data?.isPaid && <CheckReview />}
         </Pressable>
       </View>
       <ModalPayment

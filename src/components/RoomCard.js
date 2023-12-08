@@ -36,11 +36,7 @@ const RoomCard = ({ data }) => {
   const [isLike, setIsLike] = useState(data?.isFavorite);
   const [currentImg, setCurrentImg] = useState(0);
   const [imgWidth, setImgWidth] = useState();
-  const imgs = data?.imageUrls.length>0 ? data?.imageUrls : [
-    "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/2c8f59fc-ec00-4eae-ab5f-684fd1168b4e.png?alt=media&token=5fccaf62-d0a8-44b7-9bdb-13363d5f3333&_gl=1*idzhgn*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIyNTM0My4yLjEuMTY5NjIyNTg4Ny42MC4wLjA.",
-    "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/2ddd49a1-7f8d-4d1e-8fa3-5eb649a9c4ae.png?alt=media&token=88ea50a4-23e7-4f6a-9921-9f5001d474ab&_gl=1*16vwjtw*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjAuMTY5NjIzMTY0MC42MC4wLjA.",
-    "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/e7e7925f-e9fd-4538-bf7f-ac5ca9d101c7.png?alt=media&token=efeb2f29-1289-469d-8f11-65d0c4fd5b37&_gl=1*1q81hp6*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjEuMTY5NjIzMTY3Ny4yMy4wLjA.",
-  ];
+  const imgs = data?.imageUrls 
   useEffect(()=>{
     setIsLike(data?.isFavorite)
   },[data?.isFavorite])
@@ -285,7 +281,7 @@ const RoomCard = ({ data }) => {
                 color: "#2f2f2f",
               }}
             >
-              {data?.avgRating}
+              {data?.avgRating?.toFixed(2)||0}
             </Text>
           </View>
         </View>

@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { en, registerTranslation } from "react-native-paper-dates";
 import { UserProvider } from "../src/context/UserContext";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { NotifyProvider } from "../src/context/NotifyContext";
 registerTranslation("en", en);
 
 const queryClient = new QueryClient();
@@ -54,7 +55,9 @@ export default () => {
           {resourceLoading && <Loading />}
           <UserProvider>
             <QueryClientProvider client={queryClient}>
-              <Slot />
+              <NotifyProvider>
+                <Slot />
+              </NotifyProvider>
             </QueryClientProvider>
           </UserProvider>
         </SafeAreaView>

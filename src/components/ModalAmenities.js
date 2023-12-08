@@ -152,7 +152,7 @@ const Content = memo(({ onClose, select }) => {
             setTimeOutId(
               setTimeout(() => {
                 setParams({ ...params, Keyword: text });
-              }, 1000)
+              }, 500)
             );
           }}
         />

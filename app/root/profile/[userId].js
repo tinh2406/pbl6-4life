@@ -7,7 +7,6 @@ import * as ImagePicker from "expo-image-picker";
 import ModalPrompt from "../../../src/components/ModalPrompt";
 import defaultAvt from "../../../src/assets/defaultAvatar.png";
 import FlatListAutoLoad from "../../../src/components/FlatListAutoLoad";
-import { ScrollView } from "react-native-gesture-handler";
 export default () => {
   const { user, onVerifyEmail, onConfirmEmail } = useUser();
   const [loading, setLoading] = useState(false);
@@ -63,11 +62,11 @@ export default () => {
                 textAlign: "center",
               }}
             >
-              Create accommodation
+              Create new accommodation
             </Text>
           </Pressable>
         )}
-        {!user.statusModRole && (
+        {!user?.statusModRole && (
           <Pressable
             style={{
               borderRadius: 10,

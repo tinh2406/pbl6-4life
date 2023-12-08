@@ -20,6 +20,7 @@ export default memo(({ url,queryKey, params,headercomponent }) => {
     getNextPageParam: (lastPage) => {
       return lastPage.meta.pageIndex + 1;
     },
+    keepPreviousData: true,
   });
   const handleEndReached = () => {
     if(isFetching) return;
@@ -30,6 +31,7 @@ export default memo(({ url,queryKey, params,headercomponent }) => {
   return (
     <FlatList
       showsHorizontalScrollIndicator={false}
+      keyboardDismissMode="on-drag"
       bounces={false}
       ListHeaderComponent={headercomponent}
       showsVerticalScrollIndicator={false}

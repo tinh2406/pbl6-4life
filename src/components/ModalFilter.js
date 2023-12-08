@@ -564,6 +564,7 @@ export default ({ visible, hidden, onConfirm }) => {
                   setTimeCheckOut();
                   setPriceFrom();
                   setPriceTo()
+                  onClose()
                 }}
               >
                 <Text

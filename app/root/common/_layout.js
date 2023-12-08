@@ -1,5 +1,5 @@
-import { Stack, Tabs, useNavigation, usePathname } from "expo-router"
-import { Text, View, useWindowDimensions } from "react-native"
+import { Tabs } from "expo-router"
+import { View, useWindowDimensions } from "react-native"
 import WebHeader from "../../../src/components/WebHeader"
 
 export default () => {
@@ -10,7 +10,7 @@ export default () => {
                 <WebHeader />
             </View>}
             <Tabs
-                screenOptions={{
+                            screenOptions={{
                     headerShown: false,
                     tabBarStyle: {
                         display: "none"

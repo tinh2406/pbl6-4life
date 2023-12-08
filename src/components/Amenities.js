@@ -1,10 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
 import { memo, useState } from "react";
 import { Image, Pressable, Text, TextInput, View } from "react-native";
-import * as ImagePicker from "expo-image-picker";
-import ModalAmenities, { AmenityItem } from "./ModalAmenities";
 import { useQuery } from "react-query";
 import { instance } from "../context/AuthContext";
+import ModalAmenities, { AmenityItem } from "./ModalAmenities";
 
 export const CreateAmenity = memo(({ setValue }) => {
   const [img, setImg] = useState();
@@ -200,17 +200,21 @@ export const Amenities = memo(({ value, setValue }) => {
 });
 
 export default memo(({ postId }) => {
+  const [pageSize, setPageSize] = useState(5);
   const { data, isLoading } = useQuery({
-    queryKey: ["amenitiesOfPost", postId],
+    queryKey: ["amenitiesOfPost", postId, pageSize],
     queryFn: async () => {
-      const res = await instance.get(`/api/accommodation/amenities/${postId}`);
+      const res = await instance.get(`/api/accommodation/amenities/${postId}`, {
+        params: { pageSize },
+      });
       return res.data;
     },
+    keepPreviousData: true,
   });
-  
+
   return (
     <>
-      {data?.data?.length>0 && (
+      {data?.data?.length > 0 && (
         <View
           style={{
             marginHorizontal: 20,
@@ -230,6 +234,37 @@ export default memo(({ postId }) => {
           {data?.data?.map((i) => (
             <AmenityItem data={i.amenity} key={i.amenity.id} />
           ))}
+          {data?.meta.totalPages > data?.meta.pageIndex && (
+            <View
+              style={{
+                width: "100%",
+                alignItems: "center",
+              }}
+            >
+              <Pressable
+                onPress={() => {
+                  setPageSize(data?.meta.totalCount);
+                }}
+                style={{
+                  width: "60%",
+                  borderWidth: 1,
+                  borderRadius: 10,
+                  padding: 10,
+                  marginTop: 10,
+                  marginBottom: 20,
+                }}
+              >
+                <Text
+                  style={{
+                    fontWeight: "500",
+                    textAlign: "center",
+                  }}
+                >
+                  Show more amenities
+                </Text>
+              </Pressable>
+            </View>
+          )}
         </View>
       )}
     </>

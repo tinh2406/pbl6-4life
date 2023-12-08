@@ -1,6 +1,6 @@
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import {
   Image,
   Pressable,
@@ -28,6 +28,8 @@ import ModalPayment from "../../../src/components/ModalPayment";
 import defaultAvt from "../../../src/assets/defaultAvatar.png";
 import ModalPrompt from "../../../src/components/ModalPrompt";
 import { useToast } from "react-native-toast-notifications";
+import Loading from "../../../src/screens/Loading";
+import Reviews from "../../../src/components/Reviews";
 
 const config = {
   duration: 200,
@@ -39,23 +41,16 @@ export default () => {
   const { postId } = useLocalSearchParams();
   const { user, onVerifyEmail } = useUser();
   const queryClient = useQueryClient();
-  const { data } = useQuery({
+  const { data, isLoading, isFetching } = useQuery({
     queryKey: ["post", postId],
     queryFn: async () => {
       const res = await instance.get(`/api/accommodations/${postId}`);
       return res.data;
     },
   });
-  console.log(data);
+  console.log(data, isLoading, isFetching);
   const [isLike, setIsLike] = useState(data?.isFavorite);
-  const imgs =
-    data?.imageUrls.length > 0
-      ? data?.imageUrls
-      : [
-          "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/2c8f59fc-ec00-4eae-ab5f-684fd1168b4e.png?alt=media&token=5fccaf62-d0a8-44b7-9bdb-13363d5f3333&_gl=1*idzhgn*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIyNTM0My4yLjEuMTY5NjIyNTg4Ny42MC4wLjA.",
-          "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/2ddd49a1-7f8d-4d1e-8fa3-5eb649a9c4ae.png?alt=media&token=88ea50a4-23e7-4f6a-9921-9f5001d474ab&_gl=1*16vwjtw*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjAuMTY5NjIzMTY0MC42MC4wLjA.",
-          "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/e7e7925f-e9fd-4538-bf7f-ac5ca9d101c7.png?alt=media&token=efeb2f29-1289-469d-8f11-65d0c4fd5b37&_gl=1*1q81hp6*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjIzMTY0MC4zLjEuMTY5NjIzMTY3Ny4yMy4wLjA.",
-        ];
+  const imgs = data?.imageUrls.length > 0 ? data?.imageUrls : [];
   const [modalBookShow, setModalBookShow] = useState(false);
   const [modalPaymentShow, setModalPaymentShow] = useState(false);
   const [imgWidth, setImgWidth] = useState(0);
@@ -94,6 +89,8 @@ export default () => {
         });
     }
   }, []);
+  if (isLoading) return <Loading />;
+
   return (
     <View style={{ height: "100%", backgroundColor: "white" }}>
       <ScrollView
@@ -118,12 +115,15 @@ export default () => {
           <Ionicons
             name="arrow-back"
             size={20}
-            color={"white"}
+            color={"black"}
             style={{
               position: "absolute",
               top: 10,
               left: 10,
               zIndex: 11,
+              backgroundColor: "white",
+              padding: 5,
+              borderRadius: 20,
             }}
             onPress={handleGoBack}
           />
@@ -327,14 +327,6 @@ export default () => {
                   >
                     Hosted by {data?.mod.name}
                   </Text>
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      color: "#787878",
-                    }}
-                  >
-                    Joined in December 2022
-                  </Text>
                 </View>
                 <Image
                   source={
@@ -352,22 +344,6 @@ export default () => {
                 style={{
                   flexDirection: "row",
                   alignItems: "center",
-                  marginTop: 10,
-                }}
-              >
-                <Ionicons
-                  name="star"
-                  size={16}
-                  style={{
-                    marginRight: 5,
-                  }}
-                />
-                <Text>1 Review</Text>
-              </View>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
                   marginTop: 2,
                 }}
               >
@@ -380,318 +356,20 @@ export default () => {
                 />
                 <Text>Identity verified</Text>
               </View>
-              <Pressable
-                style={{
-                  marginVertical: 10,
-                  borderRadius: 10,
-                  padding: 10,
-                  borderWidth: 1,
-                  // borderColor:"#ff385c"
-                }}
-              >
-                <Text
-                  style={{
-                    fontWeight: "500",
-                    textAlign: "center",
-                    // color:"#ff385c"
-                  }}
-                >
-                  Contact host
-                </Text>
-              </Pressable>
             </View>
             <View
               style={{
                 marginHorizontal: 20,
-                marginTop: 10,
+                marginTop: 20,
                 borderTopWidth: 1,
                 borderColor: "#d5d5d5",
               }}
             >
-              <View
-                style={{
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  marginTop: 10,
-                }}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginTop: 5,
-                    width: width >= 768 ? "46%" : "100%",
-                  }}
-                >
-                  <Text
-                    style={{
-                      width: 80,
-                    }}
-                  >
-                    Cleanliness
-                  </Text>
-                  <View
-                    style={{
-                      flex: 1,
-                      backgroundColor: "#C4C9D4",
-                      height: 6,
-                      borderRadius: 10,
-                      overflow: "hidden",
-                    }}
-                  >
-                    <View
-                      style={{
-                        width: "90%",
-                        backgroundColor: "#FF385C",
-                        height: "100%",
-                      }}
-                    />
-                  </View>
-                  <Text
-                    style={{
-                      width: 40,
-                      marginLeft: 10,
-                    }}
-                  >
-                    {data?.avgCleanlinessRating}
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginTop: 5,
-                    width: width >= 768 ? "46%" : "100%",
-                  }}
-                >
-                  <Text
-                    style={{
-                      width: 80,
-                    }}
-                  >
-                    Amenities
-                  </Text>
-                  <View
-                    style={{
-                      flex: 1,
-                      backgroundColor: "#C4C9D4",
-                      height: 6,
-                      borderRadius: 10,
-                      overflow: "hidden",
-                    }}
-                  >
-                    <View
-                      style={{
-                        width: "90%",
-                        backgroundColor: "#FF385C",
-                        height: "100%",
-                      }}
-                    />
-                  </View>
-                  <Text
-                    style={{
-                      width: 40,
-                      marginLeft: 10,
-                    }}
-                  >
-                    4.8/5
-                  </Text>
-                </View>
-              </View>
-              <View
-                style={{
-                  flexDirection: width >= 768 ? "row" : "column",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginTop: 5,
-                    width: width >= 768 ? "46%" : "100%",
-                  }}
-                >
-                  <Text
-                    style={{
-                      width: 80,
-                    }}
-                  >
-                    Location
-                  </Text>
-                  <View
-                    style={{
-                      flex: 1,
-                      backgroundColor: "#C4C9D4",
-                      height: 6,
-                      borderRadius: 10,
-                      overflow: "hidden",
-                    }}
-                  >
-                    <View
-                      style={{
-                        width: "90%",
-                        backgroundColor: "#FF385C",
-                        height: "100%",
-                      }}
-                    />
-                  </View>
-                  <Text
-                    style={{
-                      width: 40,
-                      marginLeft: 10,
-                    }}
-                  >
-                    4.5/5
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    width: width >= 768 ? "46%" : "100%",
-                    marginTop: 5,
-                  }}
-                >
-                  <Text
-                    style={{
-                      width: 80,
-                    }}
-                  >
-                    Comfort
-                  </Text>
-                  <View
-                    style={{
-                      flex: 1,
-                      backgroundColor: "#C4C9D4",
-                      height: 6,
-                      borderRadius: 10,
-                      overflow: "hidden",
-                    }}
-                  >
-                    <View
-                      style={{
-                        width: "90%",
-                        backgroundColor: "#FF385C",
-                        height: "100%",
-                      }}
-                    />
-                  </View>
-                  <Text
-                    style={{
-                      width: 40,
-                      marginLeft: 10,
-                    }}
-                  >
-                    4.8/5
-                  </Text>
-                </View>
-              </View>
-              <View
-                style={{
-                  alignItems: "center",
-                }}
-              >
-                <View
-                  style={{
-                    marginTop: 20,
-                    flexDirection: "row",
-                    paddingBottom: 10,
-                    borderBottomWidth: 1,
-                    borderColor: "#dbdbdb",
-                  }}
-                >
-                  <Image
-                    source={{
-                      uri: "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/tinh.jpg?alt=media&token=36e93d04-5110-493d-9940-bda39bbe8b8b&_gl=1*1itx2gz*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjUyMzQ2Ny43LjEuMTY5NjUyMzQ3My41NC4wLjA.",
-                      cache: "force-cache",
-                    }}
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 40,
-                      marginRight: 20,
-                    }}
-                  />
-                  <View style={{ flex: 1 }}>
-                    <Text
-                      style={{
-                        fontWeight: "500",
-                      }}
-                    >
-                      Jony
-                    </Text>
-                    <Text style={{}} numberOfLines={3}>
-                      HappyFarm seemed promising from its marketing efforts.
-                      However i found that the person managing the responses was
-                      not forthcoming
-                    </Text>
-                  </View>
-                </View>
-                <View
-                  style={{
-                    marginTop: 20,
-                    flexDirection: "row",
-                    paddingBottom: 10,
-                    borderBottomWidth: 1,
-                    borderColor: "#dbdbdb",
-                  }}
-                >
-                  <Image
-                    source={{
-                      uri: "https://firebasestorage.googleapis.com/v0/b/pbl6-a0e23.appspot.com/o/tinh.jpg?alt=media&token=36e93d04-5110-493d-9940-bda39bbe8b8b&_gl=1*1itx2gz*_ga*MTY4NTY3OTM1LjE2OTYxNDU5MDA.*_ga_CW55HF8NVT*MTY5NjUyMzQ2Ny43LjEuMTY5NjUyMzQ3My41NC4wLjA.",
-                      cache: "force-cache",
-                    }}
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: 40,
-                      marginRight: 20,
-                    }}
-                  />
-                  <View
-                    style={{
-                      flex: 1,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontWeight: "500",
-                      }}
-                    >
-                      Jony
-                    </Text>
-                    <Text style={{}} numberOfLines={3}>
-                      HappyFarm seemed promising from its marketing efforts.
-                      However i found that the person managing the responses was
-                      not forthcoming
-                    </Text>
-                  </View>
-                </View>
-                <Pressable
-                  style={{
-                    width: "60%",
-                    borderWidth: 1,
-                    // borderColor:"#ff385c",
-                    borderRadius: 10,
-                    padding: 10,
-                    marginTop: 10,
-                    marginBottom: 20,
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontWeight: "500",
-                      // color:"#ff385c",
-                      textAlign: "center",
-                    }}
-                  >
-                    Show more reviews
-                  </Text>
-                </Pressable>
-              </View>
+              <RatingItem title="Cleanliness" value={data?.avgCleanlinessRating} />
+              <RatingItem title="Amenities" value={data?.avgAmenitiesRating} />
+              <RatingItem title="Location" value={data?.avgLocationRating} />
+              <RatingItem title="Comfort" value={data?.avgComfortRating} />
+              <Reviews postId={postId} />
             </View>
             <View
               style={{
@@ -819,13 +497,13 @@ export default () => {
             left: 0,
             bottom: 0,
             position: "absolute",
-            backgroundColor: "white",
+            backgroundColor: "#ffffff",
             shadowColor: "#000000",
             shadowOffset: {
               width: 0,
               height: 3,
             },
-            shadowOpacity: 0.17,
+            shadowOpacity: 0.7,
             shadowRadius: 3.05,
             elevation: 4,
             zIndex: 10,
@@ -936,5 +614,51 @@ const ImagePost = memo(({ imgs, imgWidth }) => {
         />
       </View>
     </>
+  );
+});
+
+const RatingItem = memo(({ title, value }) => {
+  return (
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        marginTop: 5,
+        width: "100%",
+      }}
+    >
+      <Text
+        style={{
+          width: 80,
+        }}
+      >
+        {title}
+      </Text>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: "#C4C9D4",
+          height: 6,
+          borderRadius: 10,
+          overflow: "hidden",
+        }}
+      >
+        <View
+          style={{
+            width: `${value*20 || 0}%`,
+            backgroundColor: "#FF385C",
+            height: "100%",
+          }}
+        />
+      </View>
+      <Text
+        style={{
+          width: 40,
+          marginLeft: 10,
+        }}
+      >
+        {value?.toFixed(2) || 0}
+      </Text>
+    </View>
   );
 });
