@@ -51,6 +51,7 @@ export const NotifyProvider = ({ children }) => {
         setHasNew(true);
         if (data?.Id) addToSet(data.Id);
         queryClient.invalidateQueries("notifys");
+        queryClient.invalidateQueries("bookings_of_myrooms");
       }
     );
     connection.on("GuestReceiveNotifyBookingSuccess", function (message) {
@@ -61,6 +62,7 @@ export const NotifyProvider = ({ children }) => {
       console.log(data, data?.Id);
       if (data?.Id) addToSet(data.Id);
       queryClient.invalidateQueries("notifys");
+      queryClient.invalidateQueries("bookings");
     });
     connection.on("GuestReceiveNotifyApproveModMessage", function (message) {
       console.log(message, "GuestReceiveNotifyApproveModMessage");
@@ -89,6 +91,7 @@ export const NotifyProvider = ({ children }) => {
       setHasNew(true);
       if (data?.Id) addToSet(data.Id);
       queryClient.invalidateQueries("notifys");
+      queryClient.invalidateQueries("bookings_of_myrooms");
     });
     connection.on(
       "GuestReceiveNotifyBookingPaymentSuccess",
@@ -99,6 +102,7 @@ export const NotifyProvider = ({ children }) => {
         setHasNew(true);
         if (data?.Id) addToSet(data.Id);
         queryClient.invalidateQueries("notifys");
+        queryClient.invalidateQueries("bookings");
       }
     );
     connection.start().then(function () {

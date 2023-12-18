@@ -99,49 +99,51 @@ export default () => {
                 marginHorizontal: 20,
               }}
             >
-              <View
-                style={{
-                  marginTop: 20,
-                }}
-              >
-                <Text
+              {user?.statusModRole === "Active" && (
+                <View
                   style={{
-                    fontSize: 18,
-                    fontWeight: "500",
-                    marginBottom: 12,
+                    marginTop: 20,
                   }}
                 >
-                  Your rooms
-                </Text>
-                <Pressable
-                  style={{
-                    flexDirection: "row",
-                    borderBottomWidth: 1,
-                    paddingVertical: 10,
-                    borderColor: "#d4d4d4",
-                  }}
-                  onPress={() => {
-                    router.push(`/root/profile/${user.id}`);
-                  }}
-                >
-                  <View
+                  <Text
                     style={{
-                      flexDirection: "row",
-                      flex: 1,
+                      fontSize: 18,
+                      fontWeight: "500",
+                      marginBottom: 12,
                     }}
                   >
-                    <Ionicons name="list-outline" size={20} color="#4b4b4b" />
-                    <Text style={{ color: "#4b4b4b", marginLeft: 10 }}>
-                      Your rooms
-                    </Text>
-                  </View>
-                  <Ionicons
-                    name="chevron-forward"
-                    size={20}
-                    color={"#4b4b4b"}
-                  />
-                </Pressable>
-              </View>
+                    Your rooms
+                  </Text>
+                  <Pressable
+                    style={{
+                      flexDirection: "row",
+                      borderBottomWidth: 1,
+                      paddingVertical: 10,
+                      borderColor: "#d4d4d4",
+                    }}
+                    onPress={() => {
+                      router.push(`/root/profile/${user.id}`);
+                    }}
+                  >
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        flex: 1,
+                      }}
+                    >
+                      <Ionicons name="list-outline" size={20} color="#4b4b4b" />
+                      <Text style={{ color: "#4b4b4b", marginLeft: 10 }}>
+                        Your rooms
+                      </Text>
+                    </View>
+                    <Ionicons
+                      name="chevron-forward"
+                      size={20}
+                      color={"#4b4b4b"}
+                    />
+                  </Pressable>
+                </View>
+              )}
               <View
                 style={{
                   marginTop: 20,
@@ -192,8 +194,8 @@ export default () => {
                       paddingVertical: 10,
                       borderColor: "#d4d4d4",
                     }}
-                    onPress={()=>{
-                        router.push("/root/myroombookings")
+                    onPress={() => {
+                      router.push("/root/myroombookings");
                     }}
                   >
                     <View
