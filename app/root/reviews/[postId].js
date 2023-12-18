@@ -13,7 +13,6 @@ export default () => {
   const { isFetching, isLoading, data, fetchNextPage } = useInfiniteQuery({
     queryKey: ["reviews", postId],
     queryFn: async ({ pageParam = 1 }) => {
-      console.log(pageParam);
       try {
         const res = await instance.get(`api/reviews/${postId}`, {
           params: { PageSize: 10, PageIndex: pageParam },

@@ -3,8 +3,8 @@ import * as Notifications from "expo-notifications";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useQueryClient } from "react-query";
 import {
-    registerForPushNotificationsAsync,
-    schedulePushNotification,
+  registerForPushNotificationsAsync,
+  schedulePushNotification,
 } from "../utils/Notify";
 import { useAuth } from "./AuthContext";
 import { useUser } from "./UserContext";
@@ -26,6 +26,9 @@ export const NotifyProvider = ({ children }) => {
   const { authState } = useAuth();
   const { onRefresh } = useUser();
   const queryClient = useQueryClient();
+  const [hasNew, setHasNew] = useState(false);
+  const [newNoti, setNewNoti] = useState(new Set());
+
   useEffect(() => {
     if (!authState?.token) return;
     connection = new HubConnectionBuilder()
@@ -45,6 +48,8 @@ export const NotifyProvider = ({ children }) => {
           "Your accommodation has new booking",
           data?.Content
         );
+        setHasNew(true);
+        if (data?.Id) addToSet(data.Id);
         queryClient.invalidateQueries("notifys");
       }
     );
@@ -52,26 +57,37 @@ export const NotifyProvider = ({ children }) => {
       console.log(message, "GuestReceiveNotifyBookingSuccess");
       const data = JSON.parse(message);
       schedulePushNotification("Booking successfully", data?.Content);
+      setHasNew(true);
+      console.log(data, data?.Id);
+      if (data?.Id) addToSet(data.Id);
       queryClient.invalidateQueries("notifys");
     });
     connection.on("GuestReceiveNotifyApproveModMessage", function (message) {
       console.log(message, "GuestReceiveNotifyApproveModMessage");
       const data = JSON.parse(message);
       schedulePushNotification("Your request has been accepted", data?.Content);
+      setHasNew(true);
+      if (data?.Id) addToSet(data.Id);
       queryClient.invalidateQueries("notifys");
 
-      onRefresh();////refresh user session
+      onRefresh(); ////refresh user session
     });
     connection.on("GuestReceiveNotifyRejectModMessage", function (message) {
       console.log(message, "GuestReceiveNotifyRejectModMessage");
       const data = JSON.parse(message);
       schedulePushNotification("Your request has been denied", data?.Content);
+      setHasNew(true);
+      if (data?.Id) addToSet(data.Id);
       queryClient.invalidateQueries("notifys");
+
+      onRefresh(); ////refresh user session
     });
     connection.on("ModReceiveNotifyBookingPaymentSuccess", function (message) {
       console.log(message, "ModReceiveNotifyBookingPaymentSuccess");
       const data = JSON.parse(message);
       schedulePushNotification("The customer has paid you", data?.Content);
+      setHasNew(true);
+      if (data?.Id) addToSet(data.Id);
       queryClient.invalidateQueries("notifys");
     });
     connection.on(
@@ -80,6 +96,8 @@ export const NotifyProvider = ({ children }) => {
         console.log(message, "GuestReceiveNotifyBookingPaymentSuccess");
         const data = JSON.parse(message);
         schedulePushNotification("Payment success", data?.Content);
+        setHasNew(true);
+        if (data?.Id) addToSet(data.Id);
         queryClient.invalidateQueries("notifys");
       }
     );
@@ -99,18 +117,14 @@ export const NotifyProvider = ({ children }) => {
     };
   }, [authState.token]);
 
-  const [expoPushToken, setExpoPushToken] = useState("");
-  const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
   useEffect(() => {
-    registerForPushNotificationsAsync().then((token) =>
-      setExpoPushToken(token)
-    );
+    registerForPushNotificationsAsync(() => {});
 
     notificationListener.current =
       Notifications.addNotificationReceivedListener((notification) => {
-        setNotification(notification);
+        // setNotification(notification);
       });
 
     responseListener.current =
@@ -126,11 +140,23 @@ export const NotifyProvider = ({ children }) => {
     };
   }, []);
 
-  const [lastNoti, setLastNoti] = useState();
+  const addToSet = (value) => {
+    const newSet = new Set(newNoti);
+    newSet.add(value);
+    setNewNoti(newSet);
+  };
+  // Hàm xoá phần tử khỏi set
+  const deleteFromSet = (value) => {
+    const newSet = new Set(newNoti);
+    newSet.delete(value);
+    setNewNoti(newSet);
+  };
 
   const value = {
-    last: lastNoti,
-    setLast: setLastNoti,
+    hasNew: hasNew,
+    setHasNew: setHasNew,
+    newNoti,
+    removeNoti: deleteFromSet,
   };
   return (
     <NotifyContext.Provider value={value}>{children}</NotifyContext.Provider>

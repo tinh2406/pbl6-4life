@@ -119,7 +119,6 @@ export default () => {
       });
       queryClient.invalidateQueries("my-posts");
       router.back();
-      console.log(res.data, res.request);
     } catch (error) {
       console.log(JSON.stringify(error), error.response, error.response.data);
     } finally {

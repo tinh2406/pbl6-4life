@@ -84,6 +84,7 @@ export default () => {
                 setLoading(false);
               } else {
                 router.push("root/request_mod");
+                setLoading(false);
               }
             }}
           >
@@ -141,7 +142,7 @@ const UserCard = memo(() => {
   return (
     <View
       style={{
-        marginBottom:20
+        marginBottom: 20,
       }}
     >
       <Ionicons

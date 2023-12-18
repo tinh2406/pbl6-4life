@@ -47,18 +47,11 @@ export default () => {
   const [isSmokingAllowed, setIsAllowSmoking] = useState();
   const [isEventAllowed, setIsAllowEvent] = useState();
   const [isPhotoAllowed, setIsAllowPhoto] = useState();
-  const [selectedLocation, setSelectedLocation] = useState();
-  const [address, setAddress] = useState();
-  const [numberOfBathrooms, setNumBathrooms] = useState();
-  const [numberOfBedrooms, setNumBedrooms] = useState();
-  const [numberOfRooms, setNumRooms] = useState();
-  const [numberOfBeds, setNumBeds] = useState();
   const [maxGuests, setNumGuests] = useState();
   const [price, setPrice] = useState();
   const [description, setDescription] = useState();
   const [name, setName] = useState();
   const [selectedType, setSelectedType] = useState();
-  const [located, setLocated] = useState();
   const [imgs, setImgs] = useState();
   const [amenities, setAmenities] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -77,18 +70,14 @@ export default () => {
             else return img.uri;
           })
         );
+      console.log({
+        longitude: located?.longitude || data?.longitude,
+        latitude: located?.latitude || data?.latitude,
+      });
       const res = await instance.put(`api/accommodations/${postId}`, {
         name: name || data?.name,
         type: selectedType || data?.type,
-        locationId: selectedLocation?.id || data?.location.id,
         description: description || data?.description,
-        address: address || data?.address,
-        longitude: located?.longitude || data?.longitude,
-        latitude: located?.latitude || data?.latitude,
-        numberOfRooms: numberOfRooms || data?.numberOfRooms,
-        numberOfBeds: numberOfBeds || data?.numberOfBeds,
-        numberOfBedrooms: numberOfBedrooms || data?.numberOfBedrooms,
-        numberOfBathrooms: numberOfBathrooms || data?.numberOfBathrooms,
         maxGuests: maxGuests || data?.maxGuests,
         price: price || data?.maxGuests,
         imageUrls: imageUrls || data?.imageUrls,
@@ -111,14 +100,11 @@ export default () => {
           }
         );
       }
-      if(imageUrls?.length>0){
-        const resImgs = await instance.post(
-          "/api/accommodation/images",
-          {
-            accommodationId: res.data.id,
-            images: imageUrls,
-          }
-        );
+      if (imageUrls?.length > 0) {
+        const resImgs = await instance.post("/api/accommodation/images", {
+          accommodationId: res.data.id,
+          images: imageUrls,
+        });
       }
       toast.show("Update accommodation success", {
         type: "success",
@@ -141,10 +127,6 @@ export default () => {
     if (data?.imageUrls) setImgs(data?.imageUrls?.map((i) => ({ uri: i })));
     setPrice(data?.price);
     setNumGuests(data?.maxGuests);
-    setNumRooms(data?.numberOfRooms);
-    setNumBeds(data?.numberOfBeds);
-    setNumBedrooms(data?.numberOfBedrooms);
-    setNumBathrooms(data?.numberOfBathrooms);
   }, [data]);
   useEffect(() => {
     setAmenities(_amentities?.data.map((i) => i.amenity));
@@ -211,14 +193,6 @@ export default () => {
             setValue={setDescription}
           />
           <InputInfo
-            title="Address"
-            placeholder="Enter your accomodation's address"
-            column
-            value={address || data?.address}
-            setValue={setAddress}
-            error={error?.address}
-          />
-          <InputInfo
             title="Price"
             value={price}
             type="numeric"
@@ -230,47 +204,6 @@ export default () => {
             value={maxGuests}
             type="numeric"
             setValue={setNumGuests}
-          />
-          <InputInfo
-            title="Number of rooms"
-            type="numeric"
-            value={numberOfRooms}
-            setValue={setNumRooms}
-          />
-          <InputInfo
-            title="Number of beds per room"
-            type="numeric"
-            value={numberOfBeds}
-            setValue={setNumBeds}
-          />
-          {!(selectedType === "Hotel" || selectedType === "Motel") && (
-            <InputInfo
-              title="Number of bedrooms"
-              type="numeric"
-              value={numberOfBedrooms}
-              setValue={setNumBedrooms}
-            />
-          )}
-          <InputInfo
-            title="Number of bathrooms per room"
-            type="numeric"
-            value={numberOfBathrooms}
-            setValue={setNumBathrooms}
-          />
-          <Location
-            value={selectedLocation || data?.location}
-            setValue={setSelectedLocation}
-            error={error?.location}
-          />
-          <PickLocated
-            value={
-              located || {
-                latitude: data?.latitude,
-                longitude: data?.longitude,
-              }
-            }
-            setValue={setLocated}
-            error={error?.located}
           />
           <Amenities value={amenities} setValue={setAmenities} />
           <View>

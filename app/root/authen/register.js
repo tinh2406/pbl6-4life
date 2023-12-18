@@ -9,10 +9,10 @@ export default () => {
 
 
     const { onRegister, onGG } = useAuth()
-    const [email, setEmail] = useState("Nqt@gmail.com")
+    const [email, setEmail] = useState("")
     const [username, setUsername] = useState("")
-    const [password, setPassword] = useState("Tinh@24")
-    const [rePassword, setRePassword] = useState("Tinh@24")
+    const [password, setPassword] = useState("")
+    const [rePassword, setRePassword] = useState("")
     const [showPass, setShowPass] = useState(false)
     const width = useWindowDimensions().width
     const toast = useToast()

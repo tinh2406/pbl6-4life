@@ -1,11 +1,13 @@
 import { useQueryClient } from "react-query";
 import { useNavigation } from "expo-router";
 import { memo } from "react";
-import { View } from "react-native";
+import { Text, View } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useNotify } from "../context/NotifyContext";
 export default memo(({ currentScreen }) => {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
+  const { hasNew, setHasNew, newNoti } = useNotify();
 
   return (
     <View
@@ -44,21 +46,43 @@ export default memo(({ currentScreen }) => {
           navigation.navigate("private", { screen: "favorite" });
         }}
       />
-      <Ionicons
-        name={
-          currentScreen === "notify"
-            ? "notifications-sharp"
-            : "notifications-outline"
-        }
-        size={30}
-        color={currentScreen === "notify" ? "#FF385C" : "black"}
-        style={{
-          padding: 5,
-        }}
-        onPress={() => {
-          navigation.navigate("private", { screen: "notify" });
-        }}
-      />
+      <View>
+        <Ionicons
+          name={
+            currentScreen === "notify"
+              ? "notifications-sharp"
+              : "notifications-outline"
+          }
+          size={30}
+          color={currentScreen === "notify" ? "#FF385C" : "black"}
+          style={{
+            padding: 5,
+          }}
+          onPress={() => {
+            navigation.navigate("private", { screen: "notify" });
+            setTimeout(() => setHasNew(false), 2000);
+          }}
+        />
+        {hasNew && (
+          <Text
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 2,
+              paddingHorizontal: 5,
+              paddingVertical: 1.2,
+              fontWeight: "600",
+              color: "white",
+              fontSize: 10,
+              borderRadius: 10,
+              backgroundColor: "#ff2828",
+            }}
+          >
+            {newNoti.size}
+          </Text>
+        )}
+      </View>
+
       <Ionicons
         name={currentScreen === "profile" ? "ios-person" : "ios-person-outline"}
         size={30}

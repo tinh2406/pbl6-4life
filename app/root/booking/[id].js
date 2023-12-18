@@ -1,6 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Image,
+  Pressable,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useQuery } from "react-query";
 import { instance } from "../../../src/context/AuthContext";
@@ -8,7 +15,7 @@ import { memo, useState } from "react";
 import defaultAvt from "../../../src/assets/defaultAvatar.png";
 import { format } from "date-fns";
 import ModalPayment from "../../../src/components/ModalPayment";
-import { callNumDays } from "../../../src/utils/CallNumdays";
+import { calcNumDays } from "../../../src/utils/CalcNumdays";
 import { CheckReview } from "../../../src/components/Reviews";
 export default () => {
   const { id } = useLocalSearchParams();
@@ -61,6 +68,8 @@ const Content = memo(({ id }) => {
       return res.data;
     },
   });
+  const w = useWindowDimensions().width;
+
   const [modalPaymentShow, setModalPaymentShow] = useState(false);
   const handleButtonClick = () => {
     if (data?.isPaid) {
@@ -155,7 +164,7 @@ const Content = memo(({ id }) => {
           <Text
             numberOfLines={1}
             style={{
-              width: "99%",
+              width: w - 130,
               fontSize: 13,
               color: "#494949",
               height: 40,
@@ -316,7 +325,7 @@ const Content = memo(({ id }) => {
                 marginLeft: 2,
               }}
             >
-              {callNumDays(
+              {calcNumDays(
                 Date.parse(data?.checkInDate),
                 Date.parse(data?.checkOutDate)
               )}
@@ -396,7 +405,7 @@ const Content = memo(({ id }) => {
               fontWeight: "500",
             }}
           >
-            {data?.isPaid ? "Re booking" : "Pay"}
+            {data?.isPaid ? "Rebooking" : "Pay"}
           </Text>
         </Pressable>
       </View>
@@ -408,7 +417,7 @@ const Content = memo(({ id }) => {
           setModalPaymentShow(false);
         }}
       />
-      <CheckReview postId={data?.accommodation.id}/>
+      <CheckReview postId={data?.accommodation.id} />
     </View>
   );
 });

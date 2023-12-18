@@ -2,7 +2,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { format } from "date-fns";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Modal, Pressable, Text, TextInput, View } from "react-native";
+import {
+  ActivityIndicator,
+  Modal,
+  Pressable,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import NumericInput from "react-native-numeric-input";
 import { DatePickerModal } from "react-native-paper-dates";
@@ -13,16 +20,14 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { useUser } from "../context/UserContext";
-import { callNumDays } from "../utils/CallNumdays";
-
+import { calcNumDays } from "../utils/CalcNumdays";
 
 export default ({ visible, hidden, onConfirm, data }) => {
   const { user } = useUser();
   const [pickShow, setPickShow] = useState(false);
   const [timeCheckIn, setTimeCheckIn] = useState();
   const [timeCheckOut, setTimeCheckOut] = useState();
-  const [numRooms, setNumRooms] = useState(1);
-  const [note, setNote] = useState("Không cần note vẫn được chứ nhỉ");
+  const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const heightAnim = useSharedValue(0);
   const style = useAnimatedStyle(() => ({
@@ -52,7 +57,7 @@ export default ({ visible, hidden, onConfirm, data }) => {
     );
     return tomorrowDate;
   }, []);
-  const nextTomorrow = useMemo(()=>{
+  const nextTomorrow = useMemo(() => {
     const today = new Date();
     const tomorrowDate = new Date(
       today.getFullYear(),
@@ -60,23 +65,22 @@ export default ({ visible, hidden, onConfirm, data }) => {
       today.getDate() + 2
     );
     return tomorrowDate;
-  },)
+  });
   const numsDay = useMemo(() => {
     if (!(timeCheckIn && timeCheckOut)) return;
-    return Math.ceil(callNumDays(timeCheckIn, timeCheckOut));
+    return Math.ceil(calcNumDays(timeCheckIn, timeCheckOut));
   }, [timeCheckIn, timeCheckOut]);
   const handleBook = async () => {
     if (!numsDay || loading) return;
-    setLoading(true)
+    setLoading(true);
     const res = await onConfirm({
       accommodationId: data.id,
       checkInDate: timeCheckIn,
       checkOutDate: timeCheckOut,
-      numberOfRooms: numRooms,
       note,
     });
     if (res?.success) onClose();
-    setLoading(false)
+    setLoading(false);
   };
   return (
     <Modal visible={visible} transparent animationType="fade">
@@ -207,7 +211,7 @@ export default ({ visible, hidden, onConfirm, data }) => {
                     </Text>
                   </Pressable>
                 </View>
-                <View
+                {/* <View
                   style={{
                     padding: 6,
                   }}
@@ -233,7 +237,7 @@ export default ({ visible, hidden, onConfirm, data }) => {
                       totalHeight={34}
                     />
                   </View>
-                </View>
+                </View> */}
               </View>
               <TextInput
                 style={{
@@ -256,10 +260,10 @@ export default ({ visible, hidden, onConfirm, data }) => {
                 }}
               >
                 <Text style={{}}>
-                  ${data?.price}x{numRooms}x{numsDay || "0"}
+                  ${data?.price}x{numsDay || "0"}
                 </Text>
                 <Text style={{}}>
-                  {numsDay ? data?.price * numRooms * numsDay : 0}
+                  {numsDay ? data?.price * numsDay : 0}
                 </Text>
               </View>
               <View
@@ -290,14 +294,14 @@ export default ({ visible, hidden, onConfirm, data }) => {
                   Total
                 </Text>
                 <Text style={{}}>
-                  {numsDay ? data?.price * numRooms * numsDay + 15 : "0"}
+                  {numsDay ? data?.price * numsDay + 15 : "0"}
                 </Text>
               </View>
             </View>
             {user ? (
               <Pressable
                 style={{
-                  backgroundColor: numsDay&&!loading ? "#ff385c" : "#d2d2d2",
+                  backgroundColor: numsDay && !loading ? "#ff385c" : "#d2d2d2",
                   borderRadius: 10,
                   padding: 8,
                   width: 280,

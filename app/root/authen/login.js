@@ -11,8 +11,8 @@ import validateEmail from "../../../src/utils/validateEmail"
 export default () => {
 
     const width = useWindowDimensions().width
-    const [email, setEmail] = useState("Nqt.2k2@gmail.com")
-    const [password, setPassword] = useState("Tinh@24")
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
     const [showPass, setShowPass] = useState(false)
     const [keepSignIn, setKeepSignIn] = useState(true)
     const { onForgetPW, onLogin, onGG } = useAuth()

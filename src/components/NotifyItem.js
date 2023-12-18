@@ -1,9 +1,15 @@
 import { format } from "date-fns";
 import { memo } from "react";
-import { Text, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { useNotify } from "../context/NotifyContext";
 
-const RequestModNotify = ({ content }) => {
+const RequestModNotify = ({ img, content }) => {
   return (
     <View>
       <Text
@@ -14,13 +20,11 @@ const RequestModNotify = ({ content }) => {
       >
         Request to mod
       </Text>
-      <Text>
-        {content}
-      </Text>
+      <Text>{content}</Text>
     </View>
   );
 };
-const BookingNotify = ({ content }) => {
+const BookingNotify = ({ img, content }) => {
   return (
     <View>
       <Text
@@ -31,13 +35,11 @@ const BookingNotify = ({ content }) => {
       >
         Booking successfully
       </Text>
-      <Text>
-        {content}
-      </Text>
+      <Text>{content}</Text>
     </View>
   );
 };
-const PaymentNotify = ({ content }) => {
+const PaymentNotify = ({ img, content }) => {
   return (
     <View>
       <Text
@@ -48,41 +50,63 @@ const PaymentNotify = ({ content }) => {
       >
         Paid successfully
       </Text>
-      <Text>
-        {content}
-      </Text>
+      <Text>{content}</Text>
     </View>
   );
 };
 
 const NotifyItem = ({ data }) => {
-  const {last} = useNotify()
-
+  const { newNoti, removeNoti } = useNotify();
+  const w = useWindowDimensions().width;
   return (
-    <View
+    <Pressable
       style={{
-        padding: 4,
-        paddingHorizontal: 8,
-        backgroundColor: last<data?.createdDate?"white":"#f2f2f2",
-        borderBottomWidth: 1,
-        borderBottomColor: "#dcdcdc",
+        flexDirection: "row",
+        padding: 8,
+        backgroundColor: newNoti.has(data?.id) ? "#e0f6ff" : "transparent",
+      }}
+      onPress={() => {
+        if (newNoti.has(data?.id)) removeNoti(data?.id);
       }}
     >
-      {data?.type === "RequestToMod" && (
-        <RequestModNotify content={data?.content} />
-      )}
-      {data?.type === "Booking" && <BookingNotify content={data?.content} />}
-      {data?.type === "Payment" && <PaymentNotify content={data?.content} />}
-      <Text
+      <Image
+        source={{
+          uri: data?.avatar,
+        }}
+        alt="Noti"
+        width={50}
+        height={50}
         style={{
-          fontSize: 10,
-          fontWeight: "300",
-          textAlign: "right",
+          margin: 8,
+          borderRadius: 50,
+        }}
+      />
+      <View
+        style={{
+          width: w - 90,
         }}
       >
-        {data?.createdDate && format(Date.parse(data?.createdDate), "hh:mm dd-MM-yyyy")}
-      </Text>
-    </View>
+        {data?.type === "RequestToMod" && (
+          <RequestModNotify img={data?.avatar} content={data?.content} />
+        )}
+        {data?.type === "Booking" && (
+          <BookingNotify img={data?.avatar} content={data?.content} />
+        )}
+        {data?.type === "Payment" && (
+          <PaymentNotify img={data?.avatar} content={data?.content} />
+        )}
+        <Text
+          style={{
+            fontSize: 10,
+            fontWeight: "300",
+            textAlign: "right",
+          }}
+        >
+          {data?.createdDate &&
+            format(Date.parse(data?.createdDate), "hh:mm dd-MM-yyyy")}
+        </Text>
+      </View>
+    </Pressable>
   );
 };
 export default memo(NotifyItem);

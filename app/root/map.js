@@ -1,10 +1,9 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet, View, Text } from "react-native";
-import { Marker } from "react-native-maps";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { ClusterProps, MarkerClusterer } from "@teovilla/react-native-web-maps";
-import MapView from "../../src/components/MyMap";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useGlobalSearchParams } from "expo-router";
 function MyClusterComponent(props) {
   return (
     <Marker
@@ -21,8 +20,7 @@ function MyClusterComponent(props) {
 
 export default function App() {
   
-  const [region, setRegion] = useState(null);
-
+  const {latitude, longitude} = useGlobalSearchParams()
   const mapRef = useRef < MapView > null;
 
   const loadingFallback = useMemo(() => {
@@ -57,15 +55,25 @@ export default function App() {
         />
       </View>
       <MapView
-      onPress={((e)=>{
-        console.log(e.nativeEvent.coordinate);
-      })}
         // ref={mapRef}
-        provider="google"
+        provider={PROVIDER_GOOGLE}
+        showsUserLocation={true}
         style={{ flex: 1 }}
-        onRegionChange={setRegion}
+        region={{
+          latitude:Number(latitude),
+          longitude:Number(longitude),
+          latitudeDelta: 15,
+          longitudeDelta: 15
+        }}
+        initialRegion={{
+          latitude: 16.0544,  // Vị trí Đà Nẵng, Việt Nam
+          longitude: 108.2022,
+          latitudeDelta: 1.5,
+          longitudeDelta: 1,
+        }}
         loadingFallback={loadingFallback}
-        // googleMapsApiKey="AIzaSyDi3Ex6q__zEQxqkNBB0A7xgOc7KKDIgk0"
+        googleMapsApiKey="AIzaSyColNaHzn6oI0OdZof5ueDxhifV_rrs8Iw"
+        maxZoomLevel={20}
       >
         {/* <MarkerClusterer
           region={region}
@@ -87,12 +95,13 @@ export default function App() {
               longitude: 18.050015441134114,
             }}
           /> */}
-        {/* <Marker
+        <Marker
+        anchor={{ x: 0.5, y: 1 }}
             coordinate={{
-              latitude: 59.3442016958775,
-              longitude: 18.038256636812825,
+              latitude:Number(latitude),
+              longitude:Number(longitude),
             }}
-          /> */}
+          />
         {/* </MarkerClusterer> */}
         {/* {SHOW_LOCATION_BUBBLE && position && (
             <>

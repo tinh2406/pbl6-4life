@@ -16,7 +16,6 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import ModalReserve from "../../../src/components/ModalReserve";
-import MapView from "../../../src/components/MyMap";
 import { MarkerClusterer } from "@teovilla/react-native-web-maps";
 import { useQuery, useQueryClient } from "react-query";
 import { instance } from "../../../src/context/AuthContext";
@@ -30,6 +29,7 @@ import ModalPrompt from "../../../src/components/ModalPrompt";
 import { useToast } from "react-native-toast-notifications";
 import Loading from "../../../src/screens/Loading";
 import Reviews from "../../../src/components/Reviews";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
 const config = {
   duration: 200,
@@ -48,7 +48,6 @@ export default () => {
       return res.data;
     },
   });
-  console.log(data, isLoading, isFetching);
   const [isLike, setIsLike] = useState(data?.isFavorite);
   const imgs = data?.imageUrls.length > 0 ? data?.imageUrls : [];
   const [modalBookShow, setModalBookShow] = useState(false);
@@ -89,7 +88,7 @@ export default () => {
         });
     }
   }, []);
-  if (isLoading) return <Loading />;
+  if (isLoading||isFetching) return <Loading />;
 
   return (
     <View style={{ height: "100%", backgroundColor: "white" }}>
@@ -258,6 +257,10 @@ export default () => {
               <Pressable
                 onPress={() => {
                   router.push("root/map");
+                  router.setParams({
+                    latitude: data?.latitude,
+                    longitude: data?.longitude,
+                  });
                 }}
                 style={{
                   width: "100%",
@@ -271,15 +274,15 @@ export default () => {
                   // ref={mapRef}
 
                   scrollEnabled={false}
-                  provider="google"
+                  provider={PROVIDER_GOOGLE}
                   style={{
                     flex: 1,
                   }}
                   region={{
-                    latitude: 37.78825,
-                    longitude: -122.4324,
-                    latitudeDelta: 0.015,
-                    longitudeDelta: 0.0121,
+                    latitude: data?.latitude,
+                    longitude: data?.longitude,
+                    latitudeDelta: 1.5,
+                    longitudeDelta: 1.5,
                   }}
                   customMapStyle={[
                     {
@@ -296,8 +299,15 @@ export default () => {
                       <Text>Loading</Text>
                     </View>
                   }
-                  // googleMapsApiKey="AIzaSyDi3Ex6q__zEQxqkNBB0A7xgOc7KKDIgk0"
-                ></MapView>
+                  googleMapsApiKey="AIzaSyDi3Ex6q__zEQxqkNBB0A7xgOc7KKDIgk0"
+                >
+                  <Marker
+                    coordinate={{
+                      latitude: Number(data?.latitude),
+                      longitude: Number(data?.longitude),
+                    }}
+                  />
+                </MapView>
               </Pressable>
             </View>
             <View
@@ -365,7 +375,10 @@ export default () => {
                 borderColor: "#d5d5d5",
               }}
             >
-              <RatingItem title="Cleanliness" value={data?.avgCleanlinessRating} />
+              <RatingItem
+                title="Cleanliness"
+                value={data?.avgCleanlinessRating}
+              />
               <RatingItem title="Amenities" value={data?.avgAmenitiesRating} />
               <RatingItem title="Location" value={data?.avgLocationRating} />
               <RatingItem title="Comfort" value={data?.avgComfortRating} />
@@ -645,7 +658,7 @@ const RatingItem = memo(({ title, value }) => {
       >
         <View
           style={{
-            width: `${value*20 || 0}%`,
+            width: `${value * 20 || 0}%`,
             backgroundColor: "#FF385C",
             height: "100%",
           }}

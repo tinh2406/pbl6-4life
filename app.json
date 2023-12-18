@@ -10,6 +10,9 @@
       },
       "package": "com.tinh2406.pbl64life",
       "config": {
+        "googleMaps":{
+          "apiKey":"AIzaSyColNaHzn6oI0OdZof5ueDxhifV_rrs8Iw"
+        }
       },
       "permissions": [
         "android.permission.RECORD_AUDIO",

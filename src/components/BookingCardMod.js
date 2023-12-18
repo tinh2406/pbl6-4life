@@ -1,21 +1,30 @@
 import { format } from "date-fns";
 import { router } from "expo-router";
 import { memo, useState } from "react";
-import { Image, Pressable, Text, View, useWindowDimensions } from "react-native";
+import {
+  Image,
+  Pressable,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import defaultAvt from "../assets/defaultAvatar.png";
-import ModalPayment from "./ModalPayment";
-import { CheckReview } from "./Reviews";
+import { instance } from "../context/AuthContext";
+import { useQueryClient } from "react-query";
 export default memo(({ data }) => {
   const w = useWindowDimensions().width;
-  const [modalPaymentShow, setModalPaymentShow] = useState(false);
-  const handleButtonClick = () => {
+  const queryClient = useQueryClient();
+  const handleButtonClick = async () => {
     if (data?.isPaid) {
-      router.push(`root/rooms/${data?.accommodation.id}`)
     } else {
-      setModalPaymentShow(true);
+      try {
+        await instance.post(`api/bookings/mark-as-paid/${data.id}`);
+      } catch (error) {
+        console.log(error.response);
+      }
+      queryClient.invalidateQueries("bookings_of_myrooms");
     }
   };
-
   return (
     <View
       style={{
@@ -37,9 +46,9 @@ export default memo(({ data }) => {
       >
         <Image
           source={
-            data?.accommodation.mod?.avatar
+            data?.userSummaryDto?.avatar
               ? {
-                  uri: data?.accommodation.mod?.avatar,
+                  uri: data?.userSummaryDto?.avatar,
                 }
               : defaultAvt
           }
@@ -56,15 +65,29 @@ export default memo(({ data }) => {
             fontSize: 15,
           }}
         >
-          {data?.accommodation.mod?.name}
+          {data?.userSummaryDto?.name}
+        </Text>
+        <Text
+          style={{
+            marginLeft: 4,
+            fontSize: 14,
+            fontWeight: "500",
+            color: "#5a5a5a",
+          }}
+        >
+          booking your room
         </Text>
       </View>
       <Pressable
         style={{
           flexDirection: "row",
+          backgroundColor: "#e4e4e4",
+          borderRadius: 6,
+          padding: 10,
+          margin: 10,
         }}
         onPress={() => {
-          router.push(`root/booking/${data?.id}`);
+        //   router.push(`root/booking/${data?.id}`);
         }}
       >
         <Image
@@ -78,7 +101,11 @@ export default memo(({ data }) => {
             margin: 6,
           }}
         />
-        <View>
+        <View
+          style={{
+            width: w - 40,
+          }}
+        >
           <Text
             style={{
               fontSize: 16,
@@ -90,7 +117,7 @@ export default memo(({ data }) => {
           <Text
             numberOfLines={1}
             style={{
-              width: w - 130,
+              width: w - 160,
               fontSize: 13,
               color: "#494949",
               height: 40,
@@ -163,7 +190,7 @@ export default memo(({ data }) => {
             paddingVertical: 8,
             alignItems: "center",
             width: 100,
-            backgroundColor: "#ff385c",
+            backgroundColor: data?.isPaid ? "#7d7d7d" : "#0e9639",
             borderRadius: 4,
           }}
           onPress={handleButtonClick}
@@ -174,19 +201,10 @@ export default memo(({ data }) => {
               fontWeight: "500",
             }}
           >
-            {data?.isPaid ? "Rebooking" : "Pay"}
+            {data?.isPaid ? "Paid" : "Confirm paid"}
           </Text>
-          {data?.isPaid && <CheckReview postId={data?.accommodation?.id} />}
         </Pressable>
       </View>
-      <ModalPayment
-        data={data}
-        visible={modalPaymentShow}
-        onConfirm={() => {}}
-        hidden={() => {
-          setModalPaymentShow(false);
-        }}
-      />
     </View>
   );
 });

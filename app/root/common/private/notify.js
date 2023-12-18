@@ -1,12 +1,12 @@
 import { router } from "expo-router";
 import { memo, useEffect } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    Pressable,
-    Text,
-    View,
-    useWindowDimensions,
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  Text,
+  View,
+  useWindowDimensions,
 } from "react-native";
 import { useInfiniteQuery, useQueryClient } from "react-query";
 import NotifyItem from "../../../../src/components/NotifyItem";
@@ -19,7 +19,7 @@ export default () => {
   const { user } = useUser();
   const width = useWindowDimensions().width;
   return (
-    <View style={{ height: "100%" }}>
+    <View style={{ height: "100%",backgroundColor:"#fafeff" }}>
       <View
         style={{
           flex: 1,
@@ -32,8 +32,8 @@ export default () => {
             paddingTop: 30,
             paddingHorizontal: 30,
             paddingBottom: 10,
-            backgroundColor: "#f6f6f6",
-            marginBottom:5
+            backgroundColor: "#fafeff",
+            marginBottom: 5,
           }}
         >
           Notifications
@@ -100,13 +100,17 @@ export default () => {
 
 const NotifyContent = memo(() => {
   const queryClient = useQueryClient();
-  const {setLast} = useNotify()
   const { isFetching, isLoading, data, fetchNextPage } = useInfiniteQuery({
     queryKey: ["notifys"],
     queryFn: async ({ pageParam }) => {
       try {
         const res = await instance.get("api/notifications", {
-          params: { PageSize: 15, PageIndex: pageParam,IsDescending:true,SortBy:'CreatedDate' },
+          params: {
+            PageSize: 15,
+            PageIndex: pageParam,
+            IsDescending: true,
+            SortBy: "CreatedDate",
+          },
         });
         return res.data;
       } catch (error) {
@@ -125,9 +129,7 @@ const NotifyContent = memo(() => {
     if (!data?.pages?.slice(-1)[0]?.data?.length > 0) return;
     fetchNextPage();
   };
-  useEffect(()=>{
-    setLast(data?.pages?.[0]?.data?.[0]?.createdDate)
-  },[])
+
   return (
     <FlatList
       showsHorizontalScrollIndicator={false}

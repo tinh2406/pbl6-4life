@@ -56,7 +56,6 @@ export const UserProvider = ({ children }) => {
     const updateAvt = async (file) => {
         try {
             const res = await uploadImg(file)
-            console.log(res.data.url);
             await update("avatar", res.data.url)
         } catch (error) {
             console.log(JSON.stringify(error));

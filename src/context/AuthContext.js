@@ -50,7 +50,6 @@ export const AuthProvider = ({ children }) => {
                     const res = await instance.post('/api/auths/google-login', {
                         accessToken: response.authentication.accessToken
                     })
-                    console.log(res);
                     setAuthState({
                         token: res.data.token,
                         authenticated: true
@@ -129,7 +128,6 @@ export const AuthProvider = ({ children }) => {
         }
         try {
             const res = await instance.post(`api/auths/verify-otp-forgot-password`, { email, otp })
-            console.log(res);
             return { success: true }
         } catch (e) {
             console.log(e)
@@ -162,7 +160,6 @@ export const AuthProvider = ({ children }) => {
         // return
 
         const token = Platform.OS === "web" ? await AsyncStorage.getItem(TOKEN_KEY) : await SecureStore.getItemAsync(TOKEN_KEY)
-        console.log(token, "token");
         if (token) {
             try {
                 instance.defaults.headers.common['Authorization'] = `Bearer ${token}`
@@ -189,7 +186,6 @@ export const AuthProvider = ({ children }) => {
             const res = await instance.post(`/api/auths/reset-password`, {
                 email, otp, newPassword, confirmNewPassword: newPassword
             })
-            console.log(res);
             return { success: true, data: res.data }
         } catch (e) {
             console.log(JSON.stringify(e))

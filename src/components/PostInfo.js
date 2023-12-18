@@ -7,6 +7,7 @@ import NumericInput from "react-native-numeric-input";
 import { instance } from "../context/AuthContext";
 import ModalLocation from "./ModalLocation";
 import ModalMap from "./ModalMap";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
 export const Location = memo(({ value, setValue, error }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -92,7 +93,6 @@ export const InputInfo = memo(
   }) => {
     const numericChange = (value) => setValue(value);
     useEffect(() => {
-      
       if (type === "numeric") {
         numericChange(value);
       }
@@ -119,7 +119,7 @@ export const InputInfo = memo(
         </Text>
         {type === "numeric" ? (
           <View style={{}}>
-            {value!==undefined && (
+            {value !== undefined && (
               <NumericInput
                 type="plus-minus"
                 value={value}
@@ -180,7 +180,7 @@ export const Type = memo(({ value, setValue, error }) => {
   const [types, setTypes] = useState();
   useEffect(() => {
     const getTypes = () => {
-      setTypes(["Homestay", "Villa","Other"]);
+      setTypes(["Homestay", "Villa", "Other"]);
     };
     getTypes();
   }, []);
@@ -266,36 +266,66 @@ export const PickLocated = memo(({ value, setValue, error }) => {
           fontWeight: "500",
         }}
       >
-        Toạ độ chính xác :v
+        Coordinate
       </Text>
       <Pressable
         style={{
-          padding: 6,
-          backgroundColor: "#e4e4e4",
-          marginRight: 5,
-          borderWidth: 1,
-          borderRadius: 4,
-          borderColor: "#dedede",
-          flexDirection: "row",
-          alignItems: "center",
           width: "100%",
+          marginTop: 10,
+          aspectRatio: 1.618,
+          borderRadius: 10,
+          overflow: "hidden",
         }}
         onPress={() => {
           setModalVisible(true);
         }}
       >
-        <Text
+        <MapView
+          // ref={mapRef}
+          showsUserLocation={true}
+          scrollEnabled={false}
+          provider={PROVIDER_GOOGLE}
           style={{
-            fontSize: 15,
+            flex: 1,
           }}
+          region={{
+            latitude: value?.latitude || 16.0544,
+            longitude: value?.longitude || 108.2022,
+            latitudeDelta: 0.1,
+            longitudeDelta: 0.1,
+          }}
+          customMapStyle={[
+            {
+              elementType: "labels.icon",
+              stylers: [
+                {
+                  visibility: "off",
+                },
+              ],
+            },
+          ]}
+          loadingFallback={
+            <View>
+              <Text>Loading</Text>
+            </View>
+          }
+          googleMapsApiKey="AIzaSyDi3Ex6q__zEQxqkNBB0A7xgOc7KKDIgk0"
         >
-          {value ? `${value.latitude}, ${value.longitude}` : "Select location"}
-        </Text>
+          {!!value?.latitude && (
+            <Marker
+              coordinate={{
+                latitude: value?.latitude,
+                longitude: value?.longitude,
+              }}
+            />
+          )}
+        </MapView>
       </Pressable>
       <ModalMap
         visible={modalVisible}
         hidden={() => setModalVisible(false)}
         select={setValue}
+        value={value}
       />
       {error && (
         <Text
