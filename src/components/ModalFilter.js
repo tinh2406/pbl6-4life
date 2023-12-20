@@ -14,7 +14,13 @@ import { format } from "date-fns";
 
 const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const types = ["Homestay", "Villa"];
-const orders = ["Name", "Price", "Distance", "Rating"];
+const orders = ["Name", "Price", "Distance", "AvgRating"];
+const orderMap = {
+  Name: "Name",
+  Price: "Price",
+  Distance: "Distance",
+  AvgRating: "Rating",
+};
 export default ({ visible, hidden, onConfirm }) => {
   const [type, setType] = useState();
   const [timeCheckIn, setTimeCheckIn] = useState();
@@ -22,8 +28,8 @@ export default ({ visible, hidden, onConfirm }) => {
   const [number, setNumber] = useState();
   const [priceFrom, setPriceFrom] = useState();
   const [priceTo, setPriceTo] = useState();
-  const [orderBy, setOrderBy] = useState("Name");
-
+  const [orderBy, setOrderBy] = useState("Distance");
+  const [isDescending, setIsDescending] = useState(false);
   const heightAnim = useSharedValue(0);
   const style = useAnimatedStyle(() => ({
     height: withTiming(heightAnim.value, {
@@ -38,7 +44,24 @@ export default ({ visible, hidden, onConfirm }) => {
     heightAnim.value = 0;
     setTimeout(hidden, 10);
   };
-
+  useEffect(() => {
+    switch (orderBy) {
+      case "Name":
+        setIsDescending(false);
+        break;
+      case "Price":
+        setIsDescending(false);
+        break;
+      case "Distance":
+        setIsDescending(false);
+        break;
+      case "AvgRating":
+        setIsDescending(true);
+        break;
+      default:
+        break;
+    }
+  }, [orderBy]);
   const [checkInOpen, setCheckInOpen] = React.useState(false);
   const onDismissCheckIn = React.useCallback(() => {
     setCheckInOpen(false);
@@ -439,7 +462,6 @@ export default ({ visible, hidden, onConfirm }) => {
                     borderColor: number ? "rgba(0, 0, 0, 0.3)" : "#FF385C",
                     marginLeft: 20,
                     marginRight: 10,
-
                   }}
                   onPress={() => setNumber()}
                 >
@@ -481,25 +503,34 @@ export default ({ visible, hidden, onConfirm }) => {
                 ))}
               </ScrollView>
             </View>
+
             <View
               style={{
-                paddingTop: 10,
                 paddingBottom: 20,
-                width: "90%",
+                width: "100%",
                 alignItems: "center",
-                borderTopWidth: 1,
-                borderTopColor: "#d1d1d1",
               }}
             >
-              <Text
+              <View
                 style={{
-                  fontSize: 15,
-                  fontWeight: "600",
-                  width: "100%",
+                  paddingTop: 10,
+                  width: "90%",
+                  alignItems: "center",
+                  borderTopWidth: 1,
+                  borderTopColor: "#d1d1d1",
                 }}
               >
-                Order by
-              </Text>
+                <Text
+                  style={{
+                    fontSize: 15,
+                    fontWeight: "600",
+                    width: "100%",
+                  }}
+                >
+                  Order by
+                </Text>
+              </View>
+
               <ScrollView
                 style={{
                   flexDirection: "row",
@@ -507,6 +538,9 @@ export default ({ visible, hidden, onConfirm }) => {
                   marginTop: 10,
                   borderRadius: 10,
                   overflow: "hidden",
+                }}
+                contentContainerStyle={{
+                  paddingLeft:20
                 }}
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -538,10 +572,27 @@ export default ({ visible, hidden, onConfirm }) => {
                         color: orderBy !== i ? "black" : "white",
                       }}
                     >
-                      {i}
+                      {orderMap[i]}
                     </Text>
                   </Pressable>
                 ))}
+                <Pressable
+                  style={{
+                    padding: 8,
+                    paddingHorizontal: 8,
+                    borderRadius: 12,
+                    borderWidth: 1,
+                    marginRight: 10,
+                    borderColor: orderBy ? "#FF385C" : "rgba(0, 0, 0, 0.3)",
+                  }}
+                  onPress={() => setIsDescending((state) => !state)}
+                >
+                  <Ionicons
+                    name={isDescending ? "arrow-down" : "arrow-up"}
+                    size={20}
+                    color={orderBy ? "#FF385C" : "black"}
+                  />
+                </Pressable>
               </ScrollView>
             </View>
             <View
@@ -563,8 +614,8 @@ export default ({ visible, hidden, onConfirm }) => {
                   setTimeCheckIn();
                   setTimeCheckOut();
                   setPriceFrom();
-                  setPriceTo()
-                  onClose()
+                  setPriceTo();
+                  onClose();
                 }}
               >
                 <Text
@@ -577,21 +628,21 @@ export default ({ visible, hidden, onConfirm }) => {
               </Pressable>
               <Pressable
                 onPress={() => {
-                  const keys = new Object()
-                  if(type){
-                    keys["Type"] = type
+                  const keys = new Object();
+                  if (type) {
+                    keys["Type"] = type;
                   }
-                  if(priceFrom&&priceTo){
-                    keys["PriceFrom"] = priceFrom
-                    keys["PriceTo"] = priceTo
+                  if (priceFrom && priceTo) {
+                    keys["PriceFrom"] = priceFrom;
+                    keys["PriceTo"] = priceTo;
                   }
-                  if(number&&timeCheckIn&&timeCheckOut){
-                    keys["CheckIn"]=timeCheckIn
-                    keys["CheckOut"]=timeCheckOut
-                    keys["Guests"]=number
+                  if (number && timeCheckIn && timeCheckOut) {
+                    keys["CheckIn"] = timeCheckIn;
+                    keys["CheckOut"] = timeCheckOut;
+                    keys["Guests"] = number;
                   }
-                  
-                  keys["SortBy"]=orderBy
+                  if (orderBy) keys["SortBy"] = orderBy;
+                  keys["IsDescending"] = isDescending;
                   onConfirm(keys);
                   onClose();
                 }}

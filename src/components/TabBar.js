@@ -78,7 +78,7 @@ export default memo(({ currentScreen }) => {
               backgroundColor: "#ff2828",
             }}
           >
-            {newNoti.size}
+            {newNoti.length}
           </Text>
         )}
       </View>

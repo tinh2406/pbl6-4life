@@ -6,21 +6,18 @@ import {
   Pressable,
   Text,
   View,
-  useWindowDimensions,
 } from "react-native";
 import { useInfiniteQuery, useQueryClient } from "react-query";
 import NotifyItem from "../../../../src/components/NotifyItem";
 import TabBar from "../../../../src/components/TabBar";
 import { instance } from "../../../../src/context/AuthContext";
-import { useNotify } from "../../../../src/context/NotifyContext";
 import { useUser } from "../../../../src/context/UserContext";
 
 export default () => {
   const { user } = useUser();
-  const width = useWindowDimensions().width;
   
   return (
-    <View style={{ height: "100%",backgroundColor:"#fafeff" }}>
+    <View style={{ height: "100%", backgroundColor: "#fafeff" }}>
       <View
         style={{
           flex: 1,
@@ -94,7 +91,7 @@ export default () => {
           </>
         )}
       </View>
-      {width >= 768 || <TabBar currentScreen={"notify"} />}
+      <TabBar currentScreen={"notify"} />
     </View>
   );
 };
@@ -130,7 +127,7 @@ const NotifyContent = memo(() => {
     if (!data?.pages?.slice(-1)[0]?.data?.length > 0) return;
     fetchNextPage();
   };
-
+  
   return (
     <FlatList
       showsHorizontalScrollIndicator={false}

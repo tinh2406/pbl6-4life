@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { memo, useEffect } from "react";
+import { memo, useEffect, useMemo } from "react";
 import {
   Image,
   Pressable,
@@ -56,23 +56,30 @@ const PaymentNotify = ({ img, content }) => {
   );
 };
 
-const NotifyItem = ({ data }) => {
+const NotifyItem = memo(({ data }) => {
   const { newNoti, removeNoti, last, addNoti, setHasNew, updateLast } =
     useNotify();
   const w = useWindowDimensions().width;
+
   useEffect(() => {
-    if (data?.id && data?.createdDate && Date.parse(data?.createdDate) > last) {
-      addNoti(data?.id);
-      setHasNew(true);
-    }
+    try {
+      if (
+        data?.id &&
+        data?.createdDate &&
+        Date.parse(data?.createdDate) > Number.parseInt(last)
+      ) {
+        addNoti(data?.id);
+      }
+    } catch (error) {}
   }, []);
+
 
   return (
     <Pressable
       style={{
         flexDirection: "row",
         padding: 8,
-        backgroundColor: newNoti.has(data?.id) ? "#e0f6ff" : "transparent",
+        backgroundColor: newNoti.includes(data?.id) ? "#e0f6ff" : "transparent",
       }}
       onPress={() => {
         if (newNoti.has(data?.id)) removeNoti(data?.id);
@@ -134,5 +141,6 @@ const NotifyItem = ({ data }) => {
       </View>
     </Pressable>
   );
-};
-export default memo(NotifyItem);
+});
+
+export default NotifyItem;

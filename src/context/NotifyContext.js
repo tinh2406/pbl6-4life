@@ -35,7 +35,7 @@ export const NotifyProvider = ({ children }) => {
   const { onRefresh } = useUser();
   const queryClient = useQueryClient();
   const [hasNew, setHasNew] = useState(false);
-  const [newNoti, setNewNoti] = useState(new Set());
+  const [newNoti, setNewNoti] = useState([]);
   const [modalPayment, setModalPayment] = useState(false);
   const [last, setLast] = useState();
   useEffect(() => {
@@ -115,9 +115,17 @@ export const NotifyProvider = ({ children }) => {
         queryClient.invalidateQueries("bookings");
       }
     );
-    connection.start().then(function () {
-      console.log("Connected!");
-    });
+    const connect = async () => {
+      const isConnect = false;
+      while (isConnect) {
+        try {
+          await connection.start();
+          console.log("Connected!");
+          isConnect = true;
+        } catch (error) {}
+      }
+    };
+    connect();
     return () => {
       if (connection) {
         connection.off("ModReceiveNotifyNewBookingMessage");
@@ -160,28 +168,17 @@ export const NotifyProvider = ({ children }) => {
     };
     loadLast();
   }, []);
-  const addToSet = useCallback(
-    (value) => {
-      const newSet = new Set(newNoti);
-      newSet.add(value);
-      setNewNoti(newSet);
-    },
-    [newNoti]
-  );
-  // Hàm xoá phần tử khỏi set
-  const deleteFromSet = useCallback(
-    (value) => {
-      const newSet = new Set(newNoti);
-      newSet.delete(value);
-      setNewNoti(newSet);
-    },
-    [newNoti]
-  );
+  const addToSet = useCallback((value) => {
+    setNewNoti((last) => [...last, value]);
+  }, []);
+  const deleteFromSet = useCallback((value) => {
+    setNewNoti((last) => last.filter((i) => i !== value));
+  }, []);
   const updateLast = useCallback(() => {
     setLast(Date.now().toString());
     AsyncStorage.setItem("last_notifications", Date.now().toString());
   }, []);
-  
+
   const value = {
     hasNew: hasNew,
     setHasNew: setHasNew,
@@ -190,7 +187,7 @@ export const NotifyProvider = ({ children }) => {
     addNoti: addToSet,
     modalPayment,
     updateLast,
-    last
+    last,
   };
   return (
     <NotifyContext.Provider value={value}>{children}</NotifyContext.Provider>

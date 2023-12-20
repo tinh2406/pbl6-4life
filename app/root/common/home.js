@@ -9,7 +9,7 @@ import FlatListAutoLoad from "../../../src/components/FlatListAutoLoad";
 import * as Location from "expo-location";
 export default () => {
   const [filterShow, setFilterShow] = useState(false);
-  const [filterState, setFilterState] = useState({});
+  const [filterState, setFilterState] = useState({ SortBy: "Distance" });
 
   const [searchShow, setSearchShow] = useState(false);
   const [searchState, setSearchState] = useState();
@@ -33,7 +33,7 @@ export default () => {
       }
     })();
   }, [location]);
-
+  console.log(location);
   return (
     <View style={{ height: "100%" }}>
       <View
@@ -99,8 +99,13 @@ export default () => {
         </View>
         <FlatListAutoLoad
           url="/api/accommodations"
-          params={{ PageSize: 5,...filterState,...location,...searchState }}
-          queryKey={["posts",Object.values(filterState),searchState?.LocationId]}
+          params={{ PageSize: 5, ...filterState, ...location, ...searchState }}
+          queryKey={[
+            "posts",
+            ...Object.values(filterState),
+            ...Object.values(location || {}),
+            searchState?.LocationId,
+          ]}
         />
       </View>
 
