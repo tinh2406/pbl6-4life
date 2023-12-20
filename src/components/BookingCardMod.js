@@ -1,6 +1,5 @@
 import { format } from "date-fns";
-import { router } from "expo-router";
-import { memo, useState } from "react";
+import { memo } from "react";
 import {
   Image,
   Pressable,
@@ -9,20 +8,14 @@ import {
   useWindowDimensions,
 } from "react-native";
 import defaultAvt from "../assets/defaultAvatar.png";
-import { instance } from "../context/AuthContext";
-import { useQueryClient } from "react-query";
-export default memo(({ data }) => {
+import TimeLeft from "./TimeLeft";
+export default memo(({ data, setAction, setBookingId }) => {
   const w = useWindowDimensions().width;
-  const queryClient = useQueryClient();
   const handleButtonClick = async () => {
     if (data?.isPaid) {
     } else {
-      try {
-        await instance.post(`api/bookings/mark-as-paid/${data.id}`);
-      } catch (error) {
-        console.log(error.response);
-      }
-      queryClient.invalidateQueries("bookings_of_myrooms");
+      setAction("mark-as-paid");
+      setBookingId(data.id);
     }
   };
   return (
@@ -75,7 +68,7 @@ export default memo(({ data }) => {
             color: "#5a5a5a",
           }}
         >
-          booking your room
+          has booked your room
         </Text>
       </View>
       <Pressable
@@ -87,7 +80,7 @@ export default memo(({ data }) => {
           margin: 10,
         }}
         onPress={() => {
-        //   router.push(`root/booking/${data?.id}`);
+          //   router.push(`root/booking/${data?.id}`);
         }}
       >
         <Image
@@ -181,10 +174,18 @@ export default memo(({ data }) => {
       </View>
       <View
         style={{
-          alignItems: "flex-end",
+          alignItems: "center",
+          justifyContent: "flex-end",
           marginTop: 10,
+          flexDirection: "row",
         }}
       >
+        <TimeLeft
+          checkInDate={data?.checkInDate}
+          checkOutDate={data?.checkOutDate}
+          isPaid={data?.isPaid}
+        />
+
         <Pressable
           style={{
             paddingVertical: 8,
@@ -192,6 +193,7 @@ export default memo(({ data }) => {
             width: 100,
             backgroundColor: data?.isPaid ? "#7d7d7d" : "#0e9639",
             borderRadius: 4,
+            marginLeft: 20,
           }}
           onPress={handleButtonClick}
         >

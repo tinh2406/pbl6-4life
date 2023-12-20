@@ -1,6 +1,6 @@
-import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons"
+import { Ionicons } from "@expo/vector-icons"
 import { router } from "expo-router"
-import { View, Text, Pressable, Image, ScrollView, KeyboardAvoidingView } from "react-native"
+import { View, Text, Pressable, ScrollView, KeyboardAvoidingView } from "react-native"
 import { Email, Password } from "../../../../../src/components/EditSecurity"
 import { useUser } from "../../../../../src/context/UserContext"
 import { useCallback, useRef, useState } from "react"

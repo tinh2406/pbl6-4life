@@ -213,7 +213,11 @@ export const AmenityItem = memo(({ data, onClose, select }) => {
         borderBottomWidth: 0.2,
       }}
       onPress={() => {
-        if (select) select((last) => [...last, data]);
+        if (select)
+          select((last) => {
+            if(last.find(i=>i.id===data.id)) return last
+            return [...last, data];
+          });
         if (onClose) onClose();
       }}
     >

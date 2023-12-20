@@ -21,6 +21,7 @@ import {
 } from "../../../src/components/Rules";
 import { instance } from "../../../src/context/AuthContext";
 import uploadImg from "../../../src/utils/uploadImg";
+import Loading from "../../../src/screens/Loading";
 
 export default () => {
   const { postId } = useGlobalSearchParams();
@@ -54,12 +55,38 @@ export default () => {
   const [selectedType, setSelectedType] = useState();
   const [imgs, setImgs] = useState();
   const [amenities, setAmenities] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
   const toast = useToast();
   const queryClient = useQueryClient();
 
   const handleUpdate = async () => {
+    let check = true;
+    await setError((error) => {
+      let newError = {};
+      if (!name) {
+        newError = { ...newError, name: "Name is required" };
+      }
+      if (!selectedType) {
+        newError = { ...newError, type: "Type is required" };
+      }
+      if (!price) {
+        newError = { ...newError, price: "Price is required" };
+      }
+      if (!imgs || imgs?.length === 0) {
+        newError = { ...newError, imgs: "You need add some image" };
+      }
+      if (!timeCheckIn?.after || !timeCheckIn?.before) {
+        newError = { ...newError, timeCheckIn: "You must select time checkin" };
+      } else if (timeCheckIn?.after > timeCheckIn?.before) {
+        newError = { ...newError, timeCheckIn: "Invalid time range" };
+      }
+
+      check = !(JSON.stringify(newError) === JSON.stringify({}));
+      return newError;
+    });
+    if (check) return;
     setLoading(true);
     try {
       let imageUrls;
@@ -70,26 +97,23 @@ export default () => {
             else return img.uri;
           })
         );
-      console.log({
-        longitude: located?.longitude || data?.longitude,
-        latitude: located?.latitude || data?.latitude,
-      });
+
       const res = await instance.put(`api/accommodations/${postId}`, {
-        name: name || data?.name,
-        type: selectedType || data?.type,
-        description: description || data?.description,
-        maxGuests: maxGuests || data?.maxGuests,
-        price: price || data?.maxGuests,
-        imageUrls: imageUrls || data?.imageUrls,
-        checkInAfter: timeCheckIn?.after || data?.checkInAfter,
-        checkInBefore: timeCheckIn?.before || data?.checkInBefore,
-        checkOutBefore: timeCheckOut || data?.timeCheckOut,
-        isPetAllowed: isPetAllowed || data?.isPetAllowed,
-        isSmokingAllowed: isSmokingAllowed || data?.isSmokingAllowed,
-        isEventAllowed: isEventAllowed || data?.isEventAllowed,
-        isPhotoAllowed: isPhotoAllowed || data?.isPhotoAllowed,
-        quietHoursAfter: quietTime?.after || data?.quietHoursAfter,
-        quietHoursBefore: quietTime?.before || data?.quietHoursBefore,
+        name: name,
+        type: selectedType,
+        description: description,
+        maxGuests: maxGuests,
+        price: price,
+        imageUrls: imageUrls,
+        checkInAfter: timeCheckIn?.after,
+        checkInBefore: timeCheckIn?.before,
+        checkOutBefore: timeCheckOut,
+        isPetAllowed: isPetAllowed,
+        isSmokingAllowed: isSmokingAllowed,
+        isEventAllowed: isEventAllowed,
+        isPhotoAllowed: isPhotoAllowed,
+        quietHoursAfter: quietTime?.after,
+        quietHoursBefore: quietTime?.before,
       });
       if (amenities?.length > 0) {
         const resAmenities = await instance.put(
@@ -113,24 +137,29 @@ export default () => {
       queryClient.invalidateQueries("my-posts");
       router.back();
     } catch (error) {
-      console.log(
-        error,
-        JSON.stringify(error),
-        error.response,
-        error.response?.data
-      );
+      console.log(JSON.stringify(error));
     } finally {
       setLoading(false);
     }
   };
   useEffect(() => {
-    if (data?.imageUrls) setImgs(data?.imageUrls?.map((i) => ({ uri: i })));
+    setName(data?.name);
+    setSelectedType(data?.type);
+    setDescription(data?.description);
     setPrice(data?.price);
     setNumGuests(data?.maxGuests);
+    setTimeCheckIn({ before: data?.checkInBefore, after: data?.checkInAfter });
+    setTimeCheckOut(data?.timeCheckOut);
+    setQuietTime({
+      before: data?.quietHoursBefore,
+      after: data?.quietHoursAfter,
+    });
+    if (data?.imageUrls) setImgs(data?.imageUrls?.map((i) => ({ uri: i })));
   }, [data]);
   useEffect(() => {
     setAmenities(_amentities?.data.map((i) => i.amenity));
   }, [_amentities]);
+  if (isLoading) return <Loading />;
   return (
     <ScrollView style={{ height: "100%", backgroundColor: "#fafeff" }}>
       <View
@@ -224,6 +253,7 @@ export default () => {
                 }
               }
               setValue={setTimeCheckIn}
+              error={error?.timeCheckIn}
             />
             <TimeCheckOut
               value={timeCheckOut || data?.checkOutBefore}
@@ -237,6 +267,7 @@ export default () => {
                 }
               }
               setValue={setQuietTime}
+              error={error?.quietTime}
             />
             <Allow
               title="Allow pets"

@@ -45,7 +45,7 @@ export async function schedulePushNotification(title: string, body: string) {
     content: {
       title: `${title} 📬`,
       body,
-      data: { data: "root/common/private/notify" },
+      data: { data: "root/common/notify" },
     },
     trigger: { seconds: 2 },
   });

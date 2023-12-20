@@ -1,16 +1,23 @@
 import { format } from "date-fns";
 import { router } from "expo-router";
 import { memo, useState } from "react";
-import { Image, Pressable, Text, View, useWindowDimensions } from "react-native";
+import {
+  Image,
+  Pressable,
+  Text,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import defaultAvt from "../assets/defaultAvatar.png";
 import ModalPayment from "./ModalPayment";
 import { CheckReview } from "./Reviews";
+import TimeLeft from "./TimeLeft";
 export default memo(({ data }) => {
   const w = useWindowDimensions().width;
   const [modalPaymentShow, setModalPaymentShow] = useState(false);
   const handleButtonClick = () => {
     if (data?.isPaid) {
-      router.push(`root/rooms/${data?.accommodation.id}`)
+      router.push(`root/accommodation/${data?.accommodation.id}`);
     } else {
       setModalPaymentShow(true);
     }
@@ -23,7 +30,7 @@ export default memo(({ data }) => {
         marginVertical: 4,
         borderRadius: 2,
         paddingHorizontal: 5,
-        paddingVertical: 5,
+        paddingVertical: 8,
       }}
     >
       <View
@@ -64,7 +71,7 @@ export default memo(({ data }) => {
           flexDirection: "row",
         }}
         onPress={() => {
-          router.push(`root/booking/${data?.id}`);
+          router.push(`root/mytrip/${data?.id}`);
         }}
       >
         <Image
@@ -158,27 +165,36 @@ export default memo(({ data }) => {
           marginTop: 10,
         }}
       >
-        <Pressable
-          style={{
-            paddingVertical: 8,
-            alignItems: "center",
-            width: 100,
-            backgroundColor: "#ff385c",
-            borderRadius: 4,
-          }}
-          onPress={handleButtonClick}
-        >
-          <Text
+        {data?.isPaid ? (
+          <TimeLeft
+            checkInDate={data?.checkInDate}
+            checkOutDate={data?.checkOutDate}
+            isPaid={data?.isPaid}
+          />
+        ) : (
+          <Pressable
             style={{
-              color: "white",
-              fontWeight: "500",
+              marginLeft: 20,
+              paddingVertical: 8,
+              alignItems: "center",
+              width: 100,
+              backgroundColor: "#ff385c",
+              borderRadius: 4,
             }}
+            onPress={handleButtonClick}
           >
-            {data?.isPaid ? "Rebooking" : "Pay"}
-          </Text>
-          {data?.isPaid && <CheckReview postId={data?.accommodation?.id} />}
-        </Pressable>
+            <Text
+              style={{
+                color: "white",
+                fontWeight: "500",
+              }}
+            >
+              Pay
+            </Text>
+          </Pressable>
+        )}
       </View>
+      {data?.isPaid && <CheckReview postId={data?.accommodation?.id} />}
       <ModalPayment
         data={data}
         visible={modalPaymentShow}

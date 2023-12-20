@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { memo, useEffect } from "react";
+import { memo } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -18,6 +18,7 @@ import { useUser } from "../../../../src/context/UserContext";
 export default () => {
   const { user } = useUser();
   const width = useWindowDimensions().width;
+  
   return (
     <View style={{ height: "100%",backgroundColor:"#fafeff" }}>
       <View

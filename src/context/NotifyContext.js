@@ -1,6 +1,13 @@
 import { HttpTransportType, HubConnectionBuilder } from "@microsoft/signalr";
 import * as Notifications from "expo-notifications";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useQueryClient } from "react-query";
 import {
   registerForPushNotificationsAsync,
@@ -8,6 +15,7 @@ import {
 } from "../utils/Notify";
 import { useAuth } from "./AuthContext";
 import { useUser } from "./UserContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -28,7 +36,8 @@ export const NotifyProvider = ({ children }) => {
   const queryClient = useQueryClient();
   const [hasNew, setHasNew] = useState(false);
   const [newNoti, setNewNoti] = useState(new Set());
-
+  const [modalPayment, setModalPayment] = useState(false);
+  const [last, setLast] = useState();
   useEffect(() => {
     if (!authState?.token) return;
     connection = new HubConnectionBuilder()
@@ -100,6 +109,7 @@ export const NotifyProvider = ({ children }) => {
         const data = JSON.parse(message);
         schedulePushNotification("Payment success", data?.Content);
         setHasNew(true);
+        setModalPayment(data.Note.replace("Booking Id: ", ""));
         if (data?.Id) addToSet(data.Id);
         queryClient.invalidateQueries("notifys");
         queryClient.invalidateQueries("bookings");
@@ -143,24 +153,44 @@ export const NotifyProvider = ({ children }) => {
       Notifications.removeNotificationSubscription(responseListener.current);
     };
   }, []);
-
-  const addToSet = (value) => {
-    const newSet = new Set(newNoti);
-    newSet.add(value);
-    setNewNoti(newSet);
-  };
+  useEffect(() => {
+    const loadLast = async () => {
+      const res = await AsyncStorage.getItem("last_notifications");
+      setLast(res);
+    };
+    loadLast();
+  }, []);
+  const addToSet = useCallback(
+    (value) => {
+      const newSet = new Set(newNoti);
+      newSet.add(value);
+      setNewNoti(newSet);
+    },
+    [newNoti]
+  );
   // Hàm xoá phần tử khỏi set
-  const deleteFromSet = (value) => {
-    const newSet = new Set(newNoti);
-    newSet.delete(value);
-    setNewNoti(newSet);
-  };
-
+  const deleteFromSet = useCallback(
+    (value) => {
+      const newSet = new Set(newNoti);
+      newSet.delete(value);
+      setNewNoti(newSet);
+    },
+    [newNoti]
+  );
+  const updateLast = useCallback(() => {
+    setLast(Date.now().toString());
+    AsyncStorage.setItem("last_notifications", Date.now().toString());
+  }, []);
+  
   const value = {
     hasNew: hasNew,
     setHasNew: setHasNew,
     newNoti,
     removeNoti: deleteFromSet,
+    addNoti: addToSet,
+    modalPayment,
+    updateLast,
+    last
   };
   return (
     <NotifyContext.Provider value={value}>{children}</NotifyContext.Provider>

@@ -8,15 +8,15 @@ import {
   View,
   useWindowDimensions,
 } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
-import { useQuery } from "react-query";
-import { instance } from "../../../src/context/AuthContext";
-import { memo, useState } from "react";
-import defaultAvt from "../../../src/assets/defaultAvatar.png";
+import TimeLeft from "../../../src/components/TimeLeft";
 import { format } from "date-fns";
-import ModalPayment from "../../../src/components/ModalPayment";
+import { memo, useState } from "react";
+import { ScrollView } from "react-native-gesture-handler";
+import { useQuery, useQueryClient } from "react-query";
+import defaultAvt from "../../../src/assets/defaultAvatar.png";
+import ModalPrompt from "../../../src/components/ModalPrompt";
+import { instance } from "../../../src/context/AuthContext";
 import { calcNumDays } from "../../../src/utils/CalcNumdays";
-import { CheckReview } from "../../../src/components/Reviews";
 export default () => {
   const { id } = useLocalSearchParams();
 
@@ -62,19 +62,19 @@ export default () => {
 
 const Content = memo(({ id }) => {
   const { data, isLoading } = useQuery({
-    queryKey: ["booking", id],
+    queryKey: ["myreservation", id],
     queryFn: async () => {
       const res = await instance.get(`/api/bookings/${id}`);
       return res.data;
     },
   });
   const w = useWindowDimensions().width;
-
-  const [modalPaymentShow, setModalPaymentShow] = useState(false);
+  const queryClient = useQueryClient();
+  const [modalConfirm, setModalConfirm] = useState(false);
   const handleButtonClick = () => {
     if (data?.isPaid) {
     } else {
-      setModalPaymentShow(true);
+      setModalConfirm(true);
     }
   };
   if (isLoading)
@@ -104,16 +104,16 @@ const Content = memo(({ id }) => {
         style={{
           marginTop: 10,
           marginLeft: 10,
-          marginBottom: 4,
+          marginBottom: 6,
           flexDirection: "row",
           alignItems: "center",
         }}
       >
         <Image
           source={
-            data?.accommodation.mod?.avatar
+            data?.userSummaryDto?.avatar
               ? {
-                  uri: data?.accommodation.mod?.avatar,
+                  uri: data?.userSummaryDto?.avatar,
                 }
               : defaultAvt
           }
@@ -130,15 +130,29 @@ const Content = memo(({ id }) => {
             fontSize: 15,
           }}
         >
-          {data?.accommodation.mod?.name}
+          {data?.userSummaryDto?.name}
+        </Text>
+        <Text
+          style={{
+            marginLeft: 4,
+            fontSize: 14,
+            fontWeight: "500",
+            color: "#5a5a5a",
+          }}
+        >
+          has booked your room
         </Text>
       </View>
       <Pressable
         style={{
           flexDirection: "row",
+          backgroundColor: "#e4e4e4",
+          borderRadius: 6,
+          padding: 10,
+          margin: 10,
         }}
         onPress={() => {
-          router.push(`root/rooms/${data?.accommodation.id}`);
+          // router.push(`root/accommodation/${data?.accommodation.id}`);
         }}
       >
         <Image
@@ -152,7 +166,11 @@ const Content = memo(({ id }) => {
             margin: 6,
           }}
         />
-        <View>
+        <View
+          style={{
+            width: w - 40,
+          }}
+        >
           <Text
             style={{
               fontSize: 16,
@@ -195,7 +213,7 @@ const Content = memo(({ id }) => {
             color: "#494949",
           }}
         >
-          From:
+          From:{" "}
           {data?.checkInDate &&
             format(Date.parse(data?.checkInDate), "MMMM do yyyy")}
         </Text>
@@ -206,7 +224,7 @@ const Content = memo(({ id }) => {
             color: "#494949",
           }}
         >
-          To:
+          To:{" "}
           {data?.checkOutDate &&
             format(Date.parse(data?.checkOutDate), "MMMM do yyyy")}
         </Text>
@@ -230,7 +248,7 @@ const Content = memo(({ id }) => {
             fontWeight: "500",
           }}
         >
-          Accommodation info
+          Customer info
         </Text>
         <Text
           style={{
@@ -239,7 +257,7 @@ const Content = memo(({ id }) => {
             color: "#494949",
           }}
         >
-          Address:{data?.accommodation.address}
+          Name: {data?.userSummaryDto.name}
         </Text>
         <Text
           style={{
@@ -248,8 +266,16 @@ const Content = memo(({ id }) => {
             color: "#494949",
           }}
         >
-          Phone:
-          {data?.accommodation.mod?.phoneNumber}
+          Phone: {data?.userSummaryDto?.phoneNumber}
+        </Text>
+        <Text
+          style={{
+            width: "100%",
+            fontSize: 13,
+            color: "#494949",
+          }}
+        >
+          Email: {data?.userSummaryDto?.email}
         </Text>
       </View>
       <View
@@ -385,16 +411,24 @@ const Content = memo(({ id }) => {
       </View>
       <View
         style={{
-          alignItems: "flex-end",
+          alignItems: "center",
+          justifyContent: "flex-end",
           marginTop: 10,
+          flexDirection: "row",
         }}
       >
+        <TimeLeft
+          checkInDate={data?.checkInDate}
+          checkOutDate={data?.checkOutDate}
+          isPaid={data?.isPaid}
+        />
         <Pressable
           style={{
+            marginLeft: 20,
             paddingVertical: 8,
             alignItems: "center",
             width: 100,
-            backgroundColor: "#ff385c",
+            backgroundColor: data?.isPaid ? "#7d7d7d" : "#0e9639",
             borderRadius: 4,
           }}
           onPress={handleButtonClick}
@@ -405,19 +439,32 @@ const Content = memo(({ id }) => {
               fontWeight: "500",
             }}
           >
-            {data?.isPaid ? "Rebooking" : "Pay"}
+            {data?.isPaid ? "Paid" : "Confirm paid"}
           </Text>
         </Pressable>
       </View>
-      <ModalPayment
-        data={data}
-        visible={modalPaymentShow}
-        onConfirm={() => {}}
-        hidden={() => {
-          setModalPaymentShow(false);
+      <ModalPrompt
+        title="Comfirm"
+        message="This booking has paid?"
+        visible={modalConfirm}
+        onCancel={() => setModalConfirm(false)}
+        onConfirm={async () => {
+          if (bookingId) {
+            if (action === "mark-as-paid") {
+              try {
+                await instance.post(`api/bookings/mark-as-paid/${id}`);
+                queryClient.invalidateQueries(["myreservation", id]);
+              } catch (error) {
+                console.log(error.response);
+                toast.show(`Error: ${error.message}`, {
+                  type: "danger",
+                  placement: "top",
+                });
+              }
+            }
+          }
         }}
       />
-      <CheckReview postId={data?.accommodation.id} />
     </View>
   );
 });

@@ -7,14 +7,14 @@ import { instance } from "../../../src/context/AuthContext";
 import { memo } from "react";
 import defaultAvt from "../../../src/assets/defaultAvatar.png";
 
-export default () => {
-  const { postId } = useLocalSearchParams();
+export default memo(() => {
+  const { accomId } = useLocalSearchParams();
 
   const { isFetching, isLoading, data, fetchNextPage } = useInfiniteQuery({
-    queryKey: ["reviews", postId],
+    queryKey: ["reviews", accomId],
     queryFn: async ({ pageParam = 1 }) => {
       try {
-        const res = await instance.get(`api/reviews/${postId}`, {
+        const res = await instance.get(`api/reviews/${accomId}`, {
           params: { PageSize: 10, PageIndex: pageParam },
         });
         return res.data;
@@ -94,7 +94,7 @@ export default () => {
       />
     </View>
   );
-};
+});
 
 const ReviewItem = memo(({ data }) => {
   return (

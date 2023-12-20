@@ -4,10 +4,10 @@ import * as ImagePicker from "expo-image-picker";
 import { memo, useEffect, useState } from "react";
 import { Image, Pressable, Text, TextInput, View } from "react-native";
 import NumericInput from "react-native-numeric-input";
-import { instance } from "../context/AuthContext";
 import ModalLocation from "./ModalLocation";
 import ModalMap from "./ModalMap";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import { getCurrentPositionAsync } from "expo-location";
 
 export const Location = memo(({ value, setValue, error }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -254,6 +254,19 @@ export const Type = memo(({ value, setValue, error }) => {
 });
 export const PickLocated = memo(({ value, setValue, error }) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [location, setLocation] = useState(null);
+
+  useEffect(() => {
+    const getLocation = async () => {
+      const located = await getCurrentPositionAsync();
+      setLocation({
+        latitude: located.coords.latitude,
+        longitude: located.coords.longitude,
+      });
+    };
+    getLocation();
+  }, []);
+
   return (
     <View
       style={{
@@ -282,15 +295,15 @@ export const PickLocated = memo(({ value, setValue, error }) => {
       >
         <MapView
           // ref={mapRef}
-          showsUserLocation={true}
+          showsUserLocation
           scrollEnabled={false}
           provider={PROVIDER_GOOGLE}
           style={{
             flex: 1,
           }}
           region={{
-            latitude: value?.latitude || 16.0544,
-            longitude: value?.longitude || 108.2022,
+            latitude: value?.latitude || location?.latitude,
+            longitude: value?.longitude || location?.longitude,
             latitudeDelta: 0.1,
             longitudeDelta: 0.1,
           }}
@@ -314,8 +327,8 @@ export const PickLocated = memo(({ value, setValue, error }) => {
           {!!value?.latitude && (
             <Marker
               coordinate={{
-                latitude: value?.latitude,
-                longitude: value?.longitude,
+                latitude: value?.latitude || 16.0544,
+                longitude: value?.longitude || 108.2022,
               }}
             />
           )}
@@ -326,6 +339,7 @@ export const PickLocated = memo(({ value, setValue, error }) => {
         hidden={() => setModalVisible(false)}
         select={setValue}
         value={value}
+        userLocation={location}
       />
       {error && (
         <Text

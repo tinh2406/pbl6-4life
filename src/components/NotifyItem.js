@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import { memo } from "react";
+import { memo, useEffect } from "react";
 import {
   Image,
   Pressable,
@@ -8,6 +8,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { useNotify } from "../context/NotifyContext";
+import { router } from "expo-router";
 
 const RequestModNotify = ({ img, content }) => {
   return (
@@ -56,8 +57,16 @@ const PaymentNotify = ({ img, content }) => {
 };
 
 const NotifyItem = ({ data }) => {
-  const { newNoti, removeNoti } = useNotify();
+  const { newNoti, removeNoti, last, addNoti, setHasNew, updateLast } =
+    useNotify();
   const w = useWindowDimensions().width;
+  useEffect(() => {
+    if (data?.id && data?.createdDate && Date.parse(data?.createdDate) > last) {
+      addNoti(data?.id);
+      setHasNew(true);
+    }
+  }, []);
+
   return (
     <Pressable
       style={{
@@ -67,6 +76,23 @@ const NotifyItem = ({ data }) => {
       }}
       onPress={() => {
         if (newNoti.has(data?.id)) removeNoti(data?.id);
+        updateLast();
+        if (data?.type === "Booking" || data?.type === "Payment") {
+          if (
+            data?.content.includes("has booked your") ||
+            data?.content.includes("has paid")
+          )
+            router.push(
+              `root/myreservation/${data?.note.replace("Booking Id: ", "")}`
+            );
+          else if (
+            data?.content.includes("You have booked") ||
+            data?.content.includes("You have paid")
+          )
+            router.push(
+              `root/mytrip/${data?.note.replace("Booking Id: ", "")}`
+            );
+        }
       }}
     >
       <Image

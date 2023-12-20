@@ -1,35 +1,28 @@
-import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { memo, useCallback, useState } from "react";
-import {
-  Image,
-  Pressable,
-  Text,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import { memo, useCallback, useEffect, useState } from "react";
+import { Image, Pressable, Text, View } from "react-native";
 import { ScrollView, Swipeable } from "react-native-gesture-handler";
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
-import ModalReserve from "../../../src/components/ModalReserve";
-import { MarkerClusterer } from "@teovilla/react-native-web-maps";
-import { useQuery, useQueryClient } from "react-query";
-import { instance } from "../../../src/context/AuthContext";
-import { formatToFE } from "../../../src/utils/formatTime";
-import Amenities from "../../../src/components/Amenities";
-import { useUser } from "../../../src/context/UserContext";
-import { ManagePost } from "../../../src/components/RoomCard";
-import ModalPayment from "../../../src/components/ModalPayment";
-import defaultAvt from "../../../src/assets/defaultAvatar.png";
-import ModalPrompt from "../../../src/components/ModalPrompt";
 import { useToast } from "react-native-toast-notifications";
-import Loading from "../../../src/screens/Loading";
+import { useQuery, useQueryClient } from "react-query";
+import defaultAvt from "../../../src/assets/defaultAvatar.png";
+import Amenities from "../../../src/components/Amenities";
+import ModalPayment from "../../../src/components/ModalPayment";
+import ModalPrompt from "../../../src/components/ModalPrompt";
+import ModalReserve from "../../../src/components/ModalReserve";
 import Reviews from "../../../src/components/Reviews";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import { ManagePost } from "../../../src/components/RoomCard";
+import { instance } from "../../../src/context/AuthContext";
+import { useUser } from "../../../src/context/UserContext";
+import Loading from "../../../src/screens/Loading";
+import { formatToFE } from "../../../src/utils/formatTime";
 
 const config = {
   duration: 200,
@@ -37,14 +30,14 @@ const config = {
 };
 
 export default () => {
-  const width = useWindowDimensions().width;
-  const { postId } = useLocalSearchParams();
+  // const width = useWindowDimensions().width;
+  const { id } = useLocalSearchParams();
   const { user, onVerifyEmail } = useUser();
   const queryClient = useQueryClient();
   const { data, isLoading, isFetching } = useQuery({
-    queryKey: ["post", postId],
+    queryKey: ["post", id],
     queryFn: async () => {
-      const res = await instance.get(`/api/accommodations/${postId}`);
+      const res = await instance.get(`/api/accommodations/${id}`);
       return res.data;
     },
   });
@@ -57,12 +50,13 @@ export default () => {
   const [confirmEmailVisible, setConfirmEmailVisible] = useState(false);
   const [verifyCode, setVerifyCode] = useState("");
   const toast = useToast();
-  const handleShare = useCallback(() => {
-    console.log("share");
-  }, []);
-  const handleGoBack = useCallback(() => {
-    router.back();
-  }, []);
+  // const handleShare = useCallback(() => {
+  //   console.log("share");
+  // }, []);
+
+  useEffect(() => {
+    setIsLike(data?.isFavorite);
+  }, [isFetching]);
   const handleBook = useCallback(async (payload) => {
     if (!user?.emailConfirmed) {
       if (!(await onVerifyEmail()).success) return;
@@ -88,7 +82,7 @@ export default () => {
         });
     }
   }, []);
-  if (isLoading||isFetching) return <Loading />;
+  if (isLoading) return <Loading />;
 
   return (
     <View style={{ height: "100%", backgroundColor: "white" }}>
@@ -124,9 +118,11 @@ export default () => {
               padding: 5,
               borderRadius: 20,
             }}
-            onPress={handleGoBack}
+            onPress={() => {
+              router.back();
+            }}
           />
-          {data?.mod?.id === user?.id && <ManagePost postId={postId} />}
+          {data?.mod?.id === user?.id && <ManagePost postId={id} />}
           <Pressable
             style={{
               position: "absolute",
@@ -152,10 +148,10 @@ export default () => {
             <AntDesign
               name={isLike ? "heart" : "hearto"}
               size={24}
-              color={isLike ? "#ef4b69" : "white"}
+              color={isLike ? "#ff1f48" : "white"}
             />
           </Pressable>
-          <MaterialIcons
+          {/* <MaterialIcons
             name="share"
             size={20}
             color={"white"}
@@ -166,7 +162,7 @@ export default () => {
               zIndex: 11,
             }}
             onPress={handleShare}
-          />
+          /> */}
           <ImagePost imgs={imgs} imgWidth={imgWidth} />
         </View>
         <ScrollView>
@@ -237,7 +233,7 @@ export default () => {
                 {data?.description}
               </Text>
             </View>
-            <Amenities postId={postId} />
+            <Amenities postId={id} />
             <View
               style={{
                 marginHorizontal: 20,
@@ -382,7 +378,7 @@ export default () => {
               <RatingItem title="Amenities" value={data?.avgAmenitiesRating} />
               <RatingItem title="Location" value={data?.avgLocationRating} />
               <RatingItem title="Comfort" value={data?.avgComfortRating} />
-              <Reviews postId={postId} />
+              <Reviews postId={id} />
             </View>
             <View
               style={{

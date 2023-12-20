@@ -145,7 +145,7 @@ export const CheckReview = memo(({ postId }) => {
             alignItems: "center",
             justifyContent: "center",
             padding: 8,
-            marginTop: 20,
+            marginTop: 10,
             marginHorizontal: 30,
             borderRadius: 4,
             backgroundColor: "#efc52e",

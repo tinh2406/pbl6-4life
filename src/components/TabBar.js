@@ -7,8 +7,7 @@ import { useNotify } from "../context/NotifyContext";
 export default memo(({ currentScreen }) => {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
-  const { hasNew, setHasNew, newNoti } = useNotify();
-
+  const { hasNew, setHasNew, newNoti,updateLast } = useNotify();
   return (
     <View
       style={{
@@ -36,14 +35,14 @@ export default memo(({ currentScreen }) => {
         }}
       />
       <Ionicons
-        name={currentScreen === "favorite" ? "bookmark" : "bookmark-outline"}
+        name={currentScreen === "favorite" ? "heart" : "heart-outline"}
         size={30}
         color={currentScreen === "favorite" ? "#FF385C" : "black"}
         style={{
           padding: 5,
         }}
         onPress={() => {
-          navigation.navigate("private", { screen: "favorite" });
+          navigation.navigate("(private)", { screen: "favorite" });
         }}
       />
       <View>
@@ -59,7 +58,8 @@ export default memo(({ currentScreen }) => {
             padding: 5,
           }}
           onPress={() => {
-            navigation.navigate("private", { screen: "notify" });
+            navigation.navigate("(private)", { screen: "notify" });
+            // updateLast()
             setTimeout(() => setHasNew(false), 2000);
           }}
         />
@@ -91,7 +91,7 @@ export default memo(({ currentScreen }) => {
           padding: 5,
         }}
         onPress={() => {
-          navigation.navigate("private", { screen: "myprofile" });
+          navigation.navigate("(private)", { screen: "setting" });
         }}
       />
     </View>

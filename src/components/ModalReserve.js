@@ -99,6 +99,7 @@ export default ({ visible, hidden, onConfirm, data }) => {
           onDismiss={() => {
             setPickShow(false);
           }}
+          date={tomorrow}
           startDate={timeCheckIn || tomorrow}
           endDate={timeCheckOut || nextTomorrow}
           onConfirm={onConfirmTime}

@@ -138,7 +138,7 @@ const RoomCard = ({ data }) => {
           <Pressable
             style={{ position: "absolute", width: "100%", height: "100%" }}
             onPress={() => {
-              router.push(`root/rooms/${data.id}`);
+              router.push(`root/accommodation/${data.id}`);
             }}
           />
           <Ionicons
@@ -289,7 +289,7 @@ const RoomCard = ({ data }) => {
       <Pressable
         style={{ position: "absolute", width: "100%", height: "100%" }}
         onPress={() => {
-          router.push(`root/rooms/${data.id}`);
+          router.push(`root/accomodation/${data.id}`);
         }}
       />
     </View>
@@ -338,7 +338,7 @@ export const ManagePost = memo(({ postId }) => {
           >
             <Pressable
               onPress={() => {
-                router.push("root/post/edit_post");
+                router.push("root/accommodation/edit");
                 router.setParams({ postId });
               }}
             >

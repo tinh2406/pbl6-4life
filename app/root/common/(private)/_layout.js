@@ -1,8 +1,8 @@
-import { Redirect, Slot, Stack, Tabs, useFocusEffect, useNavigation } from "expo-router"
+import { Redirect, Slot, useFocusEffect, useNavigation } from "expo-router"
 import { useAuth } from "../../../../src/context/AuthContext"
 import { useWindowDimensions } from "react-native"
 import ModalLogin from "../../../../src/components/ModalLogin"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 
 export default () => {
     const { width } = useWindowDimensions().width

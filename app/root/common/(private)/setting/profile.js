@@ -1,17 +1,33 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router, useGlobalSearchParams } from "expo-router";
-import { View, Text, Pressable, Image, ActivityIndicator } from "react-native";
-import { useUser } from "../../../src/context/UserContext";
-import { memo, useState } from "react";
 import * as ImagePicker from "expo-image-picker";
-import ModalPrompt from "../../../src/components/ModalPrompt";
-import defaultAvt from "../../../src/assets/defaultAvatar.png";
-import FlatListAutoLoad from "../../../src/components/FlatListAutoLoad";
+import { router, useGlobalSearchParams } from "expo-router";
+import { memo, useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
+import defaultAvt from "../../../../../src/assets/defaultAvatar.png";
+import FlatListAutoLoad from "../../../../../src/components/FlatListAutoLoad";
+import ModalPrompt from "../../../../../src/components/ModalPrompt";
+import { useUser } from "../../../../../src/context/UserContext";
 export default () => {
   const { user, onVerifyEmail, onConfirmEmail } = useUser();
   const [loading, setLoading] = useState(false);
   const [code, setCode] = useState("");
   const [visible, setVisible] = useState(false);
+
+  const [Flatlist, setFlatList] = useState(<UserCard />);
+
+  useEffect(() => {
+    if (user.statusModRole !== "Active") setFlatList(<UserCard />);
+    else {
+      setFlatList(
+        <FlatListAutoLoad
+          url="/api/accommodations/self"
+          params={{ PageSize: 5 }}
+          queryKey={["my-posts"]}
+          headercomponent={UserCard}
+        />
+      );
+    }
+  }, [user.statusModRole]);
 
   return (
     <View style={{ height: "100%", backgroundColor: "#fafeff" }}>
@@ -21,16 +37,7 @@ export default () => {
           justifyContent: "space-between",
         }}
       >
-        {user.statusModRole !== "Active" ? (
-          <UserCard />
-        ) : (
-          <FlatListAutoLoad
-            url="/api/accommodations/self"
-            params={{ PageSize: 5 }}
-            queryKey={["my-posts"]}
-            headercomponent={UserCard}
-          />
-        )}
+        {Flatlist}
         {user.statusModRole === "Waiting" && (
           <Text
             style={{
@@ -51,7 +58,7 @@ export default () => {
               margin: 20,
             }}
             onPress={() => {
-              router.push("root/post/create_post");
+              router.push("root/accommodation/create");
             }}
           >
             <Text
@@ -83,7 +90,7 @@ export default () => {
                 setVisible(true);
                 setLoading(false);
               } else {
-                router.push("root/request_mod");
+                router.push("root/request/mod");
                 setLoading(false);
               }
             }}
@@ -114,7 +121,7 @@ export default () => {
           onConfirm={async () => {
             const res = await onConfirmEmail(code);
             if (res?.success) {
-              router.push("root/request_mod");
+              router.push("root/request/mod");
             }
           }}
         />

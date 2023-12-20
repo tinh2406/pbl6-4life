@@ -1,13 +1,21 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useRef } from "react";
 import { Modal, Pressable, Text, View } from "react-native";
+// import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
-export default memo(({ visible, hidden, select, value }) => {
+export default memo(({ visible, hidden, select, value, userLocation }) => {
+  const mapRef = useRef();
+
   const onClose = useCallback(() => {
     hidden();
   }, []);
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      statusBarTranslucent
+    >
       <View
         style={{
           width: "100%",
@@ -26,29 +34,57 @@ export default memo(({ visible, hidden, select, value }) => {
         />
         <View
           style={{
-            height: "70%",
+            height: "80%",
           }}
         >
+          {/* <View
+            style={{
+              position:"absolute",
+              height:"100%",
+              width:"100%"
+            }}
+          > */}
+          {/* <GooglePlacesAutocomplete
+            styles={{
+              container: {
+                position: "absolute",
+                height: "100%",
+                width: "100%",
+                zIndex: 1,
+              },
+              textInputContainer: {
+                paddingHorizontal: 10,
+                borderRadius: 40,
+              },
+              textInput: {
+                borderRadius: 40,
+                paddingHorizontal:10
+              },
+            }}
+            placeholder="Search here"
+            onPress={(data, details = null) => {
+              // 'details' is provided when fetchDetails = true
+              console.log(data, details);
+            }}
+            query={{
+              key: "AIzaSyColNaHzn6oI0OdZof5ueDxhifV_rrs8Iw",
+              language: "vi",
+            }}
+          /> */}
           <MapView
             onPress={(e) => {
               select(e.nativeEvent.coordinate);
               hidden();
             }}
-            // ref={mapRef}
+            ref={mapRef}
             provider={PROVIDER_GOOGLE}
-            style={{ flex: 1 }}
+            style={{ flexGrow: 1, marginTop: 50 }}
             loadingFallback={<Text>Loading...</Text>}
-            // region={{
-            //   latitude:Number(value?.latitude||),
-            //   longitude:Number(value?.longitude),
-            //   latitudeDelta: 15,
-            //   longitudeDelta: 15
-            // }}
-            initialRegion={{
-              latitude: value?.latitude || 16.0544, // Vị trí Đà Nẵng, Việt Nam
-              longitude: value?.longitude || 108.2022,
-              latitudeDelta: 0.15,
-              longitudeDelta: 0.15,
+            region={{
+              latitude: value?.latitude || userLocation?.latitude,
+              longitude: value?.longitude || userLocation?.longitude,
+              latitudeDelta: 0.015,
+              longitudeDelta: 0.015,
             }}
             googleMapsApiKey="AIzaSyColNaHzn6oI0OdZof5ueDxhifV_rrs8Iw"
             showsUserLocation={true}

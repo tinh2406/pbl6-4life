@@ -12,10 +12,9 @@ import { useUser } from "../../../../../src/context/UserContext";
 import defaultAvt from "../../../../../src/assets/defaultAvatar.png";
 export default () => {
   const navigation = useNavigation();
-
   const { user, onLogout } = useUser();
-
   const width = useWindowDimensions().width;
+
   return (
     <View style={{ height: "100%", backgroundColor: "#fafeff" }}>
       <View
@@ -46,7 +45,7 @@ export default () => {
                 borderColor: "#d4d4d4",
               }}
               onPress={() => {
-                router.push(`/root/profile/${user.id}`);
+                router.push(`root/common/setting/profile`);
               }}
             >
               <View
@@ -122,7 +121,7 @@ export default () => {
                       borderColor: "#d4d4d4",
                     }}
                     onPress={() => {
-                      router.push(`/root/profile/${user.id}`);
+                      router.push(`root/common/setting/profile`);
                     }}
                   >
                     <View
@@ -166,7 +165,7 @@ export default () => {
                     borderColor: "#d4d4d4",
                   }}
                   onPress={() => {
-                    router.push("root/booking");
+                    router.push("root/mytrip");
                   }}
                 >
                   <View
@@ -195,7 +194,7 @@ export default () => {
                       borderColor: "#d4d4d4",
                     }}
                     onPress={() => {
-                      router.push("/root/myroombookings");
+                      router.push("/root/myreservation");
                     }}
                   >
                     <View
@@ -210,7 +209,7 @@ export default () => {
                         color="#4b4b4b"
                       />
                       <Text style={{ color: "#4b4b4b", marginLeft: 10 }}>
-                        Your rooms' bookings
+                        Your reservations
                       </Text>
                     </View>
                     <Ionicons

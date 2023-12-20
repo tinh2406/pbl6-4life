@@ -23,9 +23,11 @@ import Banks from "../utils/Banks";
 import { instance } from "../context/AuthContext";
 import * as Clipboard from "expo-clipboard";
 import qrcode from "qrcode-generator";
+import { useNotify } from "../context/NotifyContext";
 
 export default ({ visible, hidden, onConfirm, data }) => {
   const heightAnim = useSharedValue(0);
+  const { modalPayment } = useNotify();
   const [url, setUrl] = useState();
   const style = useAnimatedStyle(() => ({
     height: withTiming(heightAnim.value, {
@@ -36,12 +38,15 @@ export default ({ visible, hidden, onConfirm, data }) => {
   useEffect(() => {
     heightAnim.value = visible ? 600 : 200;
   }, [visible]);
+  useEffect(() => {
+    if (modalPayment === data?.id) hidden();
+  }, [modalPayment]);
   const onClose = () => {
     heightAnim.value = 0;
     setUrl();
     setTimeout(hidden, 10);
   };
-  
+
   return (
     <Modal
       visible={visible}

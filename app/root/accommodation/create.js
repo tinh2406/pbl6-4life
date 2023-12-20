@@ -23,29 +23,32 @@ import { instance } from "../../../src/context/AuthContext";
 import uploadImg from "../../../src/utils/uploadImg";
 
 export default () => {
+  const [name, setName] = useState("Hotel 1");
+  const [selectedType, setSelectedType] = useState();
+  const [description, setDescription] = useState(
+    "Place error messages close to the error; Handle font colors carefully. A few simple techniques help error messages stand out from the surrounding text and code."
+  );
+  const [selectedLocation, setSelectedLocation] = useState();
+  const [address, setAddress] = useState("Số 1 Đường 1 Phường 1");
+  const [located, setLocated] = useState();
+  const [numberOfBeds, setNumBeds] = useState(0);
+  const [numberOfBedrooms, setNumBedrooms] = useState(0);
+  const [numberOfBathrooms, setNumBathrooms] = useState(0);
+  const [maxGuests, setNumGuests] = useState(0);
+  const [price, setPrice] = useState(10);
+  const [imgs, setImgs] = useState();
+
   const [timeCheckIn, setTimeCheckIn] = useState({});
   const [timeCheckOut, setTimeCheckOut] = useState();
-  const [quietTime, setQuietTime] = useState({});
+
   const [isPetAllowed, setIsAllowPet] = useState(true);
   const [isSmokingAllowed, setIsAllowSmoking] = useState(true);
   const [isEventAllowed, setIsAllowEvent] = useState(true);
   const [isPhotoAllowed, setIsAllowPhoto] = useState(true);
-  const [selectedLocation, setSelectedLocation] = useState();
-  const [address, setAddress] = useState("Số 1 Đường 1 Phường 1");
-  const [numberOfBathrooms, setNumBathrooms] = useState(0);
-  const [numberOfBedrooms, setNumBedrooms] = useState(0);
-  const [numberOfRooms, setNumRooms] = useState(0);
-  const [numberOfBeds, setNumBeds] = useState(0);
-  const [maxGuests, setNumGuests] = useState(0);
-  const [price, setPrice] = useState(10);
-  const [description, setDescription] = useState(
-    "Place error messages close to the error; Handle font colors carefully. A few simple techniques help error messages stand out from the surrounding text and code."
-  );
-  const [name, setName] = useState("Hotel 1");
-  const [selectedType, setSelectedType] = useState();
-  const [located, setLocated] = useState();
-  const [imgs, setImgs] = useState();
+  const [quietTime, setQuietTime] = useState({});
+
   const [amenities, setAmenities] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
   const toast = useToast();
@@ -76,6 +79,12 @@ export default () => {
       if (!imgs || imgs?.length === 0) {
         newError = { ...newError, imgs: "You need add some image" };
       }
+      if (!timeCheckIn?.after || !timeCheckIn?.before) {
+        newError = { ...newError, timeCheckIn: "You must select time checkin" };
+      } else if (timeCheckIn?.after > timeCheckIn?.before) {
+        newError = { ...newError, timeCheckIn: "Invalid time range" };
+      }
+
       check = !(JSON.stringify(newError) === JSON.stringify({}));
       return newError;
     });
@@ -94,7 +103,6 @@ export default () => {
         description,
         address: address,
         ...located,
-        numberOfRooms,
         numberOfBeds,
         numberOfBedrooms,
         numberOfBathrooms,
@@ -112,7 +120,7 @@ export default () => {
         quietHoursBefore: quietTime.before,
         amenityIds: amenities.map((i) => i.id),
       });
-      
+
       toast.show("Created accommodation", {
         type: "success",
         placement: "top",
@@ -209,12 +217,6 @@ export default () => {
             setValue={setNumGuests}
           />
           <InputInfo
-            title="Number of rooms"
-            type="numeric"
-            value={numberOfRooms}
-            setValue={setNumRooms}
-          />
-          <InputInfo
             title="Number of beds per room"
             type="numeric"
             value={numberOfBeds}
@@ -255,9 +257,17 @@ export default () => {
             >
               House rules
             </Text>
-            <TimeCheckIn value={timeCheckIn} setValue={setTimeCheckIn} />
+            <TimeCheckIn
+              value={timeCheckIn}
+              setValue={setTimeCheckIn}
+              error={error?.timeCheckIn}
+            />
             <TimeCheckOut value={timeCheckOut} setValue={setTimeCheckOut} />
-            <QuietTime value={quietTime} setValue={setQuietTime} />
+            <QuietTime
+              value={quietTime}
+              setValue={setQuietTime}
+              error={error?.quietTime}
+            />
             <Allow
               title="Allow pets"
               value={isPetAllowed}
