@@ -1,14 +1,9 @@
 import { format } from "date-fns";
-import { memo, useEffect, useMemo } from "react";
-import {
-  Image,
-  Pressable,
-  Text,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import { memo, useEffect } from "react";
+import { Pressable, Text, View, useWindowDimensions } from "react-native";
 import { useNotify } from "../context/NotifyContext";
 import { router } from "expo-router";
+import Image from "./Image";
 
 const RequestModNotify = ({ img, content }) => {
   return (
@@ -73,7 +68,6 @@ const NotifyItem = memo(({ data }) => {
     } catch (error) {}
   }, []);
 
-
   return (
     <Pressable
       style={{
@@ -82,7 +76,7 @@ const NotifyItem = memo(({ data }) => {
         backgroundColor: newNoti.includes(data?.id) ? "#e0f6ff" : "transparent",
       }}
       onPress={() => {
-        if (newNoti.has(data?.id)) removeNoti(data?.id);
+        if (newNoti.includes(data?.id)) removeNoti(data?.id);
         updateLast();
         if (data?.type === "Booking" || data?.type === "Payment") {
           if (
@@ -103,15 +97,13 @@ const NotifyItem = memo(({ data }) => {
       }}
     >
       <Image
-        source={{
-          uri: data?.avatar,
-        }}
+        src={data?.avatar}
         alt="Noti"
-        width={50}
-        height={50}
         style={{
           margin: 8,
           borderRadius: 50,
+          width: 50,
+          height: 50,
         }}
       />
       <View

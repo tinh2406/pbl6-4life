@@ -1,28 +1,30 @@
 import { format } from "date-fns";
 import { router } from "expo-router";
-import { memo, useState } from "react";
-import {
-  Image,
-  Pressable,
-  Text,
-  View,
-  useWindowDimensions,
-} from "react-native";
-import defaultAvt from "../assets/defaultAvatar.png";
-import ModalPayment from "./ModalPayment";
+import { memo } from "react";
+import { Pressable, Text, View, useWindowDimensions } from "react-native";
 import { CheckReview } from "./Reviews";
 import TimeLeft from "./TimeLeft";
-export default memo(({ data }) => {
+import Image from "./Image";
+import ImageAvt from "./ImageAvt";
+export default memo(({ data,setAction, setPaymentData, setBookingId }) => {
   const w = useWindowDimensions().width;
-  const [modalPaymentShow, setModalPaymentShow] = useState(false);
   const handleButtonClick = () => {
-    if (data?.isPaid) {
-      router.push(`root/accommodation/${data?.accommodation.id}`);
-    } else {
-      setModalPaymentShow(true);
+    if (!data?.isPaid) {
+      setPaymentData(data);
     }
   };
-
+  const handleCancelBooking = () => {
+    if (data?.status === "Pending" || data?.status === "Confirmed") {
+      setAction("cancel-booking")
+      setBookingId(data?.id);
+    }
+  };
+  const handleRemoveRequestCancel = () => {
+    if(data?.status === "RequestCancel"){
+      setAction("remove-cancel")
+      setBookingId(data?.id);
+    }
+  }
   return (
     <View
       style={{
@@ -33,6 +35,17 @@ export default memo(({ data }) => {
         paddingVertical: 8,
       }}
     >
+      <Pressable
+        style={{
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          zIndex: 1,
+        }}
+        onPress={() => {
+          router.push(`root/mytrip/${data?.id}`);
+        }}
+      />
       <View
         style={{
           marginTop: 10,
@@ -42,19 +55,14 @@ export default memo(({ data }) => {
           alignItems: "center",
         }}
       >
-        <Image
-          source={
-            data?.accommodation.mod?.avatar
-              ? {
-                  uri: data?.accommodation.mod?.avatar,
-                }
-              : defaultAvt
-          }
+        <ImageAvt
+          src={data?.accommodation.mod?.avatar}
           style={{
             width: 24,
             height: 24,
             borderRadius: 20,
           }}
+          transition={0}
         />
         <Text
           style={{
@@ -66,18 +74,13 @@ export default memo(({ data }) => {
           {data?.accommodation.mod?.name}
         </Text>
       </View>
-      <Pressable
+      <View
         style={{
           flexDirection: "row",
         }}
-        onPress={() => {
-          router.push(`root/mytrip/${data?.id}`);
-        }}
       >
         <Image
-          source={{
-            uri: data?.accommodation.imageUrls[0],
-          }}
+          src={data?.accommodation.imageUrls[0]}
           style={{
             width: 100,
             height: 100,
@@ -116,7 +119,7 @@ export default memo(({ data }) => {
             {format(Date.parse(data?.checkOutDate), "dd-MM-yyyy")}
           </Text>
         </View>
-      </Pressable>
+      </View>
 
       <View
         style={{
@@ -155,7 +158,7 @@ export default memo(({ data }) => {
               marginLeft: 2,
             }}
           >
-            {data?.totalPrice}đ
+            ${data?.totalPrice}
           </Text>
         </View>
       </View>
@@ -163,46 +166,119 @@ export default memo(({ data }) => {
         style={{
           alignItems: "flex-end",
           marginTop: 10,
+          zIndex: 1,
+          backgroundColor: "white",
         }}
       >
-        {data?.isPaid ? (
-          <TimeLeft
-            checkInDate={data?.checkInDate}
-            checkOutDate={data?.checkOutDate}
-            isPaid={data?.isPaid}
-          />
-        ) : (
+        <Pressable
+          style={{
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+          }}
+          onPress={() => {
+            router.push(`root/mytrip/${data?.id}`);
+          }}
+        />
+        {data?.status !== "RequestCancel" &&
+          data?.status !== "Canceled" &&
+          data?.status !== "Completed" && (
+            <Pressable
+              style={{
+                marginLeft: 20,
+                paddingVertical: 8,
+                alignItems: "center",
+                width: 100,
+                backgroundColor: data?.isPaid ? "#cccccc" : "#ff385c",
+                borderRadius: 4,
+                marginBottom: 4,
+                zIndex: 4,
+              }}
+              onPress={handleButtonClick}
+            >
+              <Text
+                style={{
+                  color: "white",
+                  fontWeight: "500",
+                }}
+              >
+                {data?.isPaid ? "Paid" : "Pay"}
+              </Text>
+            </Pressable>
+          )}
+        <TimeLeft
+          checkInDate={data?.checkInDate}
+          checkOutDate={data?.checkOutDate}
+          isPaid={data?.isPaid}
+          status={data?.status}
+        />
+      </View>
+      
+      {(data?.status === "RequestCancel") && (
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "space-around",
+            marginTop: 4,
+            flexDirection: "row",
+            zIndex: 2,
+          }}
+        >
           <Pressable
             style={{
-              marginLeft: 20,
               paddingVertical: 8,
               alignItems: "center",
-              width: 100,
-              backgroundColor: "#ff385c",
+              width: "84%",
+              backgroundColor: "#d7d7d7",
               borderRadius: 4,
             }}
-            onPress={handleButtonClick}
+            onPress={handleRemoveRequestCancel}
           >
             <Text
               style={{
-                color: "white",
+                color: "black",
                 fontWeight: "500",
               }}
             >
-              Pay
+              Remove request
             </Text>
           </Pressable>
-        )}
-      </View>
-      {data?.isPaid && <CheckReview postId={data?.accommodation?.id} />}
-      <ModalPayment
-        data={data}
-        visible={modalPaymentShow}
-        onConfirm={() => {}}
-        hidden={() => {
-          setModalPaymentShow(false);
-        }}
-      />
+        </View>
+      )}
+      {(data?.status === "Pending" || data?.status === "Confirmed") && (
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "space-around",
+            marginTop: 4,
+            flexDirection: "row",
+            zIndex: 2,
+          }}
+        >
+          <Pressable
+            style={{
+              paddingVertical: 8,
+              alignItems: "center",
+              width: "84%",
+              backgroundColor: "#d7d7d7",
+              borderRadius: 4,
+            }}
+            onPress={handleCancelBooking}
+          >
+            <Text
+              style={{
+                color: "black",
+                fontWeight: "500",
+              }}
+            >
+              Cancel booking
+            </Text>
+          </Pressable>
+        </View>
+      )}
+      {data?.status === "Completed" && (
+        <CheckReview postId={data?.accommodation?.id} />
+      )}
     </View>
   );
 });

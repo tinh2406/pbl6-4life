@@ -115,6 +115,80 @@ export const NotifyProvider = ({ children }) => {
         queryClient.invalidateQueries("bookings");
       }
     );
+    connection.on(
+      "GuestReceiveNotifyApproveCancelBookingMessage",
+      function (message) {
+        console.log(message, "GuestReceiveNotifyApproveCancelBookingMessage");
+        const data = JSON.parse(message);
+        schedulePushNotification("Canceled booking success", data?.Content);
+        setHasNew(true);
+        if (data?.Id) addToSet(data.Id);
+        queryClient.invalidateQueries("notifys");
+        queryClient.invalidateQueries("bookings");
+      }
+    );
+    connection.on(
+      "GuestReceiveNotifyRejectCancelBookingMessage",
+      function (message) {
+        console.log(message, "GuestReceiveNotifyRejectCancelBookingMessage");
+        const data = JSON.parse(message);
+        schedulePushNotification("Canceled booking fail", data?.Content);
+        setHasNew(true);
+        if (data?.Id) addToSet(data.Id);
+        queryClient.invalidateQueries("notifys");
+        queryClient.invalidateQueries("bookings");
+      }
+    );
+    connection.on("GuestReceiveNotifyCancelBookingMessage", function (message) {
+      console.log(message, "GuestReceiveNotifyCancelBookingMessage");
+      const data = JSON.parse(message);
+      schedulePushNotification("Booking has been canceled", data?.Content);
+      setHasNew(true);
+      if (data?.Id) addToSet(data.Id);
+      queryClient.invalidateQueries("notifys");
+      queryClient.invalidateQueries("bookings");
+    });
+    connection.on(
+      "ModReceiveNotifyRequestCancelBookingMessage",
+      function (message) {
+        console.log(message, "ModReceiveNotifyRequestCancelBookingMessage");
+        const data = JSON.parse(message);
+        schedulePushNotification("Cancel booking", data?.Content);
+        setHasNew(true);
+        if (data?.Id) addToSet(data.Id);
+        queryClient.invalidateQueries("notifys");
+        queryClient.invalidateQueries("bookings_of_myrooms");
+      }
+    );
+    connection.on("ModReceiveNotifyNewReviewMessage", function (message) {
+      console.log(message, "ModReceiveNotifyNewReviewMessage");
+      const data = JSON.parse(message);
+      schedulePushNotification("New review", data?.Content);
+      setHasNew(true);
+      if (data?.Id) addToSet(data.Id);
+      queryClient.invalidateQueries("notifys");
+      queryClient.invalidateQueries("post");
+      queryClient.invalidateQueries("preview-review");
+      queryClient.invalidateQueries("reviews");
+    });
+    connection.on("ModReceiveNotifyRevokeCancelBookingMessage", function (message) {
+      console.log(message, "ModReceiveNotifyRevokeCancelBookingMessage");
+      const data = JSON.parse(message);
+      schedulePushNotification("New notify", data?.Content);
+      setHasNew(true);
+      if (data?.Id) addToSet(data.Id);
+      queryClient.invalidateQueries("notifys");
+      queryClient.invalidateQueries("bookings_of_myrooms");
+    });
+    connection.on("GuestReceiveNotifyRejectBookingMessage", function (message) {
+      console.log(message, "GuestReceiveNotifyRejectBookingMessage");
+      const data = JSON.parse(message);
+      schedulePushNotification("New notify", data?.Content);
+      setHasNew(true);
+      if (data?.Id) addToSet(data.Id);
+      queryClient.invalidateQueries("notifys");
+      queryClient.invalidateQueries("bookings");
+    });
     const connect = async () => {
       const isConnect = false;
       while (isConnect) {
@@ -134,6 +208,13 @@ export const NotifyProvider = ({ children }) => {
         connection.off("GuestReceiveNotifyRejectModMessage");
         connection.off("ModReceiveNotifyBookingPaymentSuccess");
         connection.off("GuestReceiveNotifyBookingPaymentSuccess");
+        connection.off("ModReceiveNotifyRequestCancelBookingMessage");
+        connection.off("GuestReceiveNotifyApproveCancelBookingMessage");
+        connection.off("GuestReceiveNotifyRejectCancelBookingMessage");
+        connection.off("GuestReceiveNotifyCancelBookingMessage");
+        connection.off("ModReceiveNotifyNewReviewMessage");
+        connection.off("ModReceiveNotifyRevokeCancelBookingMessage");
+        connection.off("GuestReceiveNotifyRejectBookingMessage");
         connection.stop();
       }
     };

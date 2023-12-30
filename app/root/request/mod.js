@@ -1,16 +1,10 @@
 import { Entypo, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useState } from "react";
-import {
-  ActivityIndicator,
-  Image,
-  Modal,
-  Pressable,
-  Text,
-  View,
-} from "react-native";
+import { ActivityIndicator, Modal, Pressable, Text, View } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useUser } from "../../../src/context/UserContext";
+import Image from "../../../src/components/Image";
 
 export default () => {
   const { onRequestMod } = useUser();
@@ -151,9 +145,7 @@ export default () => {
             >
               {data?.front ? (
                 <Image
-                  source={{
-                    uri: data?.front?.uri,
-                  }}
+                  src={data?.front?.uri}
                   style={{
                     width: "100%",
                     height: "100%",
@@ -185,9 +177,7 @@ export default () => {
             >
               {data?.back ? (
                 <Image
-                  source={{
-                    uri: data?.back?.uri,
-                  }}
+                  src={data?.back?.uri}
                   style={{
                     width: "100%",
                     height: "100%",

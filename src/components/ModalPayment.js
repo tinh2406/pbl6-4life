@@ -1,8 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { memo, useEffect, useState } from "react";
 import {
-  Image,
-  Keyboard,
   Linking,
   Modal,
   Pressable,
@@ -24,7 +22,8 @@ import { instance } from "../context/AuthContext";
 import * as Clipboard from "expo-clipboard";
 import qrcode from "qrcode-generator";
 import { useNotify } from "../context/NotifyContext";
-
+import Image from "./Image";
+import * as WebBrowser from 'expo-web-browser';
 export default ({ visible, hidden, onConfirm, data }) => {
   const heightAnim = useSharedValue(0);
   const { modalPayment } = useNotify();
@@ -113,6 +112,7 @@ export default ({ visible, hidden, onConfirm, data }) => {
 const Content = memo(({ onClose, onConfirm, data, url, setUrl }) => {
   const [search, setSearch] = useState("");
   const [bank, setBank] = useState();
+  const [result, setResult] = useState(null);
 
   const handleOK = async () => {
     try {
@@ -129,6 +129,11 @@ const Content = memo(({ onClose, onConfirm, data, url, setUrl }) => {
       console.log(error.response.data);
     }
   };
+  const handleGotoPay = async () => {
+    let result = await WebBrowser.openBrowserAsync(url);
+      // setResult(result);
+      // console.log(result);
+  }
   if (url) {
     const qr = qrcode(16, "L");
     qr.addData(url);
@@ -158,14 +163,13 @@ const Content = memo(({ onClose, onConfirm, data, url, setUrl }) => {
           Go to the URL to pay your order
         </Text>
         <Image
-          source={{
-            uri: qr.createDataURL(),
-          }}
-          width={160}
-          height={160}
+          src={qr.createDataURL()}
           style={{
             marginBottom: 60,
+            width: 160,
+            height: 160,
           }}
+          transition={0}
         />
         <View
           style={{
@@ -174,9 +178,7 @@ const Content = memo(({ onClose, onConfirm, data, url, setUrl }) => {
         >
           <ScrollView horizontal style={{}}>
             <Pressable
-              onPress={() => {
-                Linking.openURL(url);
-              }}
+              onPress={handleGotoPay}
               style={{
                 borderRadius: 8,
                 backgroundColor: "#e8e8e8",
@@ -345,9 +347,7 @@ const BankItem = memo(({ data, select }) => {
       }}
     >
       <Image
-        source={{
-          uri: data.logo,
-        }}
+        src={data.logo}
         style={{
           height: 30,
           aspectRatio: 2.4,

@@ -29,9 +29,7 @@ export default () => {
             fontWeight: "700",
             paddingTop: 30,
             paddingHorizontal: 30,
-            paddingBottom: 10,
             backgroundColor: "#fafeff",
-            marginBottom: 5,
           }}
         >
           Notifications

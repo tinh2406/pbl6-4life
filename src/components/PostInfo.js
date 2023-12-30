@@ -1,13 +1,13 @@
 import { Entypo, Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 import { memo, useEffect, useState } from "react";
-import { Image, Pressable, Text, TextInput, View } from "react-native";
+import { Pressable, Text, TextInput, View } from "react-native";
 import NumericInput from "react-native-numeric-input";
 import ModalLocation from "./ModalLocation";
 import ModalMap from "./ModalMap";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import { getCurrentPositionAsync } from "expo-location";
+import Image from "./Image";
 
 export const Location = memo(({ value, setValue, error }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -416,9 +416,7 @@ export const ImagesOfAccomodation = memo(({ value, setValue, error }) => {
             }}
           >
             <Image
-              source={{
-                uri: img.uri,
-              }}
+              src={img.uri}
               style={{
                 borderWidth: 1,
                 borderColor: "#dedede",

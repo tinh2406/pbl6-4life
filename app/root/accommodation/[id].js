@@ -1,7 +1,7 @@
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import { memo, useCallback, useEffect, useState } from "react";
-import { Image, Pressable, Text, View } from "react-native";
+import { Pressable, Text, View, useWindowDimensions } from "react-native";
 import { ScrollView, Swipeable } from "react-native-gesture-handler";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import Animated, {
@@ -12,7 +12,6 @@ import Animated, {
 } from "react-native-reanimated";
 import { useToast } from "react-native-toast-notifications";
 import { useQuery, useQueryClient } from "react-query";
-import defaultAvt from "../../../src/assets/defaultAvatar.png";
 import Amenities from "../../../src/components/Amenities";
 import ModalPayment from "../../../src/components/ModalPayment";
 import ModalPrompt from "../../../src/components/ModalPrompt";
@@ -23,7 +22,9 @@ import { instance } from "../../../src/context/AuthContext";
 import { useUser } from "../../../src/context/UserContext";
 import Loading from "../../../src/screens/Loading";
 import { formatToFE } from "../../../src/utils/formatTime";
-
+import Image from "../../../src/components/Image";
+import ImageAvt from "../../../src/components/ImageAvt";
+import Calendar from "../../../src/components/Calendar";
 const config = {
   duration: 200,
   easing: Easing.bezier(0.5, 0.01, 0, 1),
@@ -165,309 +166,300 @@ export default () => {
           /> */}
           <ImagePost imgs={imgs} imgWidth={imgWidth} />
         </View>
-        <ScrollView>
+        <View
+          style={{
+            width: "100%",
+          }}
+        >
           <View
             style={{
-              width: "100%",
+              margin: 20,
             }}
           >
-            <View
+            <Text
               style={{
-                margin: 20,
+                fontSize: 22,
+                fontWeight: "500",
               }}
             >
-              <Text
-                style={{
-                  fontSize: 22,
-                  fontWeight: "500",
-                }}
-              >
-                {data?.name}
-              </Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginTop: 5,
-                }}
-              >
-                <Ionicons
-                  name="star"
-                  size={18}
-                  style={{
-                    marginRight: 10,
-                  }}
-                />
-                <Text
-                  style={{
-                    fontWeight: "bold",
-                    fontSize: 14,
-                    marginRight: 10,
-                  }}
-                >
-                  {data?.avgAccuracyRating}
-                </Text>
-                <Text
-                  style={{
-                    fontWeight: "bold",
-                    fontSize: 14,
-                  }}
-                >
-                  {data?.totalReview} review
-                </Text>
-              </View>
-              <Text
-                style={{
-                  fontSize: 14,
-                  marginTop: 10,
-                }}
-              >
-                {data?.address}
-              </Text>
-              <Text
-                style={{
-                  fontSize: 14,
-                  marginTop: 10,
-                }}
-              >
-                {data?.description}
-              </Text>
-            </View>
-            <Amenities postId={id} />
+              {data?.name}
+            </Text>
             <View
               style={{
-                marginHorizontal: 20,
-                borderTopWidth: 1,
-                borderColor: "#d5d5d5",
+                flexDirection: "row",
+                alignItems: "center",
+                marginTop: 5,
               }}
             >
-              <Text
+              <Ionicons
+                name="star"
+                size={18}
                 style={{
-                  marginTop: 10,
-                  fontSize: 18,
-                  fontWeight: "500",
+                  marginRight: 10,
                 }}
-              >
-                Where you'll be
-              </Text>
-              <Pressable
-                onPress={() => {
-                  router.push("root/map");
-                  router.setParams({
-                    latitude: data?.latitude,
-                    longitude: data?.longitude,
-                  });
-                }}
-                style={{
-                  width: "100%",
-                  marginTop: 10,
-                  aspectRatio: 1.618,
-                  borderRadius: 10,
-                  overflow: "hidden",
-                }}
-              >
-                <MapView
-                  // ref={mapRef}
-
-                  scrollEnabled={false}
-                  provider={PROVIDER_GOOGLE}
-                  style={{
-                    flex: 1,
-                  }}
-                  region={{
-                    latitude: data?.latitude,
-                    longitude: data?.longitude,
-                    latitudeDelta: 1.5,
-                    longitudeDelta: 1.5,
-                  }}
-                  customMapStyle={[
-                    {
-                      elementType: "labels.icon",
-                      stylers: [
-                        {
-                          visibility: "off",
-                        },
-                      ],
-                    },
-                  ]}
-                  loadingFallback={
-                    <View>
-                      <Text>Loading</Text>
-                    </View>
-                  }
-                  googleMapsApiKey="AIzaSyDi3Ex6q__zEQxqkNBB0A7xgOc7KKDIgk0"
-                >
-                  <Marker
-                    coordinate={{
-                      latitude: Number(data?.latitude),
-                      longitude: Number(data?.longitude),
-                    }}
-                  />
-                </MapView>
-              </Pressable>
-            </View>
-            <View
-              style={{
-                marginHorizontal: 20,
-                borderTopWidth: 1,
-                borderColor: "#d5d5d5",
-              }}
-            >
-              <Pressable
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  marginTop: 10,
-                }}
-                onPress={() => {
-                  // router.push("/root/profile/user123");
-                }}
-              >
-                <View style={{}}>
-                  <Text
-                    style={{
-                      fontWeight: "500",
-                      fontSize: 16,
-                    }}
-                  >
-                    Hosted by {data?.mod.name}
-                  </Text>
-                </View>
-                <Image
-                  source={
-                    data?.mod?.avatar
-                      ? {
-                          uri: data?.mod?.avatar,
-                          cache: "force-cache",
-                        }
-                      : defaultAvt
-                  }
-                  style={{ width: 40, height: 40, borderRadius: 40 }}
-                />
-              </Pressable>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  marginTop: 2,
-                }}
-              >
-                <Ionicons
-                  name="shield-checkmark"
-                  size={16}
-                  style={{
-                    marginRight: 5,
-                  }}
-                />
-                <Text>Identity verified</Text>
-              </View>
-            </View>
-            <View
-              style={{
-                marginHorizontal: 20,
-                marginTop: 20,
-                borderTopWidth: 1,
-                borderColor: "#d5d5d5",
-              }}
-            >
-              <RatingItem
-                title="Cleanliness"
-                value={data?.avgCleanlinessRating}
               />
-              <RatingItem title="Amenities" value={data?.avgAmenitiesRating} />
-              <RatingItem title="Location" value={data?.avgLocationRating} />
-              <RatingItem title="Comfort" value={data?.avgComfortRating} />
-              <Reviews postId={id} />
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  fontSize: 14,
+                  marginRight: 10,
+                }}
+              >
+                {data?.avgAccuracyRating}
+              </Text>
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  fontSize: 14,
+                }}
+              >
+                {data?.totalReview} review
+              </Text>
             </View>
-            <View
+            <Text
               style={{
-                marginHorizontal: 20,
-                borderTopWidth: 1,
-                borderColor: "#d5d5d5",
+                fontSize: 14,
+                marginTop: 10,
               }}
             >
-              <Text
+              {data?.address}
+            </Text>
+            <Text
+              style={{
+                fontSize: 14,
+                marginTop: 10,
+              }}
+            >
+              {data?.description}
+            </Text>
+          </View>
+          <Amenities postId={id} />
+          <View
+            style={{
+              marginHorizontal: 20,
+              borderTopWidth: 1,
+              borderColor: "#d5d5d5",
+            }}
+          >
+            <Text
+              style={{
+                marginTop: 10,
+                fontSize: 18,
+                fontWeight: "500",
+              }}
+            >
+              Where you'll be
+            </Text>
+            <Pressable
+              onPress={() => {
+                router.push("root/map");
+                router.setParams({
+                  latitude: data?.latitude,
+                  longitude: data?.longitude,
+                });
+              }}
+              style={{
+                width: "100%",
+                marginTop: 10,
+                aspectRatio: 1.618,
+                borderRadius: 10,
+                overflow: "hidden",
+              }}
+            >
+              <MapView
+                // ref={mapRef}
+
+                scrollEnabled={false}
+                provider={PROVIDER_GOOGLE}
                 style={{
-                  marginTop: 10,
-                  fontSize: 18,
-                  fontWeight: "500",
-                  marginBottom: 10,
+                  flex: 1,
                 }}
+                region={{
+                  latitude: data?.latitude,
+                  longitude: data?.longitude,
+                  latitudeDelta: 1.5,
+                  longitudeDelta: 1.5,
+                }}
+                customMapStyle={[
+                  {
+                    elementType: "labels.icon",
+                    stylers: [
+                      {
+                        visibility: "off",
+                      },
+                    ],
+                  },
+                ]}
+                loadingFallback={
+                  <View>
+                    <Text>Loading</Text>
+                  </View>
+                }
+                googleMapsApiKey="AIzaSyDi3Ex6q__zEQxqkNBB0A7xgOc7KKDIgk0"
               >
-                House rules
-              </Text>
-              {data?.checkInAfter && data?.checkInBefore && (
+                <Marker
+                  coordinate={{
+                    latitude: Number(data?.latitude),
+                    longitude: Number(data?.longitude),
+                  }}
+                />
+              </MapView>
+            </Pressable>
+          </View>
+
+          <View
+            style={{
+              marginHorizontal: 20,
+              borderTopWidth: 1,
+              borderColor: "#d5d5d5",
+            }}
+          >
+            <Pressable
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginTop: 10,
+              }}
+              onPress={() => {
+                // router.push("/root/profile/user123");
+              }}
+            >
+              <View style={{}}>
                 <Text
                   style={{
-                    color: "#282828",
-                    paddingVertical: 4,
+                    fontWeight: "500",
+                    fontSize: 16,
                   }}
                 >
-                  Check in: {formatToFE(data.checkInAfter)}-
-                  {formatToFE(data.checkInBefore)}
+                  Hosted by {data?.mod.name}
                 </Text>
-              )}
-              {data?.checkOutBefore && (
-                <Text
-                  style={{
-                    color: "#282828",
-                    paddingVertical: 4,
-                  }}
-                >
-                  Check out before: {formatToFE(data?.checkOutBefore)}
-                </Text>
-              )}
-              {data?.quietHoursAfter && data?.quietHoursBefore && (
-                <Text
-                  style={{
-                    color: "#282828",
-                    paddingVertical: 4,
-                  }}
-                >
-                  Quiet time: {formatToFE(data?.quietHoursBefore)}-
-                  {formatToFE(data?.quietHoursAfter)}
-                </Text>
-              )}
-              <Text
+              </View>
+              <ImageAvt
+                src={data?.mod?.avatar}
+                style={{ width: 40, height: 40, borderRadius: 40 }}
+              />
+            </Pressable>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginTop: 2,
+              }}
+            >
+              <Ionicons
+                name="shield-checkmark"
+                size={16}
                 style={{
-                  color: "#282828",
-                  paddingVertical: 4,
+                  marginRight: 5,
                 }}
-              >
-                {data?.isPhotoAllowed
-                  ? "Photos is allowed"
-                  : "No photo allowed"}
-              </Text>
-              <Text
-                style={{
-                  color: "#282828",
-                  paddingVertical: 4,
-                }}
-              >
-                {data?.isEventAllowed
-                  ? "Parties or events are allowed"
-                  : "No parties or events"}
-              </Text>
-              <Text
-                style={{
-                  color: "#282828",
-                  paddingVertical: 4,
-                }}
-              >
-                {data?.isPetAllowed ? "Pets is allowed" : "No pets"}
-              </Text>
-              <Text
-                style={{
-                  color: "#282828",
-                  paddingVertical: 4,
-                }}
-              >
-                {data?.isSmokingAllowed ? "Smoking is allowed" : "No smoking"}
-              </Text>
+              />
+              <Text>Identity verified</Text>
             </View>
           </View>
-        </ScrollView>
+          <View
+            style={{
+              marginHorizontal: 20,
+              marginTop: 20,
+              borderTopWidth: 1,
+              borderColor: "#d5d5d5",
+            }}
+          >
+            <RatingItem
+              title="Cleanliness"
+              value={data?.avgCleanlinessRating}
+            />
+            <RatingItem title="Amenities" value={data?.avgAmenitiesRating} />
+            <RatingItem title="Location" value={data?.avgLocationRating} />
+            <RatingItem title="Comfort" value={data?.avgComfortRating} />
+            <Reviews postId={id} />
+          </View>
+          <Calendar id={id} />
+          <View
+            style={{
+              marginHorizontal: 20,
+              borderTopWidth: 1,
+              borderColor: "#d5d5d5",
+            }}
+          >
+            <Text
+              style={{
+                marginTop: 10,
+                fontSize: 18,
+                fontWeight: "500",
+                marginBottom: 10,
+              }}
+            >
+              House rules
+            </Text>
+            {data?.checkInAfter && data?.checkInBefore && (
+              <Text
+                style={{
+                  color: "#282828",
+                  paddingVertical: 4,
+                }}
+              >
+                Check in: {formatToFE(data.checkInAfter)}-
+                {formatToFE(data.checkInBefore)}
+              </Text>
+            )}
+            {data?.checkOutBefore && (
+              <Text
+                style={{
+                  color: "#282828",
+                  paddingVertical: 4,
+                }}
+              >
+                Check out before: {formatToFE(data?.checkOutBefore)}
+              </Text>
+            )}
+            {data?.quietHoursAfter && data?.quietHoursBefore && (
+              <Text
+                style={{
+                  color: "#282828",
+                  paddingVertical: 4,
+                }}
+              >
+                Quiet time: {formatToFE(data?.quietHoursBefore)}-
+                {formatToFE(data?.quietHoursAfter)}
+              </Text>
+            )}
+            <Text
+              style={{
+                color: "#282828",
+                paddingVertical: 4,
+              }}
+            >
+              {data?.isPhotoAllowed ? "Photos is allowed" : "No photo allowed"}
+            </Text>
+            <Text
+              style={{
+                color: "#282828",
+                paddingVertical: 4,
+              }}
+            >
+              {data?.isEventAllowed
+                ? "Parties or events are allowed"
+                : "No parties or events"}
+            </Text>
+            <Text
+              style={{
+                color: "#282828",
+                paddingVertical: 4,
+              }}
+            >
+              {data?.isPetAllowed ? "Pets is allowed" : "No pets"}
+            </Text>
+            <Text
+              style={{
+                color: "#282828",
+                paddingVertical: 4,
+              }}
+            >
+              {data?.isSmokingAllowed ? "Smoking is allowed" : "No smoking"}
+            </Text>
+          </View>
+        </View>
       </ScrollView>
       <ModalReserve
         data={data}
@@ -545,6 +537,7 @@ export default () => {
 
 const ImagePost = memo(({ imgs, imgWidth }) => {
   const [currentImg, setCurrentImg] = useState(0);
+  const w = useWindowDimensions().width;
   const left = useSharedValue(0);
   const style = useAnimatedStyle(() => ({
     left: withTiming(left.value, config),
@@ -575,9 +568,9 @@ const ImagePost = memo(({ imgs, imgWidth }) => {
           {imgs.map((img, i) => (
             <Image
               key={i}
-              source={{ uri: img, cache: "force-cache" }}
+              src={img}
               style={{
-                width: "100%",
+                width: w,
                 aspectRatio: 1.314,
               }}
             />

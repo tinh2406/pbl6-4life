@@ -1,10 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { memo, useState } from "react";
-import { Image, Pressable, Text, TextInput, View } from "react-native";
+import { Pressable, Text, TextInput, View } from "react-native";
 import { useQuery } from "react-query";
 import { instance } from "../context/AuthContext";
 import ModalAmenities, { AmenityItem } from "./ModalAmenities";
+import Image from "./Image";
 
 export const CreateAmenity = memo(({ setValue }) => {
   const [img, setImg] = useState();
@@ -31,9 +32,7 @@ export const CreateAmenity = memo(({ setValue }) => {
       <Pressable onPress={launchLib}>
         {img ? (
           <Image
-            source={{
-              uri: img.uri,
-            }}
+            src={img.uri}
             style={{
               width: 42,
               height: 42,
@@ -137,9 +136,7 @@ export const Amenity = memo(({ data, setValue }) => {
       }}
     >
       <Image
-        source={{
-          uri: data.icon,
-        }}
+        src={data.icon}
         style={{
           width: 42,
           height: 42,

@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   ActivityIndicator,
-  Image,
   Pressable,
   Text,
   View,
@@ -13,10 +12,11 @@ import { format } from "date-fns";
 import { memo, useState } from "react";
 import { ScrollView } from "react-native-gesture-handler";
 import { useQuery, useQueryClient } from "react-query";
-import defaultAvt from "../../../src/assets/defaultAvatar.png";
 import ModalPrompt from "../../../src/components/ModalPrompt";
 import { instance } from "../../../src/context/AuthContext";
 import { calcNumDays } from "../../../src/utils/CalcNumdays";
+import Image from "../../../src/components/Image";
+import ImageAvt from "../../../src/components/ImageAvt";
 export default () => {
   const { id } = useLocalSearchParams();
 
@@ -60,6 +60,23 @@ export default () => {
   );
 };
 
+const titleMapper = {
+  RequestCancel: "want cancel their booking",
+  Canceled: "has canceled their booking",
+};
+const actionsMapper = {
+  "mark-as-paid": "This booking has paid?",
+  "cancel-booking": "This booking has canceled?",
+  "confirm-booking": "This booking has confirmed?",
+  "refuse-cancel": "Refusing to cancel this booking?",
+};
+const apisMapper = {
+  "mark-as-paid": "api/bookings/mark-as-paid/",
+  "cancel-booking": "api/bookings/approve-cancel/",
+  "confirm-booking": "api/bookings/confirm-booking/",
+  "refuse-cancel": "api/bookings/reject-cancel/",
+};
+
 const Content = memo(({ id }) => {
   const { data, isLoading } = useQuery({
     queryKey: ["myreservation", id],
@@ -70,13 +87,27 @@ const Content = memo(({ id }) => {
   });
   const w = useWindowDimensions().width;
   const queryClient = useQueryClient();
-  const [modalConfirm, setModalConfirm] = useState(false);
+  const [action, setAction] = useState();
+
   const handleButtonClick = () => {
-    if (data?.isPaid) {
-    } else {
-      setModalConfirm(true);
+    if (!data?.isPaid) {
+      setAction("mark-as-paid");
     }
   };
+  const handleCancelBooking = () => {
+    setAction("cancel-booking");
+  };
+  const handleConfirmBooking = () => {
+    if (data?.status === "Pending") {
+      setAction("confirm-booking");
+    }
+  };
+  const handleRefusCancel = () => {
+    if (data?.status === "RequestCancel") {
+      setAction("refuse-cancel");
+    }
+  };
+
   if (isLoading)
     return (
       <View
@@ -109,14 +140,8 @@ const Content = memo(({ id }) => {
           alignItems: "center",
         }}
       >
-        <Image
-          source={
-            data?.userSummaryDto?.avatar
-              ? {
-                  uri: data?.userSummaryDto?.avatar,
-                }
-              : defaultAvt
-          }
+        <ImageAvt
+          src={data?.userSummaryDto?.avatar}
           style={{
             width: 24,
             height: 24,
@@ -140,7 +165,7 @@ const Content = memo(({ id }) => {
             color: "#5a5a5a",
           }}
         >
-          has booked your room
+          {titleMapper[data?.status] || "has booked your room"}
         </Text>
       </View>
       <Pressable
@@ -156,9 +181,7 @@ const Content = memo(({ id }) => {
         }}
       >
         <Image
-          source={{
-            uri: data?.accommodation.imageUrls[0],
-          }}
+          src={data?.accommodation.imageUrls[0]}
           style={{
             width: 100,
             height: 100,
@@ -421,38 +444,141 @@ const Content = memo(({ id }) => {
           checkInDate={data?.checkInDate}
           checkOutDate={data?.checkOutDate}
           isPaid={data?.isPaid}
+          status={data?.status}
         />
-        <Pressable
-          style={{
-            marginLeft: 20,
-            paddingVertical: 8,
-            alignItems: "center",
-            width: 100,
-            backgroundColor: data?.isPaid ? "#7d7d7d" : "#0e9639",
-            borderRadius: 4,
-          }}
-          onPress={handleButtonClick}
-        >
-          <Text
+        {data?.status !== "RequestCancel" && data?.status !== "Canceled" && (
+          <Pressable
             style={{
-              color: "white",
-              fontWeight: "500",
+              marginLeft: 20,
+              paddingVertical: 8,
+              alignItems: "center",
+              width: 100,
+              backgroundColor: data?.isPaid ? "#7d7d7d" : "#0e9639",
+              borderRadius: 4,
             }}
+            onPress={handleButtonClick}
           >
-            {data?.isPaid ? "Paid" : "Confirm paid"}
-          </Text>
-        </Pressable>
+            <Text
+              style={{
+                color: "white",
+                fontWeight: "500",
+              }}
+            >
+              {data?.isPaid ? "Paid" : "Confirm paid"}
+            </Text>
+          </Pressable>
+        )}
       </View>
+      {data?.status === "Pending" && (
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "space-around",
+            marginTop: 10,
+            flexDirection: "row",
+          }}
+        >
+          <Pressable
+            style={{
+              paddingVertical: 8,
+              alignItems: "center",
+              width: "48%",
+              backgroundColor: "#d2d2d2",
+              borderRadius: 4,
+            }}
+            onPress={handleCancelBooking}
+          >
+            <Text
+              style={{
+                color: "black",
+                fontWeight: "500",
+              }}
+            >
+              Cancel booking
+            </Text>
+          </Pressable>
+          <Pressable
+            style={{
+              paddingVertical: 8,
+              alignItems: "center",
+              width: "48%",
+              backgroundColor: "#ff385c",
+              borderRadius: 4,
+              marginLeft: 20,
+            }}
+            onPress={handleConfirmBooking}
+          >
+            <Text
+              style={{
+                color: "white",
+                fontWeight: "500",
+              }}
+            >
+              Confirm booking
+            </Text>
+          </Pressable>
+        </View>
+      )}
+      {data?.status === "RequestCancel" && (
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "space-around",
+            marginTop: 10,
+            flexDirection: "row",
+          }}
+        >
+          <Pressable
+            style={{
+              paddingVertical: 8,
+              alignItems: "center",
+              width: "48%",
+              backgroundColor: "#d4e51c",
+              borderRadius: 4,
+            }}
+            onPress={handleRefusCancel}
+          >
+            <Text
+              style={{
+                color: "black",
+                fontWeight: "500",
+              }}
+            >
+              Refused to cancel
+            </Text>
+          </Pressable>
+          <Pressable
+            style={{
+              paddingVertical: 8,
+              alignItems: "center",
+              width: "48%",
+              backgroundColor: "#d7700f",
+              borderRadius: 4,
+              marginLeft: 20,
+            }}
+            onPress={handleCancelBooking}
+          >
+            <Text
+              style={{
+                color: "white",
+                fontWeight: "500",
+              }}
+            >
+              Accept cancellation
+            </Text>
+          </Pressable>
+        </View>
+      )}
       <ModalPrompt
         title="Comfirm"
-        message="This booking has paid?"
-        visible={modalConfirm}
-        onCancel={() => setModalConfirm(false)}
+        message={actionsMapper[action] || "This booking has paid?"}
+        visible={!!action}
+        onCancel={() => setAction()}
         onConfirm={async () => {
-          if (bookingId) {
-            if (action === "mark-as-paid") {
+          if (id) {
+            if (action) {
               try {
-                await instance.post(`api/bookings/mark-as-paid/${id}`);
+                await instance.post(`${apisMapper[action]}${id}`);
                 queryClient.invalidateQueries(["myreservation", id]);
               } catch (error) {
                 console.log(error.response);

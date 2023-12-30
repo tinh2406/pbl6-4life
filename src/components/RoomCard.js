@@ -1,14 +1,7 @@
 import { Feather } from "@expo/vector-icons";
-import { router, useNavigation, usePathname } from "expo-router";
+import { router, usePathname } from "expo-router";
 import { memo, useEffect, useState } from "react";
-import {
-  Alert,
-  Image,
-  Pressable,
-  Text,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import { Pressable, Text, View, useWindowDimensions } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import Animated, {
   Easing,
@@ -21,6 +14,7 @@ import { useUser } from "../context/UserContext";
 import ModalPrompt from "./ModalPrompt";
 import { instance } from "../context/AuthContext";
 import { useQueryClient } from "react-query";
+import Image from "./Image";
 export const config = {
   duration: 200,
   easing: Easing.bezier(0.5, 0.01, 0, 1),
@@ -32,14 +26,14 @@ const RoomCard = ({ data }) => {
   const style = useAnimatedStyle(() => ({
     left: withTiming(left.value, config),
   }));
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
   const [isLike, setIsLike] = useState(data?.isFavorite);
   const [currentImg, setCurrentImg] = useState(0);
   const [imgWidth, setImgWidth] = useState();
-  const imgs = data?.imageUrls 
-  useEffect(()=>{
-    setIsLike(data?.isFavorite)
-  },[data?.isFavorite])
+  const imgs = data?.imageUrls;
+  useEffect(() => {
+    setIsLike(data?.isFavorite);
+  }, [data?.isFavorite]);
   return (
     <View
       style={{
@@ -73,19 +67,19 @@ const RoomCard = ({ data }) => {
             bottom: 10,
             left: 14,
             zIndex: 2,
-            padding:4
+            padding: 4,
           }}
           onPress={async () => {
             try {
-              setIsLike(!isLike)
+              setIsLike(!isLike);
               const res = await instance.post("api/favorites", {
                 accommodationId: data?.id,
                 isFavorite: !isLike,
-              }); 
-              queryClient.invalidateQueries("favorite-posts")
-              queryClient.invalidateQueries("posts")
+              });
+              queryClient.invalidateQueries("favorite-posts");
+              queryClient.invalidateQueries("posts");
             } catch (error) {
-                console.log(error.response);
+              console.log(error.response);
             }
           }}
         >
@@ -192,7 +186,7 @@ const RoomCard = ({ data }) => {
             {imgs.map((img, i) => (
               <Image
                 key={i}
-                source={{ uri: img, cache: "force-cache" }}
+                src={img}
                 style={{
                   width: "100%",
                   aspectRatio: 1.314,
@@ -281,7 +275,7 @@ const RoomCard = ({ data }) => {
                 color: "#2f2f2f",
               }}
             >
-              {data?.avgRating?.toFixed(2)||0}
+              {data?.avgRating?.toFixed(2) || 0}
             </Text>
           </View>
         </View>
@@ -289,7 +283,7 @@ const RoomCard = ({ data }) => {
       <Pressable
         style={{ position: "absolute", width: "100%", height: "100%" }}
         onPress={() => {
-          router.push(`root/accomodation/${data.id}`);
+          router.push(`root/accommodation/${data.id}`);
         }}
       />
     </View>

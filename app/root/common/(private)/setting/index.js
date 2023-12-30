@@ -1,15 +1,9 @@
-import {
-  Image,
-  Pressable,
-  Text,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import { Pressable, Text, View, useWindowDimensions } from "react-native";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import TabBar from "../../../../../src/components/TabBar";
 import { router, useNavigation } from "expo-router";
 import { useUser } from "../../../../../src/context/UserContext";
-import defaultAvt from "../../../../../src/assets/defaultAvatar.png";
+import ImageAvt from "../../../../../src/components/ImageAvt";
 export default () => {
   const navigation = useNavigation();
   const { user, onLogout } = useUser();
@@ -27,7 +21,7 @@ export default () => {
             fontSize: 24,
             fontWeight: "700",
             marginTop: 30,
-            marginHorizontal: 20,
+            marginHorizontal: 30,
           }}
         >
           Profile
@@ -55,14 +49,8 @@ export default () => {
                   alignItems: "center",
                 }}
               >
-                <Image
-                  source={
-                    user?.avatar
-                      ? {
-                          uri: user?.avatar,
-                        }
-                      : defaultAvt
-                  }
+                <ImageAvt
+                  src={user?.avatar}
                   style={{
                     width: 50,
                     height: 50,

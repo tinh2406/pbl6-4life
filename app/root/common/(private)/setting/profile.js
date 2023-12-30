@@ -1,12 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import { router, useGlobalSearchParams } from "expo-router";
-import { memo, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
-import defaultAvt from "../../../../../src/assets/defaultAvatar.png";
+import { router } from "expo-router";
+import { memo, useEffect, useState } from "react";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import FlatListAutoLoad from "../../../../../src/components/FlatListAutoLoad";
 import ModalPrompt from "../../../../../src/components/ModalPrompt";
 import { useUser } from "../../../../../src/context/UserContext";
+import ImageAvt from "../../../../../src/components/ImageAvt";
+
 export default () => {
   const { user, onVerifyEmail, onConfirmEmail } = useUser();
   const [loading, setLoading] = useState(false);
@@ -132,7 +133,6 @@ export default () => {
 
 const UserCard = memo(() => {
   const [image, setImage] = useState(null);
-  const { userId } = useGlobalSearchParams();
   const { user, onUpdateAVT } = useUser();
   const handleUploadImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -190,29 +190,26 @@ const UserCard = memo(() => {
             alignItems: "center",
           }}
         >
-          <Pressable
-            style={{
-              borderRadius: 100,
-              margin: 20,
-            }}
-            disabled={userId !== user?.id}
-            onPress={handleUploadImage}
-          >
-            <Image
-              source={
+          <View>
+            <ImageAvt
+              src={
                 image?.uri || user?.avatar
-                  ? {
-                      uri: image?.uri || user?.avatar,
-                    }
-                  : defaultAvt
               }
               style={{
                 width: 90,
                 height: 90,
                 borderRadius: 100,
+                margin: 20,
               }}
+              onPress={handleUploadImage}
             />
-          </Pressable>
+            <Ionicons
+              name="ios-camera"
+              size={20}
+              color="black"
+              style={{ position: "absolute",bottom:24,right:24 }}
+            />
+          </View>
           <Text
             style={{
               fontSize: 20,
@@ -231,50 +228,7 @@ const UserCard = memo(() => {
             {user.statusModRole === "Active" ? "Mod" : "Guest"}
           </Text>
         </View>
-        {user.statusModRole === "Active" && (
-          <View
-            style={{
-              flexDirection: "column",
-              justifyContent: "space-evenly",
-              marginHorizontal: 20,
-              marginTop: 20,
-            }}
-          >
-            <View style={{}}>
-              <Text
-                style={{
-                  fontWeight: "600",
-                  fontSize: 16,
-                }}
-              >
-                Nums of posts
-              </Text>
-              <Text></Text>
-            </View>
-            <View style={{}}>
-              <Text
-                style={{
-                  fontWeight: "600",
-                  fontSize: 16,
-                }}
-              >
-                Nums of likes
-              </Text>
-              <Text></Text>
-            </View>
-            <View style={{}}>
-              <Text
-                style={{
-                  fontWeight: "600",
-                  fontSize: 16,
-                }}
-              >
-                Nums of comments
-              </Text>
-              <Text></Text>
-            </View>
-          </View>
-        )}
+
       </View>
     </View>
   );

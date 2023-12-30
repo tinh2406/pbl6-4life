@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { memo, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -16,6 +16,13 @@ import BookingCardMod from "../../../src/components/BookingCardMod";
 import { instance } from "../../../src/context/AuthContext";
 import ModalPrompt from "../../../src/components/ModalPrompt";
 import { useToast } from "react-native-toast-notifications";
+import { Swipeable } from "react-native-gesture-handler";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 export default () => {
   return (
@@ -55,13 +62,151 @@ export default () => {
     </View>
   );
 };
-
+const stateBooking = [
+  "All",
+  "Pending",
+  "Confirmed",
+  "Ongoing",
+  "Completed",
+  "Request cancel",
+  "Canceled",
+];
+const stateBooking2 = [
+  "All",
+  "Pending",
+  "Confirmed",
+  "CheckedIn",
+  "Completed",
+  "RequestCancel",
+  "Canceled",
+];
+const actionsMapper = {
+  "mark-as-paid": "This booking has paid?",
+  "reject-booking": "This booking has canceled?",
+  "cancel-booking": "This booking has canceled?",
+  "confirm-booking": "This booking has confirmed?",
+  "refuse-cancel": "Refusing to cancel this booking?",
+};
+const apisMapper = {
+  "mark-as-paid": "api/bookings/mark-as-paid/",
+  "reject-booking": "api/bookings/reject-booking/",
+  "cancel-booking": "api/bookings/approve-cancel/",
+  "confirm-booking": "api/bookings/confirm-booking/",
+  "refuse-cancel": "api/bookings/reject-cancel/",
+};
 const Content = memo(() => {
-  const [IsPaid, setIsPaid] = useState();
-  const toast = useToast()
+  const scrollRef = useRef();
+  const [status, setStatus] = useState(1);
+  const toast = useToast();
   const queryClient = useQueryClient();
+
+  const w = useWindowDimensions().width;
+  const [bookingId, setBookingId] = useState();
+  const [action, setAction] = useState();
+  const left = useSharedValue(-w);
+  const style = useAnimatedStyle(() => ({
+    left: withTiming(left.value, {
+      duration: 500,
+      easing: Easing.bezier(0.5, 0.01, 0, 1),
+    }),
+  }));
+  useEffect(() => {
+    if (scrollRef)
+      scrollRef.current.scrollTo({ x: status * status * 10, animated: true });
+    left.value = -w * status;
+  }, [status]);
+  const [AllData, setAllData] = useState();
+
+  useEffect(() => {
+    setAllData(
+      stateBooking2.map((state) => (
+        <MyFlatList
+          key={state}
+          status={state}
+          setAction={setAction}
+          setBookingId={setBookingId}
+        />
+      ))
+    );
+  }, []);
+  return (
+    <View>
+      <ScrollView
+        ref={scrollRef}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+      >
+        {stateBooking.map((state, i) => (
+          <Pressable key={i} onPress={() => setStatus(i)}>
+            <Text
+              style={[
+                styles.statusButton,
+                {
+                  borderBottomColor: status === i ? "#767676" : "transparent",
+                  fontWeight: status === i ? "500" : "400",
+                },
+              ]}
+            >
+              {state}
+            </Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+
+      <Swipeable
+        onSwipeableWillClose={(e) => {
+          if (e === "right") {
+            if (status < stateBooking.length - 1) setStatus(status + 1);
+          }
+          if (e === "left") {
+            if (status > 0) setStatus(status - 1);
+          }
+        }}
+      >
+        {AllData ? (
+          <Animated.View style={[{ flexDirection: "row",width:stateBooking2.length*w }, style]}>
+            {AllData}
+          </Animated.View>
+        ) : (
+          <View style={{ width: w }}>
+            <ActivityIndicator color={"#ff385c"} size={"large"} />
+          </View>
+        )}
+      </Swipeable>
+
+      <ModalPrompt
+        title="Comfirm"
+        message={actionsMapper[action] || "This booking has paid?"}
+        visible={!!action}
+        onCancel={() => setAction()}
+        onConfirm={async () => {
+          if (bookingId) {
+            if (action) {
+              try {
+                await instance.post(`${apisMapper[action]}${bookingId}`);
+                queryClient.invalidateQueries("bookings_of_myrooms");
+              } catch (error) {
+                console.log(error.response);
+                toast.show(`Error: ${error.message}`, {
+                  type: "danger",
+                  placement: "top",
+                });
+              }
+            }
+          }
+        }}
+      />
+    </View>
+  );
+});
+
+const MyFlatList = memo(({ status, setAction, setBookingId }) => {
+  const h = useWindowDimensions().height;
+  const w = useWindowDimensions().width;
+  const queryClient = useQueryClient();
+
   const { data, isLoading, isFetching, fetchNextPage } = useInfiniteQuery(
-    ["bookings_of_myrooms", IsPaid],
+    ["bookings_of_myrooms", status],
     async ({ pageParam }) => {
       const res = await instance.get(`/api/bookings/self-mod`, {
         params: {
@@ -69,7 +214,8 @@ const Content = memo(() => {
           PageIndex: pageParam,
           IsDescending: true,
           SortBy: "CreatedDate",
-          ...(IsPaid !== undefined ? { IsPaid } : {}),
+          ...(status === "All" ? {} : { Types: status }),
+          // ...(IsPaid !== undefined ? { IsPaid } : {}),
         },
       });
       return res.data;
@@ -86,83 +232,11 @@ const Content = memo(() => {
     if (!data?.pages?.slice(-1)[0].data?.length > 0) return;
     fetchNextPage();
   };
-  const h = useWindowDimensions().height;
-  const [bookingId, setBookingId] = useState();
-  const [action, setAction] = useState();
+
   return (
-    <View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <Pressable onPress={() => setIsPaid()}>
-          <Text
-            style={[
-              styles.statusButton,
-              {
-                borderBottomColor:
-                  IsPaid === undefined ? "#767676" : "transparent",
-                fontWeight: IsPaid === undefined ? "500" : "400",
-              },
-            ]}
-          >
-            All
-          </Text>
-        </Pressable>
-        <Pressable onPress={() => setIsPaid(false)}>
-          <Text
-            style={[
-              styles.statusButton,
-              {
-                borderBottomColor: IsPaid === false ? "#767676" : "transparent",
-                fontWeight: IsPaid === false ? "500" : "400",
-              },
-            ]}
-          >
-            Pending
-          </Text>
-        </Pressable>
-        <Pressable onPress={() => setIsPaid(true)}>
-          <Text
-            style={[
-              styles.statusButton,
-              {
-                borderBottomColor: IsPaid === true ? "#767676" : "transparent",
-                fontWeight: IsPaid === true ? "500" : "400",
-              },
-            ]}
-          >
-            Upcoming
-          </Text>
-        </Pressable>
-        <Pressable>
-          <Text
-            style={[
-              styles.statusButton,
-              {
-                borderBottomColor:
-                  IsPaid === "Ongoing" ? "#767676" : "transparent",
-                fontWeight: IsPaid === "Ongoing" ? "500" : "400",
-              },
-            ]}
-          >
-            Ongoing
-          </Text>
-        </Pressable>
-        <Pressable>
-          <Text
-            style={[
-              styles.statusButton,
-              {
-                borderBottomColor:
-                  IsPaid === "Review" ? "#767676" : "transparent",
-                fontWeight: IsPaid === "Review" ? "500" : "400",
-              },
-            ]}
-          >
-            Pending Review
-          </Text>
-        </Pressable>
-      </ScrollView>
+    <View style={{ width: w }}>
       {isLoading ? (
-        <View>
+        <View style={{ width: w }}>
           <ActivityIndicator color={"#ff385c"} size={"large"} />
         </View>
       ) : (
@@ -194,7 +268,7 @@ const Content = memo(() => {
           keyExtractor={(item) => item.id}
           onRefresh={() => {
             if (isFetching) return;
-            queryClient.resetQueries("bookings_of_myrooms");
+            queryClient.resetQueries(["bookings_of_myrooms", status]);
           }}
           refreshing={isLoading}
           onEndReached={handleEndReached} // Xử lý khi cuộn đến cuối danh sách
@@ -206,28 +280,6 @@ const Content = memo(() => {
           }
         />
       )}
-      <ModalPrompt
-        title="Comfirm"
-        message="This booking has paid?"
-        visible={!!action}
-        onCancel={() => setAction()}
-        onConfirm={async () => {
-          if (bookingId) {
-            if (action === "mark-as-paid") {
-              try {
-                await instance.post(`api/bookings/mark-as-paid/${bookingId}`);
-                queryClient.invalidateQueries("bookings_of_myrooms");
-              } catch (error) {
-                console.log(error.response);
-                toast.show(`Error: ${error.message}`,{
-                  type:"danger",
-                  placement:"top",
-                });
-              }
-            }
-          }
-        }}
-      />
     </View>
   );
 });

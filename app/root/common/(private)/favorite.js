@@ -17,7 +17,7 @@ export default () => {
   const [Keyword,setKeyword] = useState()
   const [timerId,setTimerId] = useState()
   return (
-    <View style={{ height: "100%" }}>
+    <View style={{ height: "100%", backgroundColor: "#fafeff"  }}>
       <View
         style={{
           flex: 1,

@@ -1,9 +1,9 @@
 import { router } from "expo-router";
-import { memo, useEffect } from "react";
-import { Image, Pressable, Text, View } from "react-native";
+import { memo } from "react";
+import { Pressable, Text, View } from "react-native";
 import { useQuery } from "react-query";
 import { instance } from "../context/AuthContext";
-import defaultAvt from "../assets/defaultAvatar.png";
+import ImageAvt from "./ImageAvt";
 const Reviews = memo(({ postId }) => {
   const { data } = useQuery({
     queryKey: ["preview-review", postId],
@@ -31,8 +31,8 @@ const Reviews = memo(({ postId }) => {
           >
             Reviews
           </Text>
-          {data?.data.map((review,i) => (
-            <ReviewItem key={review?.userId+i} data={review} />
+          {data?.data.map((review, i) => (
+            <ReviewItem key={review?.userId + i} data={review} />
           ))}
           <View
             style={{
@@ -91,15 +91,8 @@ const ReviewItem = memo(({ data }) => {
         borderColor: "#dbdbdb",
       }}
     >
-      <Image
-        source={
-          data?.user.avatar
-            ? {
-                uri: data?.user.avatar,
-                cache: "force-cache",
-              }
-            : defaultAvt
-        }
+      <ImageAvt
+        src={data?.user.avatar}
         style={{
           width: 40,
           height: 40,
@@ -149,6 +142,7 @@ export const CheckReview = memo(({ postId }) => {
             marginHorizontal: 30,
             borderRadius: 4,
             backgroundColor: "#efc52e",
+            zIndex: 2,
           }}
           onPress={() => {
             router.push("root/reviews/create");

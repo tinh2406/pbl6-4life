@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
 import {
   ActivityIndicator,
-  Image,
   Pressable,
   Text,
   View,
@@ -12,12 +11,14 @@ import { ScrollView } from "react-native-gesture-handler";
 import { useQuery } from "react-query";
 import { instance } from "../../../src/context/AuthContext";
 import { memo, useState } from "react";
-import defaultAvt from "../../../src/assets/defaultAvatar.png";
 import { format } from "date-fns";
 import ModalPayment from "../../../src/components/ModalPayment";
 import { calcNumDays } from "../../../src/utils/CalcNumdays";
 import { CheckReview } from "../../../src/components/Reviews";
 import TimeLeft from "../../../src/components/TimeLeft";
+import Image from "../../../src/components/Image";
+import ModalPrompt from "../../../src/components/ModalPrompt";
+import ImageAvt from "../../../src/components/ImageAvt";
 export default () => {
   const { id } = useLocalSearchParams();
 
@@ -60,7 +61,14 @@ export default () => {
     </View>
   );
 };
-
+const apisMapper = {
+  "remove-cancel": "api/bookings/revoke-cancel-booking-request",
+  "cancel-booking": "api/bookings/request-cancel",
+};
+const messagesMapper = {
+  "remove-cancel": "Remove this request?",
+  "cancel-booking": "Do you want cancel this booking?",
+};
 const Content = memo(({ id }) => {
   const { data, isLoading } = useQuery({
     queryKey: ["booking", id],
@@ -72,10 +80,22 @@ const Content = memo(({ id }) => {
   const w = useWindowDimensions().width;
 
   const [modalPaymentShow, setModalPaymentShow] = useState(false);
+  const [action, setAction] = useState();
+
   const handleButtonClick = () => {
     if (data?.isPaid) {
     } else {
       setModalPaymentShow(true);
+    }
+  };
+  const handleCancelBooking = () => {
+    if (data?.status === "Pending" || data?.status === "Confirmed") {
+      setAction("cancel-booking");
+    }
+  };
+  const handleRemoveRequestCancel = () => {
+    if (data?.status === "RequestCancel") {
+      setAction("remove-cancel");
     }
   };
   if (isLoading)
@@ -110,14 +130,8 @@ const Content = memo(({ id }) => {
           alignItems: "center",
         }}
       >
-        <Image
-          source={
-            data?.accommodation.mod?.avatar
-              ? {
-                  uri: data?.accommodation.mod?.avatar,
-                }
-              : defaultAvt
-          }
+        <ImageAvt
+          src={data?.accommodation.mod?.avatar}
           style={{
             width: 24,
             height: 24,
@@ -143,9 +157,7 @@ const Content = memo(({ id }) => {
         }}
       >
         <Image
-          source={{
-            uri: data?.accommodation.imageUrls[0],
-          }}
+          src={data?.accommodation.imageUrls[0]}
           style={{
             width: 100,
             height: 100,
@@ -385,38 +397,120 @@ const Content = memo(({ id }) => {
       </View>
       <View
         style={{
-          alignItems: "center",
-          justifyContent: "flex-end",
+          alignItems: "flex-end",
           marginTop: 10,
-          flexDirection: "row",
+          zIndex: 1,
+          backgroundColor: "white",
         }}
       >
+        <Pressable
+          style={{
+            position: "absolute",
+            width: "100%",
+            height: "100%",
+          }}
+          onPress={() => {
+            router.push(`root/mytrip/${data?.id}`);
+          }}
+        />
+        {data?.status !== "RequestCancel" &&
+          data?.status !== "Canceled" &&
+          data?.status !== "Completed" && (
+            <Pressable
+              style={{
+                marginLeft: 20,
+                paddingVertical: 8,
+                alignItems: "center",
+                width: 100,
+                backgroundColor: data?.isPaid ? "#cccccc" : "#ff385c",
+                borderRadius: 4,
+                marginBottom: 4,
+                zIndex: 4,
+              }}
+              onPress={handleButtonClick}
+            >
+              <Text
+                style={{
+                  color: "white",
+                  fontWeight: "500",
+                }}
+              >
+                {data?.isPaid ? "Paid" : "Pay"}
+              </Text>
+            </Pressable>
+          )}
         <TimeLeft
           checkInDate={data?.checkInDate}
           checkOutDate={data?.checkOutDate}
           isPaid={data?.isPaid}
+          status={data?.status}
         />
-        <Pressable
-          style={{
-            marginLeft: 20,
-            paddingVertical: 8,
-            alignItems: "center",
-            width: 100,
-            backgroundColor: "#ff385c",
-            borderRadius: 4,
-          }}
-          onPress={handleButtonClick}
-        >
-          <Text
-            style={{
-              color: "white",
-              fontWeight: "500",
-            }}
-          >
-            {data?.isPaid ? "Rebooking" : "Pay"}
-          </Text>
-        </Pressable>
       </View>
+      {data?.status === "RequestCancel" && (
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "space-around",
+            marginTop: 4,
+            flexDirection: "row",
+            zIndex: 2,
+          }}
+        >
+          <Pressable
+            style={{
+              paddingVertical: 8,
+              alignItems: "center",
+              width: "84%",
+              backgroundColor: "#d7d7d7",
+              borderRadius: 4,
+            }}
+            onPress={handleRemoveRequestCancel}
+          >
+            <Text
+              style={{
+                color: "black",
+                fontWeight: "500",
+              }}
+            >
+              Remove request
+            </Text>
+          </Pressable>
+        </View>
+      )}
+      {(data?.status === "Pending" || data?.status === "Confirmed") && (
+        <View
+          style={{
+            alignItems: "center",
+            justifyContent: "space-around",
+            marginTop: 4,
+            flexDirection: "row",
+            zIndex: 2,
+          }}
+        >
+          <Pressable
+            style={{
+              paddingVertical: 8,
+              alignItems: "center",
+              width: "84%",
+              backgroundColor: "#d7d7d7",
+              borderRadius: 4,
+            }}
+            onPress={handleCancelBooking}
+          >
+            <Text
+              style={{
+                color: "black",
+                fontWeight: "500",
+              }}
+            >
+              Cancel booking
+            </Text>
+          </Pressable>
+        </View>
+      )}
+      {data?.status === "Completed" && (
+        <CheckReview postId={data?.accommodation?.id} />
+      )}
       <ModalPayment
         data={data}
         visible={modalPaymentShow}
@@ -425,7 +519,26 @@ const Content = memo(({ id }) => {
           setModalPaymentShow(false);
         }}
       />
-      <CheckReview postId={data?.accommodation.id} />
+      <ModalPrompt
+        title="Comfirm"
+        message={messagesMapper[action]}
+        visible={!!action}
+        onCancel={() => setAction()}
+        onConfirm={async () => {
+          if (action && id) {
+            try {
+              await instance.post(`${apisMapper[action]}${id}`);
+              queryClient.invalidateQueries(["bookings"]);
+            } catch (error) {
+              console.log(error.response);
+              toast.show(`Error: ${error.message}`, {
+                type: "danger",
+                placement: "top",
+              });
+            }
+          }
+        }}
+      />
     </View>
   );
 });

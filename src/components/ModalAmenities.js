@@ -1,17 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useInfiniteQuery, useQueryClient } from "react-query";
-import { router } from "expo-router";
 import { memo, useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  Image,
-  Keyboard,
   Modal,
   Pressable,
   Text,
   TextInput,
   View,
-  useWindowDimensions,
 } from "react-native";
 import { FlatList } from "react-native";
 import Animated, {
@@ -21,6 +17,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { instance } from "../context/AuthContext";
+import Image from "./Image";
 
 export default ({ visible, hidden, select }) => {
   const heightAnim = useSharedValue(0);
@@ -215,16 +212,14 @@ export const AmenityItem = memo(({ data, onClose, select }) => {
       onPress={() => {
         if (select)
           select((last) => {
-            if(last.find(i=>i.id===data.id)) return last
+            if (last.find((i) => i.id === data.id)) return last;
             return [...last, data];
           });
         if (onClose) onClose();
       }}
     >
       <Image
-        source={{
-          uri: data.icon,
-        }}
+        src={data.icon}
         style={{
           width: 42,
           height: 42,

@@ -1,12 +1,13 @@
 // import { MaterialIcons } from "@expo/vector-icons";
+import { useState } from "react";
+import { Pressable, View } from "react-native";
 import { MaterialIcons } from "react-native-vector-icons";
-import { useEffect, useState } from "react";
-import { BackHandler, Pressable, View } from "react-native";
+import FlatListAutoLoad from "../../../src/components/FlatListAutoLoad";
 import ModalFilter from "../../../src/components/ModalFilter";
 import TabBar from "../../../src/components/TabBar";
 import WhereTo from "../../../src/components/WhereTo";
-import FlatListAutoLoad from "../../../src/components/FlatListAutoLoad";
-import * as Location from "expo-location";
+import { useLocation } from "../../../src/context/LocationContext";
+
 export default () => {
   const [filterShow, setFilterShow] = useState(false);
   const [filterState, setFilterState] = useState({ SortBy: "Distance" });
@@ -14,28 +15,10 @@ export default () => {
   const [searchShow, setSearchShow] = useState(false);
   const [searchState, setSearchState] = useState();
 
-  const [location, setLocation] = useState(null);
+  const { location } = useLocation();
 
-  useEffect(() => {
-    (async () => {
-      if (!location) {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          BackHandler.exitApp();
-          return;
-        }
-
-        let location = await Location.getCurrentPositionAsync({});
-        setLocation({
-          Latitude: location.coords.latitude,
-          Longitude: location.coords.longitude,
-        });
-      }
-    })();
-  }, [location]);
-  console.log(location);
   return (
-    <View style={{ height: "100%" }}>
+    <View style={{ height: "100%", backgroundColor: "#fafeff" }}>
       <View
         style={{
           flex: 1,

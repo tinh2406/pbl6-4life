@@ -1,6 +1,6 @@
 import { Ionicons } from "react-native-vector-icons"
-import { Redirect, Stack, router } from "expo-router"
-import { Image, View, useWindowDimensions } from "react-native"
+import { Stack, router } from "expo-router"
+import { View, useWindowDimensions } from "react-native"
 import { useAuth } from "../../../src/context/AuthContext"
 
 export default () => {

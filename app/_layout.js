@@ -18,6 +18,8 @@ import { en, registerTranslation } from "react-native-paper-dates";
 import { UserProvider } from "../src/context/UserContext";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { NotifyProvider } from "../src/context/NotifyContext";
+import { LocationProvider } from "../src/context/LocationContext";
+
 registerTranslation("en", en);
 
 const queryClient = new QueryClient();
@@ -25,6 +27,7 @@ const queryClient = new QueryClient();
 export default () => {
   const height = useWindowDimensions().height;
   const [resourceLoading, setResouceLoading] = useState(true);
+  
   useEffect(() => {
     const loadResouces = async () => {
       try {
@@ -56,7 +59,9 @@ export default () => {
           <UserProvider>
             <QueryClientProvider client={queryClient}>
               <NotifyProvider>
-                <Slot />
+                <LocationProvider>
+                  <Slot />
+                </LocationProvider>
               </NotifyProvider>
             </QueryClientProvider>
           </UserProvider>

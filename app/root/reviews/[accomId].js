@@ -1,11 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { ActivityIndicator, FlatList, Image, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, Text, View } from "react-native";
 import ReviewSkeleton from "../../../src/components/Skeleton/ReviewSkeleton";
 import { useInfiniteQuery } from "react-query";
 import { instance } from "../../../src/context/AuthContext";
 import { memo } from "react";
-import defaultAvt from "../../../src/assets/defaultAvatar.png";
+import ImageAvt from "../../../src/components/ImageAvt";
 
 export default memo(() => {
   const { accomId } = useLocalSearchParams();
@@ -108,15 +108,8 @@ const ReviewItem = memo(({ data }) => {
           borderColor: "#dbdbdb",
         }}
       >
-        <Image
-          source={
-            data?.user.avatar
-              ? {
-                  uri: data?.user.avatar,
-                  cache: "force-cache",
-                }
-              : defaultAvt
-          }
+        <ImageAvt
+          src={data?.user.avatar}
           style={{
             width: 40,
             height: 40,
