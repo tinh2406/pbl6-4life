@@ -44,8 +44,18 @@ export default ({ visible, hidden, onConfirm, data }) => {
     setTimeout(hidden, 10);
   };
   const onConfirmTime = ({ startDate, endDate }) => {
-    setTimeCheckIn(startDate);
-    setTimeCheckOut(endDate);
+    if(!startDate || !endDate) return;
+    setTimeCheckIn(
+      new Date(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        startDate.getDate(),
+        7
+      )
+    );
+    setTimeCheckOut(
+      new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate(), 7)
+    );
     setPickShow(false);
   };
   const tomorrow = useMemo(() => {
@@ -263,9 +273,7 @@ export default ({ visible, hidden, onConfirm, data }) => {
                 <Text style={{}}>
                   ${data?.price}x{numsDay || "0"}
                 </Text>
-                <Text style={{}}>
-                  {numsDay ? data?.price * numsDay : 0}
-                </Text>
+                <Text style={{}}>{numsDay ? data?.price * numsDay : 0}</Text>
               </View>
               <View
                 style={{

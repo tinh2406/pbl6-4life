@@ -1,6 +1,6 @@
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { memo, useCallback, useEffect, useState } from "react";
+import { Suspense, memo, useCallback, useEffect, useState } from "react";
 import { Pressable, Text, View, useWindowDimensions } from "react-native";
 import { ScrollView, Swipeable } from "react-native-gesture-handler";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
@@ -87,72 +87,73 @@ export default () => {
 
   return (
     <View style={{ height: "100%", backgroundColor: "white" }}>
-      <ScrollView
-        style={{
-          flex: 1,
-        }}
-        contentContainerStyle={{
-          paddingBottom: 60,
-        }}
-      >
-        <View
-          onLayout={(event) => {
-            setImgWidth(event.nativeEvent.layout.width);
-          }}
+      <Suspense fallback={<Loading />}>
+        <ScrollView
           style={{
-            width: "100%",
-            borderRadius: 20,
-            position: "relative",
-            marginTop: 0,
+            flex: 1,
+          }}
+          contentContainerStyle={{
+            paddingBottom: 60,
           }}
         >
-          <Ionicons
-            name="arrow-back"
-            size={20}
-            color={"black"}
+          <View
+            onLayout={(event) => {
+              setImgWidth(event.nativeEvent.layout.width);
+            }}
             style={{
-              position: "absolute",
-              top: 10,
-              left: 10,
-              zIndex: 11,
-              backgroundColor: "white",
-              padding: 5,
+              width: "100%",
               borderRadius: 20,
-            }}
-            onPress={() => {
-              router.back();
-            }}
-          />
-          {data?.mod?.id === user?.id && <ManagePost postId={id} />}
-          <Pressable
-            style={{
-              position: "absolute",
-              bottom: 10,
-              left: 14,
-              zIndex: 11,
-              padding: 4,
-            }}
-            onPress={async () => {
-              try {
-                setIsLike(!isLike);
-                await instance.post("api/favorites", {
-                  accommodationId: data?.id,
-                  isFavorite: !isLike,
-                });
-                queryClient.invalidateQueries("favorite-posts");
-                queryClient.invalidateQueries("posts");
-              } catch (error) {
-                console.log(error.response);
-              }
+              position: "relative",
+              marginTop: 0,
             }}
           >
-            <AntDesign
-              name={isLike ? "heart" : "hearto"}
-              size={24}
-              color={isLike ? "#ff1f48" : "white"}
+            <Ionicons
+              name="arrow-back"
+              size={20}
+              color={"black"}
+              style={{
+                position: "absolute",
+                top: 10,
+                left: 10,
+                zIndex: 11,
+                backgroundColor: "white",
+                padding: 5,
+                borderRadius: 20,
+              }}
+              onPress={() => {
+                router.back();
+              }}
             />
-          </Pressable>
-          {/* <MaterialIcons
+            {data?.mod?.id === user?.id && <ManagePost postId={id} />}
+            <Pressable
+              style={{
+                position: "absolute",
+                bottom: 10,
+                left: 14,
+                zIndex: 11,
+                padding: 4,
+              }}
+              onPress={async () => {
+                try {
+                  setIsLike(!isLike);
+                  await instance.post("api/favorites", {
+                    accommodationId: data?.id,
+                    isFavorite: !isLike,
+                  });
+                  queryClient.invalidateQueries("favorite-posts");
+                  queryClient.invalidateQueries("posts");
+                } catch (error) {
+                  console.log(error.response);
+                }
+              }}
+            >
+              <AntDesign
+                name={isLike ? "heart" : "hearto"}
+                size={24}
+                color={isLike ? "#ff1f48" : "white"}
+              />
+            </Pressable>
+            {/* <MaterialIcons
             name="share"
             size={20}
             color={"white"}
@@ -164,373 +165,378 @@ export default () => {
             }}
             onPress={handleShare}
           /> */}
-          <ImagePost imgs={imgs} imgWidth={imgWidth} />
-        </View>
-        <View
-          style={{
-            width: "100%",
-          }}
-        >
+            <ImagePost imgs={imgs} imgWidth={imgWidth} />
+          </View>
           <View
             style={{
-              margin: 20,
+              width: "100%",
             }}
           >
-            <Text
-              style={{
-                fontSize: 22,
-                fontWeight: "500",
-              }}
-            >
-              {data?.name}
-            </Text>
             <View
               style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginTop: 5,
+                margin: 20,
               }}
             >
-              <Ionicons
-                name="star"
-                size={18}
-                style={{
-                  marginRight: 10,
-                }}
-              />
               <Text
                 style={{
-                  fontWeight: "bold",
-                  fontSize: 14,
-                  marginRight: 10,
+                  fontSize: 22,
+                  fontWeight: "500",
                 }}
               >
-                {data?.avgAccuracyRating}
+                {data?.name}
               </Text>
-              <Text
+              <View
                 style={{
-                  fontWeight: "bold",
-                  fontSize: 14,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginTop: 5,
                 }}
               >
-                {data?.totalReview} review
-              </Text>
-            </View>
-            <Text
-              style={{
-                fontSize: 14,
-                marginTop: 10,
-              }}
-            >
-              {data?.address}
-            </Text>
-            <Text
-              style={{
-                fontSize: 14,
-                marginTop: 10,
-              }}
-            >
-              {data?.description}
-            </Text>
-          </View>
-          <Amenities postId={id} />
-          <View
-            style={{
-              marginHorizontal: 20,
-              borderTopWidth: 1,
-              borderColor: "#d5d5d5",
-            }}
-          >
-            <Text
-              style={{
-                marginTop: 10,
-                fontSize: 18,
-                fontWeight: "500",
-              }}
-            >
-              Where you'll be
-            </Text>
-            <Pressable
-              onPress={() => {
-                router.push("root/map");
-                router.setParams({
-                  latitude: data?.latitude,
-                  longitude: data?.longitude,
-                });
-              }}
-              style={{
-                width: "100%",
-                marginTop: 10,
-                aspectRatio: 1.618,
-                borderRadius: 10,
-                overflow: "hidden",
-              }}
-            >
-              <MapView
-                // ref={mapRef}
-
-                scrollEnabled={false}
-                provider={PROVIDER_GOOGLE}
-                style={{
-                  flex: 1,
-                }}
-                region={{
-                  latitude: data?.latitude,
-                  longitude: data?.longitude,
-                  latitudeDelta: 1.5,
-                  longitudeDelta: 1.5,
-                }}
-                customMapStyle={[
-                  {
-                    elementType: "labels.icon",
-                    stylers: [
-                      {
-                        visibility: "off",
-                      },
-                    ],
-                  },
-                ]}
-                loadingFallback={
-                  <View>
-                    <Text>Loading</Text>
-                  </View>
-                }
-                googleMapsApiKey="AIzaSyDi3Ex6q__zEQxqkNBB0A7xgOc7KKDIgk0"
-              >
-                <Marker
-                  coordinate={{
-                    latitude: Number(data?.latitude),
-                    longitude: Number(data?.longitude),
+                <Ionicons
+                  name="star"
+                  size={18}
+                  style={{
+                    marginRight: 10,
                   }}
                 />
-              </MapView>
-            </Pressable>
-          </View>
-
-          <View
-            style={{
-              marginHorizontal: 20,
-              borderTopWidth: 1,
-              borderColor: "#d5d5d5",
-            }}
-          >
-            <Pressable
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginTop: 10,
-              }}
-              onPress={() => {
-                // router.push("/root/profile/user123");
-              }}
-            >
-              <View style={{}}>
                 <Text
                   style={{
-                    fontWeight: "500",
-                    fontSize: 16,
+                    fontWeight: "bold",
+                    fontSize: 14,
+                    marginRight: 10,
                   }}
                 >
-                  Hosted by {data?.mod.name}
+                  {data?.avgAccuracyRating}
+                </Text>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 14,
+                  }}
+                >
+                  {data?.totalReview} review
                 </Text>
               </View>
-              <ImageAvt
-                src={data?.mod?.avatar}
-                style={{ width: 40, height: 40, borderRadius: 40 }}
-              />
-            </Pressable>
+              <Text
+                style={{
+                  fontSize: 14,
+                  marginTop: 10,
+                }}
+              >
+                {data?.address}
+              </Text>
+              <Text
+                style={{
+                  fontSize: 14,
+                  marginTop: 10,
+                }}
+              >
+                {data?.description}
+              </Text>
+            </View>
+            <Amenities postId={id} />
             <View
               style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginTop: 2,
+                marginHorizontal: 20,
+                borderTopWidth: 1,
+                borderColor: "#d5d5d5",
               }}
             >
-              <Ionicons
-                name="shield-checkmark"
-                size={16}
+              <Text
                 style={{
-                  marginRight: 5,
+                  marginTop: 10,
+                  fontSize: 18,
+                  fontWeight: "500",
                 }}
+              >
+                Where you'll be
+              </Text>
+              <Pressable
+                onPress={() => {
+                  router.push("root/map");
+                  router.setParams({
+                    latitude: data?.latitude,
+                    longitude: data?.longitude,
+                  });
+                }}
+                style={{
+                  width: "100%",
+                  marginTop: 10,
+                  aspectRatio: 1.618,
+                  borderRadius: 10,
+                  overflow: "hidden",
+                }}
+              >
+                <MapView
+                  // ref={mapRef}
+
+                  scrollEnabled={false}
+                  provider={PROVIDER_GOOGLE}
+                  style={{
+                    flex: 1,
+                  }}
+                  region={{
+                    latitude: data?.latitude,
+                    longitude: data?.longitude,
+                    latitudeDelta: 1.5,
+                    longitudeDelta: 1.5,
+                  }}
+                  customMapStyle={[
+                    {
+                      elementType: "labels.icon",
+                      stylers: [
+                        {
+                          visibility: "off",
+                        },
+                      ],
+                    },
+                  ]}
+                  loadingFallback={
+                    <View>
+                      <Text>Loading</Text>
+                    </View>
+                  }
+                  googleMapsApiKey="AIzaSyDi3Ex6q__zEQxqkNBB0A7xgOc7KKDIgk0"
+                >
+                  <Marker
+                    coordinate={{
+                      latitude: Number(data?.latitude),
+                      longitude: Number(data?.longitude),
+                    }}
+                  />
+                </MapView>
+              </Pressable>
+            </View>
+
+            <View
+              style={{
+                marginHorizontal: 20,
+                borderTopWidth: 1,
+                borderColor: "#d5d5d5",
+              }}
+            >
+              <Pressable
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  marginTop: 10,
+                }}
+                onPress={() => {
+                  // router.push("/root/profile/user123");
+                }}
+              >
+                <View style={{}}>
+                  <Text
+                    style={{
+                      fontWeight: "500",
+                      fontSize: 16,
+                    }}
+                  >
+                    Hosted by {data?.mod.name}
+                  </Text>
+                </View>
+                <ImageAvt
+                  src={data?.mod?.avatar}
+                  style={{ width: 40, height: 40, borderRadius: 40 }}
+                />
+              </Pressable>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginTop: 2,
+                }}
+              >
+                <Ionicons
+                  name="shield-checkmark"
+                  size={16}
+                  style={{
+                    marginRight: 5,
+                  }}
+                />
+                <Text>Identity verified</Text>
+              </View>
+            </View>
+            <View
+              style={{
+                marginHorizontal: 20,
+                marginTop: 20,
+                borderTopWidth: 1,
+                borderColor: "#d5d5d5",
+              }}
+            >
+              <RatingItem
+                title="Cleanliness"
+                value={data?.avgCleanlinessRating}
               />
-              <Text>Identity verified</Text>
+              <RatingItem title="Amenities" value={data?.avgAmenitiesRating} />
+              <RatingItem title="Location" value={data?.avgLocationRating} />
+              <RatingItem title="Comfort" value={data?.avgComfortRating} />
+              <Reviews postId={id} />
+            </View>
+            <Calendar id={id} />
+            <View
+              style={{
+                marginHorizontal: 20,
+                borderTopWidth: 1,
+                borderColor: "#d5d5d5",
+              }}
+            >
+              <Text
+                style={{
+                  marginTop: 10,
+                  fontSize: 18,
+                  fontWeight: "500",
+                  marginBottom: 10,
+                }}
+              >
+                House rules
+              </Text>
+              {data?.checkInAfter && data?.checkInBefore && (
+                <Text
+                  style={{
+                    color: "#282828",
+                    paddingVertical: 4,
+                  }}
+                >
+                  Check in: {formatToFE(data.checkInAfter)}-
+                  {formatToFE(data.checkInBefore)}
+                </Text>
+              )}
+              {data?.checkOutBefore && (
+                <Text
+                  style={{
+                    color: "#282828",
+                    paddingVertical: 4,
+                  }}
+                >
+                  Check out before: {formatToFE(data?.checkOutBefore)}
+                </Text>
+              )}
+              {data?.quietHoursAfter && data?.quietHoursBefore && (
+                <Text
+                  style={{
+                    color: "#282828",
+                    paddingVertical: 4,
+                  }}
+                >
+                  Quiet time: {formatToFE(data?.quietHoursBefore)}-
+                  {formatToFE(data?.quietHoursAfter)}
+                </Text>
+              )}
+              <Text
+                style={{
+                  color: "#282828",
+                  paddingVertical: 4,
+                }}
+              >
+                {data?.isPhotoAllowed
+                  ? "Photos is allowed"
+                  : "No photo allowed"}
+              </Text>
+              <Text
+                style={{
+                  color: "#282828",
+                  paddingVertical: 4,
+                }}
+              >
+                {data?.isEventAllowed
+                  ? "Parties or events are allowed"
+                  : "No parties or events"}
+              </Text>
+              <Text
+                style={{
+                  color: "#282828",
+                  paddingVertical: 4,
+                }}
+              >
+                {data?.isPetAllowed ? "Pets is allowed" : "No pets"}
+              </Text>
+              <Text
+                style={{
+                  color: "#282828",
+                  paddingVertical: 4,
+                }}
+              >
+                {data?.isSmokingAllowed ? "Smoking is allowed" : "No smoking"}
+              </Text>
             </View>
           </View>
-          <View
-            style={{
-              marginHorizontal: 20,
-              marginTop: 20,
-              borderTopWidth: 1,
-              borderColor: "#d5d5d5",
-            }}
-          >
-            <RatingItem
-              title="Cleanliness"
-              value={data?.avgCleanlinessRating}
-            />
-            <RatingItem title="Amenities" value={data?.avgAmenitiesRating} />
-            <RatingItem title="Location" value={data?.avgLocationRating} />
-            <RatingItem title="Comfort" value={data?.avgComfortRating} />
-            <Reviews postId={id} />
-          </View>
-          <Calendar id={id} />
-          <View
-            style={{
-              marginHorizontal: 20,
-              borderTopWidth: 1,
-              borderColor: "#d5d5d5",
-            }}
-          >
-            <Text
-              style={{
-                marginTop: 10,
-                fontSize: 18,
-                fontWeight: "500",
-                marginBottom: 10,
-              }}
-            >
-              House rules
-            </Text>
-            {data?.checkInAfter && data?.checkInBefore && (
-              <Text
-                style={{
-                  color: "#282828",
-                  paddingVertical: 4,
-                }}
-              >
-                Check in: {formatToFE(data.checkInAfter)}-
-                {formatToFE(data.checkInBefore)}
-              </Text>
-            )}
-            {data?.checkOutBefore && (
-              <Text
-                style={{
-                  color: "#282828",
-                  paddingVertical: 4,
-                }}
-              >
-                Check out before: {formatToFE(data?.checkOutBefore)}
-              </Text>
-            )}
-            {data?.quietHoursAfter && data?.quietHoursBefore && (
-              <Text
-                style={{
-                  color: "#282828",
-                  paddingVertical: 4,
-                }}
-              >
-                Quiet time: {formatToFE(data?.quietHoursBefore)}-
-                {formatToFE(data?.quietHoursAfter)}
-              </Text>
-            )}
-            <Text
-              style={{
-                color: "#282828",
-                paddingVertical: 4,
-              }}
-            >
-              {data?.isPhotoAllowed ? "Photos is allowed" : "No photo allowed"}
-            </Text>
-            <Text
-              style={{
-                color: "#282828",
-                paddingVertical: 4,
-              }}
-            >
-              {data?.isEventAllowed
-                ? "Parties or events are allowed"
-                : "No parties or events"}
-            </Text>
-            <Text
-              style={{
-                color: "#282828",
-                paddingVertical: 4,
-              }}
-            >
-              {data?.isPetAllowed ? "Pets is allowed" : "No pets"}
-            </Text>
-            <Text
-              style={{
-                color: "#282828",
-                paddingVertical: 4,
-              }}
-            >
-              {data?.isSmokingAllowed ? "Smoking is allowed" : "No smoking"}
-            </Text>
-          </View>
-        </View>
-      </ScrollView>
-      <ModalReserve
-        data={data}
-        visible={modalBookShow}
-        hidden={() => {
-          setModalBookShow(false);
-        }}
-        onConfirm={handleBook}
-      />
-      <ModalPayment
-        data={dataPayment}
-        visible={modalPaymentShow}
-        onConfirm={() => {}}
-        hidden={() => {
-          setModalPaymentShow(false);
-        }}
-      />
-      <ModalPrompt
-        title="Verify your code"
-        message="Please enter the code sent to your email"
-        visible={confirmEmailVisible}
-        onChangeText={setVerifyCode}
-        onCancel={() => setConfirmEmailVisible(false)}
-        code={verifyCode}
-        onConfirm={async () => {
-          try {
-            await onConfirmEmail(verifyCode);
-          } catch (error) {
-            return { error: true };
-          }
-        }}
-      />
-      {data?.mod?.id === user?.id || (
-        <View
-          style={{
-            left: 0,
-            bottom: 0,
-            position: "absolute",
-            backgroundColor: "#ffffff",
-            shadowColor: "#000000",
-            shadowOffset: {
-              width: 0,
-              height: 3,
-            },
-            shadowOpacity: 0.7,
-            shadowRadius: 3.05,
-            elevation: 4,
-            zIndex: 10,
-            flexDirection: "row",
-            justifyContent: "space-between",
-            width: "100%",
-            padding: 10,
-            paddingHorizontal: 20,
+        </ScrollView>
+      </Suspense>
+      <Suspense>
+        <ModalReserve
+          data={data}
+          visible={modalBookShow}
+          hidden={() => {
+            setModalBookShow(false);
           }}
-        >
-          <Text style={{ fontWeight: "500" }}>${data?.price}/ night</Text>
-          <Pressable
+          onConfirm={handleBook}
+        />
+        <ModalPayment
+          data={dataPayment}
+          visible={modalPaymentShow}
+          onConfirm={() => {}}
+          hidden={() => {
+            setModalPaymentShow(false);
+          }}
+        />
+        <ModalPrompt
+          title="Verify your code"
+          message="Please enter the code sent to your email"
+          visible={confirmEmailVisible}
+          onChangeText={setVerifyCode}
+          onCancel={() => setConfirmEmailVisible(false)}
+          code={verifyCode}
+          onConfirm={async () => {
+            try {
+              await onConfirmEmail(verifyCode);
+            } catch (error) {
+              return { error: true };
+            }
+          }}
+        />
+        {data?.mod?.id === user?.id || (
+          <View
             style={{
-              padding: 5,
-              paddingHorizontal: 10,
-              borderRadius: 5,
-              backgroundColor: "#FF385C",
-            }}
-            onPress={() => {
-              setModalBookShow(true);
+              left: 0,
+              bottom: 0,
+              position: "absolute",
+              backgroundColor: "#ffffff",
+              shadowColor: "#000000",
+              shadowOffset: {
+                width: 0,
+                height: 3,
+              },
+              shadowOpacity: 0.7,
+              shadowRadius: 3.05,
+              elevation: 4,
+              zIndex: 10,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              width: "100%",
+              padding: 10,
+              paddingHorizontal: 20,
             }}
           >
-            <Text style={{ color: "white", fontWeight: "600" }}>Reserve</Text>
-          </Pressable>
-        </View>
-      )}
+            <Text style={{ fontWeight: "500" }}>${data?.price}/ night</Text>
+            <Pressable
+              style={{
+                padding: 5,
+                paddingHorizontal: 10,
+                borderRadius: 5,
+                backgroundColor: "#FF385C",
+              }}
+              onPress={() => {
+                setModalBookShow(true);
+              }}
+            >
+              <Text style={{ color: "white", fontWeight: "600" }}>Reserve</Text>
+            </Pressable>
+          </View>
+        )}
+      </Suspense>
     </View>
   );
 };

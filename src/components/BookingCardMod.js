@@ -111,7 +111,7 @@ export default memo(({ data, setAction, setBookingId }) => {
         />
         <View
           style={{
-            width: w - 40,
+            width: w - 150,
           }}
         >
           <Text
@@ -189,18 +189,12 @@ export default memo(({ data, setAction, setBookingId }) => {
       </View>
       <View
         style={{
+          flexDirection: "row-reverse",
           alignItems: "center",
-          justifyContent: "flex-end",
+          justifyContent: "space-between",
           marginTop: 10,
-          flexDirection: "row",
         }}
       >
-        <TimeLeft
-          checkInDate={data?.checkInDate}
-          checkOutDate={data?.checkOutDate}
-          isPaid={data?.isPaid}
-          status={data?.status}
-        />
         {data?.status !== "RequestCancel" && data?.status !== "Canceled" && (
           <Pressable
             style={{
@@ -223,6 +217,12 @@ export default memo(({ data, setAction, setBookingId }) => {
             </Text>
           </Pressable>
         )}
+        <TimeLeft
+          checkInDate={data?.checkInDate}
+          checkOutDate={data?.checkOutDate}
+          isPaid={data?.isPaid}
+          status={data?.status}
+        />
       </View>
       {data?.status === "Pending" && (
         <View

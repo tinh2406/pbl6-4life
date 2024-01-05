@@ -12,23 +12,27 @@ export const LocationProvider = ({ children }) => {
   const [location, setLocation] = useState(null);
 
   useEffect(() => {
-    (async () => {
-      if (!location) {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          BackHandler.exitApp();
-          return;
-        }
+    (() => {
+      if (!location?.Latitude) {
+        Location.requestForegroundPermissionsAsync().then(async (res) => {
+          if (!res.granted) {
+            BackHandler.exitApp();
+            return;
+          }
+          let location;
+          while (!location) {
+            location = await Location.getCurrentPositionAsync({});
+          }
 
-        let location = await Location.getCurrentPositionAsync({});
-        setLocation({
-          Latitude: location.coords.latitude,
-          Longitude: location.coords.longitude,
+          setLocation({
+            Latitude: location.coords.latitude,
+            Longitude: location.coords.longitude,
+          });
         });
       }
     })();
-  }, [location]);
-  console.log(location,"location");
+  }, [location, setLocation]);
+
   const value = {
     location,
   };

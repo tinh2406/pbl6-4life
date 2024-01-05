@@ -6,7 +6,7 @@ import { CheckReview } from "./Reviews";
 import TimeLeft from "./TimeLeft";
 import Image from "./Image";
 import ImageAvt from "./ImageAvt";
-export default memo(({ data,setAction, setPaymentData, setBookingId }) => {
+export default memo(({ data, setAction, setPaymentData, setBookingId }) => {
   const w = useWindowDimensions().width;
   const handleButtonClick = () => {
     if (!data?.isPaid) {
@@ -15,16 +15,16 @@ export default memo(({ data,setAction, setPaymentData, setBookingId }) => {
   };
   const handleCancelBooking = () => {
     if (data?.status === "Pending" || data?.status === "Confirmed") {
-      setAction("cancel-booking")
+      setAction("cancel-booking");
       setBookingId(data?.id);
     }
   };
   const handleRemoveRequestCancel = () => {
-    if(data?.status === "RequestCancel"){
-      setAction("remove-cancel")
+    if (data?.status === "RequestCancel") {
+      setAction("remove-cancel");
       setBookingId(data?.id);
     }
-  }
+  };
   return (
     <View
       style={{
@@ -164,7 +164,9 @@ export default memo(({ data,setAction, setPaymentData, setBookingId }) => {
       </View>
       <View
         style={{
-          alignItems: "flex-end",
+          flexDirection: "row-reverse",
+          alignItems: "center",
+          justifyContent: "space-between",
           marginTop: 10,
           zIndex: 1,
           backgroundColor: "white",
@@ -180,6 +182,7 @@ export default memo(({ data,setAction, setPaymentData, setBookingId }) => {
             router.push(`root/mytrip/${data?.id}`);
           }}
         />
+
         {data?.status !== "RequestCancel" &&
           data?.status !== "Canceled" &&
           data?.status !== "Completed" && (
@@ -213,8 +216,8 @@ export default memo(({ data,setAction, setPaymentData, setBookingId }) => {
           status={data?.status}
         />
       </View>
-      
-      {(data?.status === "RequestCancel") && (
+
+      {data?.status === "RequestCancel" && (
         <View
           style={{
             alignItems: "center",

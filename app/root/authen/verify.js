@@ -7,17 +7,18 @@ import { useAuth } from "../../../src/context/AuthContext"
 
 export default () => {
     const toast = useToast()
-    const [otp, setOTP] = useState("0000")
+    const [otp, setOTP] = useState("")
     const [loading, setLoading] = useState(false)
     const [reSendLoading, setResendLoading] = useState(false)
     const navigation = useNavigation()
     const preScreen = navigation.getState().routes[0].name
     const width = useWindowDimensions().width
+    const { onVerify, onForgetPW } = useAuth()
+
     if (preScreen === "verify") {
         return <Redirect href={"/root"} />
     }
     const email = navigation.getState().routes[1].params.email
-    const { onVerify, onForgetPW } = useAuth()
     const handleSubmit = async () => {
         if (!email || otp === "") {
             return

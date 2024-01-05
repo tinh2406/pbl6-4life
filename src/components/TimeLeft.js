@@ -1,9 +1,8 @@
 import { memo, useMemo } from "react";
-import { Text } from "react-native";
+import { Text, View } from "react-native";
 import { calcNumDays } from "../utils/CalcNumdays";
 
 export default memo(({ checkInDate, checkOutDate, isPaid, status }) => {
-  
   if (!checkInDate || !checkOutDate) return <></>;
   const checkin = useMemo(() => {
     return Date.parse(checkInDate);
@@ -16,85 +15,160 @@ export default memo(({ checkInDate, checkOutDate, isPaid, status }) => {
     <>
       {status === "RequestCancel" ||
         (status === "Canceled" && (
-          <Text
+          <View
             style={{
               paddingVertical: 8,
               paddingHorizontal: 8,
-              textAlign: "center",
               minWidth: 100,
-              backgroundColor: "#d6d6d6",
-              borderRadius: 4,
-              color: "black",
+              flexDirection: "row",
+              alignItems: "center",
+              color: "white",
               fontWeight: "500",
             }}
           >
-            {status === "Canceled" ? "Canceled" : "Waiting for cancel"}
-          </Text>
+            <View
+              style={{
+                backgroundColor: "#ff004c",
+                width: 12,
+                height: 12,
+                borderRadius: 10,
+                marginRight: 8,
+              }}
+            />
+            <Text
+              style={{
+                textAlign: "center",
+                fontWeight: "500",
+              }}
+            >
+              {status === "Canceled" ? "Canceled" : "Waiting for cancel"}
+            </Text>
+          </View>
         ))}
       {status === "Pending" && (
-        <Text
+        <View
           style={{
             paddingVertical: 8,
             paddingHorizontal: 8,
-            textAlign: "center",
             minWidth: 100,
-            backgroundColor: "#d4a01b",
-            borderRadius: 4,
+            flexDirection: "row",
+            alignItems: "center",
             color: "white",
             fontWeight: "500",
           }}
         >
-          Pending
-        </Text>
+          <View
+            style={{
+              backgroundColor: "#d4a01b",
+              width: 12,
+              height: 12,
+              borderRadius: 10,
+              marginRight: 8,
+            }}
+          />
+          <Text
+            style={{
+              textAlign: "center",
+              fontWeight: "500",
+            }}
+          >
+            Pending
+          </Text>
+        </View>
       )}
       {status === "Confirmed" && checkin > now && (
-        <Text
+        <View
           style={{
             paddingVertical: 8,
             paddingHorizontal: 8,
-            textAlign: "center",
             minWidth: 100,
-            backgroundColor:
-              calcNumDays(now, checkin) > 2 ? "#179f13" : "#cf7800",
-            borderRadius: 4,
+            flexDirection: "row",
+            alignItems: "center",
             color: "white",
             fontWeight: "500",
           }}
         >
-          Time left {calcNumDays(now, checkin)} day(s)
-        </Text>
+          <View
+            style={{
+              backgroundColor:
+                calcNumDays(now, checkin) > 2 ? "#179f13" : "#cf7800",
+              width: 12,
+              height: 12,
+              borderRadius: 10,
+              marginRight: 8,
+            }}
+          />
+          <Text
+            style={{
+              textAlign: "center",
+              fontWeight: "500",
+            }}
+          >
+            Time left {calcNumDays(now, checkin)} day(s)
+          </Text>
+        </View>
       )}
       {checkin < now && checkout > now && status === "CheckedIn" && (
-        <Text
+        <View
           style={{
             paddingVertical: 8,
             paddingHorizontal: 8,
-            textAlign: "center",
             minWidth: 100,
-            backgroundColor: "#179f13",
-            borderRadius: 4,
+            flexDirection: "row",
+            alignItems: "center",
             color: "white",
             fontWeight: "500",
           }}
         >
-          Ongoing
-        </Text>
+          <View
+            style={{
+              backgroundColor: "#179f13",
+              width: 12,
+              height: 12,
+              borderRadius: 10,
+              marginRight: 8,
+            }}
+          />
+          <Text
+            style={{
+              textAlign: "center",
+              fontWeight: "500",
+            }}
+          >
+            Ongoing
+          </Text>
+        </View>
       )}
       {status === "Completed" && checkout < now && isPaid && (
-        <Text
+        <View
           style={{
             paddingVertical: 8,
             paddingHorizontal: 8,
-            textAlign: "center",
             minWidth: 100,
-            backgroundColor: "#2c9751",
-            borderRadius: 4,
+            flexDirection: "row",
+            alignItems: "center",
             color: "white",
             fontWeight: "500",
           }}
         >
-          Completed
-        </Text>
+          <View
+            style={{
+              backgroundColor: "#2c9751",
+              width: 12,
+              height: 12,
+              borderRadius: 10,
+              marginRight: 8,
+            }}
+          />
+          <Text
+            style={{
+              textAlign: "center",
+              fontWeight: "500",
+            }}
+          >
+            Completed
+          </Text>
+        </View>
       )}
     </>
   );

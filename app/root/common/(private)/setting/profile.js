@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
-import { memo, useEffect, useState } from "react";
+import { Suspense, memo, useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import FlatListAutoLoad from "../../../../../src/components/FlatListAutoLoad";
 import ModalPrompt from "../../../../../src/components/ModalPrompt";
@@ -192,9 +192,7 @@ const UserCard = memo(() => {
         >
           <View>
             <ImageAvt
-              src={
-                image?.uri || user?.avatar
-              }
+              src={image?.uri || user?.avatar}
               style={{
                 width: 90,
                 height: 90,
@@ -207,7 +205,7 @@ const UserCard = memo(() => {
               name="ios-camera"
               size={20}
               color="black"
-              style={{ position: "absolute",bottom:24,right:24 }}
+              style={{ position: "absolute", bottom: 24, right: 24 }}
             />
           </View>
           <Text
@@ -228,7 +226,6 @@ const UserCard = memo(() => {
             {user.statusModRole === "Active" ? "Mod" : "Guest"}
           </Text>
         </View>
-
       </View>
     </View>
   );

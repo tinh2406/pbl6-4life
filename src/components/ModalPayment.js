@@ -9,6 +9,7 @@ import {
   TextInput,
   ToastAndroid,
   View,
+  Image
 } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 import Animated, {
@@ -22,7 +23,7 @@ import { instance } from "../context/AuthContext";
 import * as Clipboard from "expo-clipboard";
 import qrcode from "qrcode-generator";
 import { useNotify } from "../context/NotifyContext";
-import Image from "./Image";
+import ExpoImage from "./Image";
 import * as WebBrowser from 'expo-web-browser';
 export default ({ visible, hidden, onConfirm, data }) => {
   const heightAnim = useSharedValue(0);
@@ -162,7 +163,7 @@ const Content = memo(({ onClose, onConfirm, data, url, setUrl }) => {
         >
           Go to the URL to pay your order
         </Text>
-        <Image
+        <ExpoImage
           src={qr.createDataURL()}
           style={{
             marginBottom: 60,

@@ -4,6 +4,7 @@ import { memo, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
+  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -164,7 +165,12 @@ const Content = memo(() => {
         }}
       >
         {AllData ? (
-          <Animated.View style={[{ flexDirection: "row",width:stateBooking2.length*w }, style]}>
+          <Animated.View
+            style={[
+              { flexDirection: "row", width: stateBooking2.length * w },
+              style,
+            ]}
+          >
             {AllData}
           </Animated.View>
         ) : (
@@ -235,6 +241,25 @@ const MyFlatList = memo(({ status, setAction, setBookingId }) => {
 
   return (
     <View style={{ width: w }}>
+      {!isLoading && !data.pages[0].data?.length > 0 && (
+        <View
+          style={{
+            width: w,
+            backgroundColor: "white",
+          }}
+        >
+          <Image
+            source={{
+              uri: "https://scontent.xx.fbcdn.net/v/t1.15752-9/411141799_391849876572650_1462271918597209384_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=510075&_nc_eui2=AeEZc31FhuQ7ZhKvNZ3TLssUF1ZSJ76_jb4XVlInvr-Nvp8Po9HyMEU7O50BGPruQbbqqiwAM3vYD0EMqfo1XxZP&_nc_ohc=_S9LBXqU8cIAX9XoXjt&_nc_ad=z-m&_nc_cid=0&_nc_ht=scontent.xx&oh=03_AdRvSWVsUzZZJkL-Z-ywcFyaMF9NsfijZygow26IC8plWA&oe=65BE44AB",
+            }}
+            width={200}
+            height={200}
+            style={{
+              margin: (w - 200) / 2,
+            }}
+          />
+        </View>
+      )}
       {isLoading ? (
         <View style={{ width: w }}>
           <ActivityIndicator color={"#ff385c"} size={"large"} />

@@ -10,16 +10,18 @@ export default memo(({ id }) => {
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear(),
   });
+  
+
   const { data } = useQuery({
     queryKey: ["calendar", id, ...Object.values(selectedTime)],
     queryFn: async () => {
       try {
         const res = await instance.get(
-          "/api/accommodations/availability-calendar/168",
+          `/api/accommodations/availability-calendar/${id}`,
           {
             params: {
-              Month: 12,
-              Year: 2023,
+              Month: selectedTime.month,
+              Year: selectedTime.year,
             },
           }
         );
@@ -31,6 +33,7 @@ export default memo(({ id }) => {
     },
   });
 
+  
   const markedDates = useMemo(() => {
     const busyDays = {};
     if (data) {
@@ -48,6 +51,7 @@ export default memo(({ id }) => {
     }
     return busyDays;
   }, [data, selectedTime]);
+  
 
   return (
     <View
@@ -73,7 +77,7 @@ export default memo(({ id }) => {
           height: 400,
           width: w,
         }}
-        current={new Date().toDateString()}
+        // current={``}
         onMonthChange={(e) => {
           setSelectedTime({ month: e.month, year: e.year });
         }}

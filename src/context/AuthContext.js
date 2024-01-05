@@ -146,9 +146,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const verifyOTP = async (email, otp) => {
-    if (email === "admin" && otp === "0000") {
-      return { success: true };
-    }
     try {
       const res = await instance.post(`api/auths/verify-otp-forgot-password`, {
         email,
@@ -156,7 +153,7 @@ export const AuthProvider = ({ children }) => {
       });
       return { success: true };
     } catch (e) {
-      console.log(e);
+      console.log(JSON.stringify(e));
       return { error: true, message: e.response?.data?.title || e.message };
     }
   };
@@ -213,7 +210,7 @@ export const AuthProvider = ({ children }) => {
       });
       return { success: true, data: res.data };
     } catch (e) {
-      console.log(JSON.stringify(e));
+      console.log(JSON.stringify(e.response));
       return { error: true, message: e.response?.data?.title };
     }
   };
