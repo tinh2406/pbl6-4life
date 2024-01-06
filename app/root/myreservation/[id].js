@@ -349,7 +349,7 @@ const Content = memo(({ id }) => {
                 marginLeft: 2,
               }}
             >
-              {data?.accommodation.price}đ
+              ${data?.accommodation.price}
             </Text>
           </View>
           <View
@@ -402,7 +402,7 @@ const Content = memo(({ id }) => {
                 marginLeft: 2,
               }}
             >
-              {15}đ
+              ${15}
             </Text>
           </View>
           <View
@@ -427,7 +427,7 @@ const Content = memo(({ id }) => {
                 marginLeft: 2,
               }}
             >
-              {data?.totalPrice}đ
+              ${data?.totalPrice}
             </Text>
           </View>
         </View>

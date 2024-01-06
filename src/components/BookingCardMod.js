@@ -183,7 +183,7 @@ export default memo(({ data, setAction, setBookingId }) => {
               marginLeft: 2,
             }}
           >
-            {data?.totalPrice}đ
+            ${data?.totalPrice}
           </Text>
         </View>
       </View>
